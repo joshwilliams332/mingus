@@ -12,12 +12,9 @@ Fantasy football rankings, NFL stats and Vegas lines, built from [nflverse](http
 - **Player** (`player.html?id=…`): season so far, this week's matchup, injury note, bio, weekly points and game log.
 
 ## Projections
-Weekly Rankings are ordered by this week's projection. Pick the source in the Projection menu:
-- **Sleeper**: Sleeper's weekly projections, pulled from `api.sleeper.app` by `build_data.py`. If Sleeper can't be reached, the build continues without them and the menu only offers Mingus.
-- **Mingus**: the player's average fantasy points in earlier games, nudged by up to 15% for the opponent's defense against that position and up to 15% for the team's Vegas implied total. A backtest on 2026 Weeks 3–5 showed bigger adjustments made projections *less* accurate this early in the season, so the nudges are kept small.
-- **Average**: the two averaged.
+Weekly Rankings are ordered by **Sleeper's** projection for the week, pulled from `api.sleeper.app` by `build_data.py` and shown in your chosen scoring format. The rankings page also shows how far off Sleeper's projections have been on weeks already played, and the player page game log shows Sleeper's projection next to the actual score.
 
-The rankings page shows each source's average miss (in fantasy points) on the weeks already played, and the player page game log shows the projection next to the actual score.
+If Sleeper can't be reached during a data update, the build keeps going without projections and the rankings fall back to fantasy points per game.
 
 ## Your notes and articles
 Edit the files in `site/content/` (the data script never touches them):

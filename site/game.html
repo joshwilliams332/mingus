@@ -91,7 +91,7 @@
                 ${headshot(p, "md")}
                 <span class="edge-body">
                   <span class="edge-name">${esc(p.name)} ${injuryTag(p.injury)}</span>
-                  <span class="muted">${posBadge(p.pos)} ${(v => (v === null ? "" : `<strong class="edge-proj">Proj ${fmt(v)}</strong> · `))(projector.get(p, g.week, projector.hasSleeper ? ProjSource.get() : "mingus"))}${fmt(s.ppg)} FPTS/G · last 3: ${fmt(s.last3)}</span>
+                  <span class="muted">${posBadge(p.pos)} ${(v => (v === null ? "" : `<strong class="edge-proj">Sleeper proj ${fmt(v)}</strong> · `))(projector.get(p, g.week))}${fmt(s.ppg)} FPTS/G · last 3: ${fmt(s.last3)}</span>
                   ${d ? `<span class="edge-tag">${matchupLabel(d.rank)}: ${esc(opp)} allows the ${ordinal(d.rank)}-most to ${p.pos}s</span>` : ""}
                   ${notes.players?.[p.id] ? `<span class="edge-note">${esc(notes.players[p.id])}</span>` : ""}
                 </span>

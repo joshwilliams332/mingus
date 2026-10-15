@@ -45,8 +45,7 @@
       function render() {
         const s = summarize(p, sc);
         const projector = makeProjector(players, games, sc, meta);
-        const src = projector.hasSleeper ? ProjSource.get() : "mingus";
-        const projNow = { avg: projector.get(p, week, "avg"), sleeper: projector.sleeper(p, week), mingus: projector.mingus(p, week) };
+        const projNow = projector.get(p, week);
         const ranked = rankList(players.filter(x => x.pos === p.pos), sc, meta);
         const posRank = ranked.findIndex(r => r.p.id === p.id) + 1;
         const next = weekGame(games, p.team, week);
@@ -97,7 +96,7 @@
               <div class="card-head"><h3>Week ${week} matchup</h3>${next ? `<a class="small-link" href="${gameUrl(next)}">Game breakdown →</a>` : ""}</div>
               ${next ? `
                 <div class="tiles">
-                  <div class="tile accent"><strong>${projNow[src] === null ? "—" : fmt(projNow[src])}</strong><span>${esc(PROJ_SOURCES[src])} projection${projector.hasSleeper && src !== "sleeper" && projNow.sleeper !== null ? ` · Sleeper ${fmt(projNow.sleeper)}` : ""}${src !== "mingus" && projNow.mingus !== null ? ` · Mingus ${fmt(projNow.mingus)}` : ""}</span></div>
+                  ${projNow !== null ? `<div class="tile accent"><strong>${fmt(projNow)}</strong><span>Sleeper projection</span></div>` : ""}
                   <div class="tile"><strong>${esc(oppLabel(next))}</strong><span>${esc(fmtKickoff(next))}</span></div>
                   <div class="tile"><strong>${spreadTag(next.spread)}</strong><span>Spread</span></div>
                   <div class="tile"><strong>${fmt(next.total)}</strong><span>Over/under</span></div>
@@ -126,14 +125,14 @@
               <div class="table-wrap flat">
                 <table class="data-table">
                   <thead><tr><th class="l">Wk</th><th class="l">Opp</th><th class="l">Result</th>
-                    ${LOG[tab].map(([, l]) => `<th>${l}</th>`).join("")}<th title="${esc(PROJ_SOURCES[src])} projection before the game">Proj</th><th class="hl">FPTS</th></tr></thead>
+                    ${LOG[tab].map(([, l]) => `<th>${l}</th>`).join("")}${projector.hasSleeper ? `<th title="Sleeper's projection before the game">Proj</th>` : ""}<th class="hl">FPTS</th></tr></thead>
                   <tbody>
                     ${p.log.map((e, i) => `<tr>
                       <td class="l">${e.week}</td>
                       <td class="l"><a href="${gameUrl(weekGame(games, e.team, e.week) || { id: "" })}">${e.home === false ? "@" : "vs."} ${esc(e.opp)}</a></td>
                       <td class="l">${result(e)}</td>
                       ${LOG[tab].map(([k]) => `<td>${fmt(e[k] || 0)}</td>`).join("")}
-                      <td class="muted">${(v => (v === null ? "—" : fmt(v)))(projector.get(p, e.week, src))}</td>
+                      ${projector.hasSleeper ? `<td class="muted">${(v => (v === null ? "—" : fmt(v)))(projector.get(p, e.week))}</td>` : ""}
                       <td class="hl strong">${fmt(s.pts[i])}</td></tr>`).join("")}
                   </tbody>
                 </table>
