@@ -1,0 +1,14 @@
+{
+  "_help": [
+    "Copy this file to scripts/espn_config.json (that file is never uploaded to GitHub) and fill it in.",
+    "league_id and team_id are in your ESPN team page URL: ...?leagueId=XXXX&teamId=Y",
+    "Public league: leave espn_s2 and swid empty.",
+    "Private league: in Chrome or Edge, open fantasy.espn.com while logged in, press F12,",
+    "go to Application > Cookies > https://fantasy.espn.com, and copy the values of espn_s2 and SWID (keep the curly braces).",
+    "Treat these like a password: don't paste them into chats, screenshots or GitHub."
+  ],
+  "league_id": "",
+  "team_id": "",
+  "espn_s2": "",
+  "swid": ""
+}

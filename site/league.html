@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My League · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    Mingus.start(async (main, meta) => {
+      let league;
+      try {
+        league = await Mingus.load("league");
+      } catch (e) {
+        main.innerHTML = `<div class="notice"><strong>No ESPN league synced yet.</strong><br>
+          Copy <code>scripts/espn_config.example.json</code> to <code>scripts/espn_config.json</code>, fill in your league,
+          then run <code>python scripts/build_data.py</code>.</div>`;
+        return;
+      }
+      const [players, games, teams] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.load("teams")]);
+      const byId = Object.fromEntries(players.map(p => [p.id, p]));
+      // This page always uses the league's own scoring settings from ESPN.
+      const sc = { fmt: league.league.scoring.fmt, passTd: league.league.scoring.passTd };
+      const projector = makeProjector(players, games, sc, meta);
+      const dvp = defenseVsPos(players, games, sc);
+      const nflWeek = meta.next_week ?? meta.last_week;
+      const fantasyWeek = league.league.week || nflWeek;
+      const teamById = Object.fromEntries(league.teams.map(t => [t.id, t]));
+      const params = new URLSearchParams(location.search);
+      let teamId = Number(params.get("team")) || league.my_team || league.teams[0]?.id;
+
+      // Defense difficulty for a player against a given opponent (D/ST: how much that offense scores).
+      const offense = {};
+      for (const t of Object.keys(teams)) {
+        const r = teamResults(games, t);
+        offense[t] = r.length ? r.reduce((a, x) => a + x.pf, 0) / r.length : 0;
+      }
+      const offRank = Object.fromEntries(Object.keys(offense).sort((a, b) => offense[a] - offense[b]).map((t, i) => [t, i + 1]));
+      const difficulty = (pos, opp) => (pos === "DST" ? offRank[opp] : dvp[opp]?.[pos]?.rank);
+
+      const isStarter = slot => !["Bench", "IR"].includes(slot);
+      const projOf = r => (r.id && byId[r.id] ? projector.get(byId[r.id], nflWeek) : null);
+      const projTotal = t => {
+        if (!projector.hasSleeper) return null;
+        return Math.round(t.roster.filter(r => isStarter(r.slot)).reduce((a, r) => a + (projOf(r) || 0), 0) * 10) / 10;
+      };
+
+      function render() {
+        const team = teamById[teamId];
+        const standings = [...league.teams].sort((a, b) => (b.wins - a.wins) || (b.pf - a.pf));
+        const mine = league.schedule.filter(m => m.home?.team === teamId || m.away?.team === teamId).sort((a, b) => a.week - b.week);
+        const thisWeek = mine.find(m => m.week === fantasyWeek);
+        const side = (m, id) => (m.home?.team === id ? m.home : m.away);
+        const other = (m, id) => (m.home?.team === id ? m.away : m.home);
+        const oppTeam = thisWeek && other(thisWeek, teamId) ? teamById[other(thisWeek, teamId).team] : null;
+        const futureWeeks = [1, 2, 3, 4].map(n => nflWeek + n).filter(w => w <= 18);
+
+        main.innerHTML = `
+          <div class="page-head">
+            <div>
+              <h1>${esc(league.league.name)}</h1>
+              <p class="muted sub-head">ESPN league · Week ${fantasyWeek} · League scoring: ${esc(Scoring.label(sc))}</p>
+            </div>
+            <label class="week-select">Team
+              <select aria-label="Team">${league.teams.map(t => `<option value="${t.id}" ${t.id === teamId ? "selected" : ""}>${esc(t.name)}${t.id === league.my_team ? " (you)" : ""}</option>`).join("")}</select>
+            </label>
+          </div>
+
+          ${thisWeek ? `
+          <section class="card fantasy-matchup">
+            <h3>Week ${fantasyWeek} matchup</h3>
+            <div class="fm-row">
+              <div class="fm-team"><strong>${esc(team.name)}</strong><span class="muted">${team.wins}-${team.losses}${team.ties ? `-${team.ties}` : ""}</span>
+                <span class="fm-proj">${projTotal(team) ?? "—"}</span><span class="muted small">projected</span></div>
+              <span class="fm-vs">vs</span>
+              <div class="fm-team">${oppTeam ? `<strong><a href="league.html?team=${oppTeam.id}" class="opp-link">${esc(oppTeam.name)}</a></strong>
+                <span class="muted">${oppTeam.wins}-${oppTeam.losses}${oppTeam.ties ? `-${oppTeam.ties}` : ""}</span>
+                <span class="fm-proj">${projTotal(oppTeam) ?? "—"}</span><span class="muted small">projected</span>` : `<strong>Bye</strong>`}</div>
+            </div>
+            ${projector.hasSleeper ? `<p class="muted small">Projected = sum of Sleeper projections for each team's starters in ESPN.</p>` : `<p class="muted small">Projected totals appear once the data update pulls Sleeper projections.</p>`}
+          </section>` : ""}
+
+          <section class="card" style="margin-top:14px">
+            <div class="card-head"><h3>${esc(team.name)} roster</h3><span class="muted small">Next 4 weeks: green = good matchup, red = tough</span></div>
+            <div class="table-wrap flat">
+              <table class="data-table compact league-table">
+                <thead><tr><th class="l">Slot</th><th class="l">Player</th><th class="l">Wk ${nflWeek}</th><th class="hide-sm">Matchup</th>
+                  ${projector.hasSleeper ? `<th class="hl">Proj</th>` : ""}<th${projector.hasSleeper ? "" : ` class="hl"`}>FPTS/G</th><th class="hide-sm">Last 3</th>
+                  ${futureWeeks.map(w => `<th class="hide-sm">Wk ${w}</th>`).join("")}</tr></thead>
+                <tbody>${team.roster.map(r => {
+                  const p = r.id ? byId[r.id] : null;
+                  const s = p ? summarize(p, sc) : null;
+                  const g = r.team ? weekGame(games, r.team, nflWeek) : null;
+                  const d = g ? difficulty(r.pos, g.opp) : null;
+                  const proj = projOf(r);
+                  return `<tr class="${isStarter(r.slot) ? "" : "bench-row"}">
+                    <td class="l"><span class="slot">${esc(r.slot)}</span></td>
+                    <td class="l"><div class="pcell">${p ? headshot(p, "sm") : ""}<div>
+                      ${p ? `<a href="${playerUrl(p)}">${esc(p.name)}</a> ${injuryTag(p.injury)}` : esc(r.name)}
+                      <div class="pmeta">${esc(r.team || "FA")} · ${esc(r.pos)}</div></div></div></td>
+                    <td class="l opp">${g ? `<a href="${gameUrl(g)}">${esc(oppLabel(g))}</a>` : `<span class="bye">BYE</span>`}</td>
+                    <td class="hide-sm">${d ? `<span class="mchip ${matchupClass(d)}">${ordinal(d)}</span>` : `<span class="muted">—</span>`}</td>
+                    ${projector.hasSleeper ? `<td class="hl strong">${proj === null ? "—" : fmt(proj)}</td>` : ""}
+                    <td class="${projector.hasSleeper ? "" : "hl strong"}">${s ? fmt(s.ppg) : "—"}</td>
+                    <td class="hide-sm">${s ? fmt(s.last3) : "—"}</td>
+                    ${futureWeeks.map(w => {
+                      const fg = r.team ? weekGame(games, r.team, w) : null;
+                      if (!fg) return `<td class="hide-sm"><span class="bye">BYE</span></td>`;
+                      const fd = difficulty(r.pos, fg.opp);
+                      return `<td class="hide-sm"><span class="mchip ${fd ? matchupClass(fd) : ""}" title="${esc(oppLabel(fg))}${fd ? `: ${ordinal(fd)}` : ""}">${fg.isHome ? "" : "@"}${esc(fg.opp)}</span></td>`;
+                    }).join("")}
+                  </tr>`;
+                }).join("")}</tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="two-col" style="margin-top:14px">
+            <section class="card">
+              <h3>Standings</h3>
+              <div class="table-wrap flat">
+                <table class="data-table compact">
+                  <thead><tr><th class="l">#</th><th class="l">Team</th><th>W-L</th><th>PF</th><th>PA</th></tr></thead>
+                  <tbody>${standings.map((t, i) => `<tr class="${t.id === teamId ? "me-row" : ""}">
+                    <td class="l">${i + 1}</td>
+                    <td class="l"><a href="league.html?team=${t.id}">${esc(t.name)}</a>${t.id === league.my_team ? ` <span class="pill ok">You</span>` : ""}</td>
+                    <td>${t.wins}-${t.losses}${t.ties ? `-${t.ties}` : ""}</td><td>${fmt(t.pf)}</td><td>${fmt(t.pa)}</td></tr>`).join("")}</tbody>
+                </table>
+              </div>
+            </section>
+            <section class="card">
+              <h3>${esc(team.name)} schedule</h3>
+              <div class="table-wrap flat">
+                <table class="data-table compact">
+                  <thead><tr><th class="l">Wk</th><th class="l">Opponent</th><th class="l">Result</th></tr></thead>
+                  <tbody>${mine.map(m => {
+                    const me = side(m, teamId), op = other(m, teamId);
+                    const done = m.winner && m.winner !== "UNDECIDED";
+                    const won = done && me.pts > (op?.pts ?? 0);
+                    return `<tr class="${m.week === fantasyWeek ? "me-row" : ""}">
+                      <td class="l">${m.week}</td>
+                      <td class="l">${op ? `<a href="league.html?team=${op.team}">${esc(teamById[op.team]?.name || "?")}</a>` : "Bye"}</td>
+                      <td class="l">${done && op ? `<span class="${won ? "win" : "loss"}">${won ? "W" : "L"} ${fmt(me.pts)}-${fmt(op.pts)}</span>` : `<span class="muted">${m.week === fantasyWeek ? "This week" : "Upcoming"}</span>`}</td>
+                    </tr>`;
+                  }).join("")}</tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+          <p class="legend">League data from ESPN (synced ${esc(fmtDateTime(meta.built_at))}). Fantasy points use your league's scoring. Matchup ranks: 1st = the defense allows the most to that position (for D/ST: the offense scores the fewest).</p>`;
+
+        main.querySelector(".week-select select").onchange = e => {
+          teamId = Number(e.target.value);
+          history.replaceState(null, "", `league.html?team=${teamId}`);
+          render();
+        };
+      }
+      render();
+    });
+  </script>
+</body>
+</html>

@@ -46,6 +46,7 @@ const Mingus = {
                 ${RANK_TABS.map(t => `<a href="rankings.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
               </div>
             </div>
+            <a href="league.html" id="nav-league" hidden ${here === "league.html" ? 'aria-current="page"' : ""}><span class="nl">My League</span><span class="ns">League</span></a>
             <a href="games.html" ${["games.html", "game.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">NFL Games</span><span class="ns">Games</span></a>
           </nav>
           <span class="header-week">${esc(week)}</span>
@@ -81,6 +82,8 @@ const Mingus = {
     } catch (e) { /* header still renders without the week */ }
     this.renderChrome(meta);
     this.wireBackLinks();
+    // "My League" only appears when an ESPN league has been synced into data/league.json.
+    fetch("data/league.json", { method: "HEAD" }).then(r => { if (r.ok) document.getElementById("nav-league").hidden = false; }).catch(() => {});
     try {
       await fn(main, meta);
     } catch (e) {

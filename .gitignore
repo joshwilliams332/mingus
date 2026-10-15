@@ -1,2 +1,4 @@
 __pycache__/
 .DS_Store
+scripts/espn_config.json
+site/data/league.json

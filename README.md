@@ -16,6 +16,15 @@ Weekly Rankings are ordered by **Sleeper's** projection for the week, pulled fro
 
 If Sleeper can't be reached during a data update, the build keeps going without projections and the rankings fall back to fantasy points per game.
 
+## ESPN league sync (My League)
+`scripts/espn_sync.py` pulls an ESPN fantasy league (rosters, lineups, standings, schedule and scoring settings) into `site/data/league.json`, and a **My League** page appears in the header once that file exists.
+
+1. Copy `scripts/espn_config.example.json` to `scripts/espn_config.json` and fill in `league_id` and `team_id` (from your ESPN team page URL).
+2. Private league: also fill in `espn_s2` and `swid` (instructions are in the example file). Treat them like a password.
+3. Run `python scripts/build_data.py` (or just `python scripts/espn_sync.py`). Look for a line like `ESPN league 'Your League': 10 teams, 140/140 rostered players matched`.
+
+`espn_config.json` and `league.json` are git-ignored, so your league stays on your computer and isn't published. ESPN's API is unofficial and may change.
+
 ## Your notes and articles
 Edit the files in `site/content/` (the data script never touches them):
 - `notes.json`: notes for games, players and teams (shown on their pages), plus `featured_game` to pick the home page's Game of the Week.

@@ -23,6 +23,7 @@ standard and 4/6-point passing touchdowns.
 """
 
 import argparse
+import sys
 import csv
 import io
 import json
@@ -31,6 +32,7 @@ from collections import defaultdict
 from datetime import date, datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))  # lets build_data import espn_sync
 BASE = "https://github.com/nflverse/nflverse-data/releases/download"
 SKILL = {"QB", "RB", "WR", "TE"}
 OUT_DIR = Path(__file__).resolve().parent.parent / "site" / "data"
@@ -385,6 +387,14 @@ def main():
     teams = {abbr: {"city": c, "nickname": n, "color": col} for abbr, (c, n, col, _, _) in TEAMS.items()}
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Optional ESPN league sync (see scripts/espn_sync.py). Never stops the main data update.
+    try:
+        import espn_sync
+        meta["league"] = espn_sync.sync(season, roster)
+    except Exception as e:
+        meta["league"] = False
+        print(f"  WARNING: ESPN league sync failed ({e})")
+
     for name, data in (("meta", meta), ("players", players), ("games", games), ("teams", teams)):
         path = OUT_DIR / f"{name}.json"
         path.write_text(json.dumps(data, separators=(",", ":")))
