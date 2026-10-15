@@ -83,7 +83,12 @@ const Mingus = {
     this.renderChrome(meta);
     this.wireBackLinks();
     // "My League" only appears when an ESPN league has been synced into data/league.json.
-    fetch("data/league.json", { method: "HEAD" }).then(r => { if (r.ok) document.getElementById("nav-league").hidden = false; }).catch(() => {});
+    // It also shows when the site runs through scripts/serve.py, which can add leagues from the page.
+    const showLeague = () => { document.getElementById("nav-league").hidden = false; };
+    fetch("data/league.json", { method: "HEAD", cache: "no-store" }).then(r => {
+      if (r.ok) return showLeague();
+      return fetch("api/status", { headers: { "X-Mingus": "1" } }).then(a => { if (a.ok) showLeague(); });
+    }).catch(() => {});
     try {
       await fn(main, meta);
     } catch (e) {

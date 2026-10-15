@@ -12,13 +12,124 @@
   <script src="assets/common.js"></script>
   <script>
     Mingus.start(async (main, meta) => {
+      // League setup talks to scripts/serve.py; on any other server these calls fail and the page explains how to start it.
+      const api = {
+        async status() {
+          try {
+            const r = await fetch("api/status", { headers: { "X-Mingus": "1" }, cache: "no-store" });
+            return r.ok ? await r.json() : null;
+          } catch (e) { return null; }
+        },
+        async post(path, body) {
+          const r = await fetch(path, { method: "POST", headers: { "X-Mingus": "1", "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+          return r.json();
+        },
+      };
+      const status = await api.status();
+
+      // Accepts a full ESPN link (pulls out leagueId and teamId) or just the league number.
+      function parseLeagueInput(text) {
+        const m = text.match(/leagueId=(\d+)/i), t = text.match(/teamId=(\d+)/i);
+        return { league_id: m ? m[1] : text.trim(), team_id: t ? t[1] : "" };
+      }
+
+      function leagueForm() {
+        return `<form class="card league-form">
+          <h3>Add an ESPN league</h3>
+          <label class="field">ESPN team page link or League ID
+            <input name="link" required placeholder="https://fantasy.espn.com/football/team?leagueId=...&teamId=...">
+          </label>
+          <div class="field-row">
+            <label class="field">Your team ID <span class="muted">(filled in from the link)</span><input name="team_id" inputmode="numeric" placeholder="e.g. 7"></label>
+            <label class="field">Name in the switcher <span class="muted">(optional)</span><input name="label" maxlength="40" placeholder="e.g. Work league"></label>
+          </div>
+          <details class="cookie-help" ${status?.has_cookies ? "" : "open"}>
+            <summary>Private league? ${status?.has_cookies ? `<span class="pill ok">ESPN cookies saved</span>` : "Add your ESPN login cookies (only needed once)"}</summary>
+            <ol class="muted small">
+              <li>On fantasy.espn.com (logged in), click the lock icon left of the address bar → <strong>Cookies</strong>.</li>
+              <li>Open <strong>espn.com → Cookies</strong>, click <strong>espn_s2</strong> and copy its Content, then do the same for <strong>SWID</strong> (keep the curly braces).</li>
+              <li>They're saved only on this computer (in <code>scripts/espn_config.json</code>) and work for all your leagues. Treat them like a password.</li>
+            </ol>
+            <div class="field-row">
+              <label class="field">espn_s2<input name="espn_s2" type="password" autocomplete="off" placeholder="${status?.has_cookies ? "saved (leave blank to keep)" : "long value"}"></label>
+              <label class="field">SWID<input name="swid" type="password" autocomplete="off" placeholder="${status?.has_cookies ? "saved (leave blank to keep)" : "{XXXXXXXX-XXXX-...}"}"></label>
+            </div>
+          </details>
+          <button class="btn" type="submit">Add league and sync</button>
+          <div class="sync-log" role="status"></div>
+        </form>`;
+      }
+
+      function showLog(el, res) {
+        el.innerHTML = (res.error ? `<p class="neg-num">${esc(res.error)}</p>` : "") +
+          (res.log || []).map(l => `<p class="${/WARNING|failed|private/i.test(l) ? "neg-num" : ""}">${esc(l)}</p>`).join("");
+      }
+
+      function wireForm(form) {
+        const link = form.elements.link, team = form.elements.team_id;
+        link.addEventListener("input", () => { const p = parseLeagueInput(link.value); if (p.team_id) team.value = p.team_id; });
+        form.onsubmit = async e => {
+          e.preventDefault();
+          const out = form.querySelector(".sync-log"), btn = form.querySelector("button");
+          const p = parseLeagueInput(link.value);
+          btn.disabled = true;
+          out.innerHTML = `<p class="muted">Syncing with ESPN…</p>`;
+          try {
+            const res = await api.post("api/leagues", {
+              league_id: p.league_id, team_id: team.value.trim() || p.team_id, label: form.elements.label.value,
+              espn_s2: form.elements.espn_s2.value, swid: form.elements.swid.value,
+            });
+            showLog(out, res);
+            if (res.ok && !(res.log || []).some(l => l.includes(p.league_id) && /WARNING|failed/.test(l))) {
+              setTimeout(() => { location.href = `league.html?league=${p.league_id}`; }, 900);
+            }
+          } catch (err) {
+            out.innerHTML = `<p class="neg-num">Couldn't reach the local server. Is <code>python scripts/serve.py</code> running?</p>`;
+          }
+          btn.disabled = false;
+        };
+      }
+
+      function manageView() {
+        return `<section class="card manage-panel">
+          <div class="card-head"><h3>Your leagues</h3>
+            <div class="manage-actions"><button class="btn-plain" data-act="sync">Refresh from ESPN</button>
+            ${status.has_cookies ? `<button class="btn-plain" data-act="clear">Remove saved cookies</button>` : ""}</div></div>
+          <ul class="league-list">${status.leagues.map(l => `<li>
+            <span><strong>${esc(l.label || `League ${l.league_id}`)}</strong> <span class="muted small">League ${esc(l.league_id)}${l.team_id ? ` · Team ${esc(l.team_id)}` : ""}</span></span>
+            <button class="btn-plain small-btn" data-remove="${esc(l.league_id)}">Remove</button></li>`).join("") || `<li class="muted">No leagues yet.</li>`}</ul>
+          <div class="sync-log" role="status"></div>
+        </section>
+        ${leagueForm()}`;
+      }
+
+      function wireManage(root) {
+        const out = root.querySelector(".manage-panel .sync-log");
+        root.querySelectorAll("[data-act], [data-remove]").forEach(b => b.onclick = async () => {
+          b.disabled = true;
+          out.innerHTML = `<p class="muted">Working…</p>`;
+          const res = b.dataset.remove ? await api.post("api/remove", { league_id: b.dataset.remove })
+            : b.dataset.act === "clear" ? await api.post("api/clear-cookies") : await api.post("api/sync");
+          showLog(out, res);
+          setTimeout(() => location.reload(), 1200);
+        });
+        wireForm(root.querySelector(".league-form"));
+      }
+
       let data;
       try {
         data = await Mingus.load("league");
       } catch (e) {
-        main.innerHTML = `<div class="notice"><strong>No ESPN league synced yet.</strong><br>
-          Copy <code>scripts/espn_config.example.json</code> to <code>scripts/espn_config.json</code>, fill in your leagues,
-          then run <code>python scripts/build_data.py</code>.</div>`;
+        if (status) {
+          main.innerHTML = `<div class="page-head"><div><h1>My League</h1>
+            <p class="muted sub-head">Connect an ESPN fantasy league to see your roster, matchups and schedule.</p></div></div>
+            <div class="setup-wrap">${leagueForm()}</div>`;
+          wireForm(main.querySelector(".league-form"));
+        } else {
+          main.innerHTML = `<div class="notice"><strong>No ESPN league connected yet.</strong><br>
+            To add one from this page, start the site with <code>python scripts/serve.py</code> instead of <code>python -m http.server</code>,
+            then come back to My League.</div>`;
+        }
         return;
       }
       const leagues = data.leagues || [data];  // older single-league files have no "leagues" list
@@ -81,6 +192,7 @@
               <p class="muted sub-head">ESPN league · Week ${fantasyWeek} · League scoring: ${esc(Scoring.label(sc))}</p>
             </div>
             <div class="league-pickers">
+            ${status ? `<button class="btn-plain manage-btn" type="button">Manage leagues</button>` : ""}
             ${leagues.length > 1 ? `<label class="week-select">League
               <select class="league-select" aria-label="League">${leagues.map(l => `<option value="${esc(l.league.id)}" ${l === league ? "selected" : ""}>${esc(l.league.label || l.league.name)}</option>`).join("")}</select>
             </label>` : ""}
@@ -90,6 +202,7 @@
             </div>
           </div>
 
+          <div class="manage-slot" hidden></div>
           ${thisWeek ? `
           <section class="card fantasy-matchup">
             <h3>Week ${fantasyWeek} matchup</h3>
@@ -177,6 +290,12 @@
           teamId = Number(e.target.value);
           history.replaceState(null, "", `league.html?league=${league.league.id}&team=${teamId}`);
           render();
+        };
+        const mb = main.querySelector(".manage-btn");
+        if (mb) mb.onclick = () => {
+          const slot = main.querySelector(".manage-slot");
+          if (slot.hidden) { slot.innerHTML = manageView(); wireManage(slot); }
+          slot.hidden = !slot.hidden;
         };
         const ls = main.querySelector(".league-select");
         if (ls) ls.onchange = e => { selectLeague(leagues.find(l => String(l.league.id) === e.target.value)); render(); };

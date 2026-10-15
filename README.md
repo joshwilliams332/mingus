@@ -17,14 +17,20 @@ Weekly Rankings are ordered by **Sleeper's** projection for the week, pulled fro
 If Sleeper can't be reached during a data update, the build keeps going without projections and the rankings fall back to fantasy points per game.
 
 ## ESPN league sync (My League)
-`scripts/espn_sync.py` pulls your ESPN fantasy leagues (rosters, lineups, standings, schedule and scoring settings) into `site/data/league.json`, and a **My League** page appears in the header once that file exists. With more than one league, the page has a **League** switcher and remembers the last one you viewed.
+Run the site with the local server instead of `python -m http.server`:
 
-1. Copy `scripts/espn_config.example.json` to `scripts/espn_config.json`.
-2. Add an entry to `leagues` for each league: `league_id` and `team_id` from your ESPN team page URL, plus an optional short `label` for the switcher.
-3. Private leagues: fill in `espn_s2` and `swid` once; they work for all your leagues (instructions are in the example file). Treat them like a password.
-4. Run `python scripts/build_data.py` (or just `python scripts/espn_sync.py`). Each league prints a line like `ESPN league 'Your League': 10 teams, 140/140 rostered players matched`; a league that fails prints a warning and the others still sync.
+```sh
+python scripts/serve.py        # then open http://localhost:8000 and click My League
+```
 
-`espn_config.json` and `league.json` are git-ignored, so your leagues stay on your computer and aren't published. ESPN's API is unofficial and may change.
+On **My League**, paste your ESPN team page link (or type the league ID and team ID), add your ESPN login cookies once if the league is private, and click **Add league and sync**. Add as many leagues as you like; the page gets a **League** switcher, and **Manage leagues** lets you refresh from ESPN or remove a league.
+
+What happens behind the scenes:
+- `scripts/serve.py` serves the site and saves your leagues and cookies to `scripts/espn_config.json`. It only listens on this computer, and only accepts requests from the Mingus pages.
+- `scripts/espn_sync.py` pulls each league's rosters, lineups, standings, schedule and scoring settings into `site/data/league.json`. `build_data.py` also re-syncs your leagues on every data update.
+- `espn_config.json` and `league.json` are git-ignored, so your leagues and cookies stay on your computer and are never published. ESPN's API is unofficial and may change.
+
+You can still edit `espn_config.json` by hand; see `scripts/espn_config.example.json`.
 
 ## Your notes and articles
 Edit the files in `site/content/` (the data script never touches them):

@@ -513,3 +513,26 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 .league-table .mchip { min-width: 46px; }
 .league-pickers { display: flex; gap: 12px; flex-wrap: wrap; }
 .league-pickers select { min-width: 180px; }
+/* League setup */
+.setup-wrap { max-width: 720px; }
+.league-form { display: flex; flex-direction: column; gap: 12px; }
+.league-form h3 { margin: 0; }
+.field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; font-weight: 600; flex: 1; min-width: 200px; }
+.field input {
+  font: inherit; font-weight: 500; font-size: 15px; color: var(--text); background: var(--surface-2);
+  border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px;
+}
+.field input:focus { outline: 2px solid var(--brand); outline-offset: 1px; }
+.field-row { display: flex; gap: 12px; flex-wrap: wrap; }
+.cookie-help summary { cursor: pointer; font-weight: 700; }
+.cookie-help ol { padding-left: 18px; margin: 10px 0; }
+.league-form .btn { align-self: flex-start; border: 0; cursor: pointer; font: inherit; font-weight: 800; }
+.league-form .btn:disabled { opacity: .6; cursor: wait; }
+.sync-log p { margin: 4px 0; font-size: 13px; }
+.manage-panel, .manage-slot .league-form { margin-top: 14px; }
+.manage-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.league-list { list-style: none; margin: 0; padding: 0; }
+.league-list li { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--border); }
+.league-list li:first-child { border-top: 0; }
+.small-btn { padding: 4px 12px; font-size: 13px; }
+.manage-btn { align-self: flex-end; }
