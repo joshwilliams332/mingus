@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rankings · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    // Stat columns per tab: [key, header, value(summary, player)]. FPTS/G, G and Last 3 come first on every tab.
+    const STAT_COLS = {
+      QB: [["pass_yds", "Pass Yds", s => s.tot.pass_yds], ["pass_td", "Pass TD", s => s.tot.pass_td], ["int", "INT", s => s.tot.int],
+           ["rush_yds", "Rush Yds", s => s.tot.rush_yds], ["rush_td", "Rush TD", s => s.tot.rush_td]],
+      RB: [["car", "Car", s => s.tot.car], ["rush_yds", "Rush Yds", s => s.tot.rush_yds], ["rush_td", "Rush TD", s => s.tot.rush_td],
+           ["rec", "Rec", s => s.tot.rec], ["rec_yds", "Rec Yds", s => s.tot.rec_yds]],
+      WR: [["tgt", "Tgt", s => s.tot.tgt], ["rec", "Rec", s => s.tot.rec], ["rec_yds", "Rec Yds", s => s.tot.rec_yds], ["rec_td", "Rec TD", s => s.tot.rec_td]],
+      FLX: [["rush_yds", "Rush Yds", s => s.tot.rush_yds], ["rec", "Rec", s => s.tot.rec], ["rec_yds", "Rec Yds", s => s.tot.rec_yds],
+            ["td", "TD", s => (s.tot.rush_td || 0) + (s.tot.rec_td || 0)]],
+      K: [["fg", "FG", s => (s.tot.fg_0_39 || 0) + (s.tot.fg_40_49 || 0) + (s.tot.fg_50 || 0), s => `${(s.tot.fg_0_39 || 0) + (s.tot.fg_40_49 || 0) + (s.tot.fg_50 || 0)}/${s.tot.fg_att || 0}`],
+          ["fg_50", "50+", s => s.tot.fg_50], ["fg_long", "Long", s => s.fg_long], ["xp", "XP", s => s.tot.xp, s => `${s.tot.xp || 0}/${s.tot.xp_att || 0}`]],
+      DST: [["sacks", "Sacks", s => s.tot.sacks], ["int", "INT", s => s.tot.int], ["fr", "Fum Rec", s => s.tot.fr], ["td", "TD", s => s.tot.td],
+            ["pa", "PA/G", s => (s.g ? Math.round(s.tot.pa / s.g * 10) / 10 : 0)]],
+    };
+    STAT_COLS.TE = STAT_COLS.WR;
+    const LEAD_COLS = [["ppg", "FPTS/G", s => s.ppg], ["g", "G", s => s.g], ["last3", "Last 3", s => s.last3]];
+
+    Mingus.start(async (main, meta) => {
+      const [players, games, teams] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.load("teams")]);
+      const params = new URLSearchParams(location.search);
+      const week = meta.next_week ?? meta.last_week;
+      const state = { tab: RANK_TABS.includes(params.get("pos")) ? params.get("pos") : "QB", q: "", sort: null, dir: -1, sc: Scoring.get() };
+
+      main.innerHTML = `
+        <div class="page-head">
+          <div>
+            <h1>Fantasy Rankings</h1>
+            <p class="muted sub-head"></p>
+          </div>
+          <div class="scoring-slot"></div>
+        </div>
+        <div class="tabs-bar" role="tablist" aria-label="Position">
+          ${RANK_TABS.map(t => `<button class="pos-tab" role="tab" data-tab="${t}">${t}</button>`).join("")}
+        </div>
+        <div class="controls"><input class="search" type="search" placeholder="Search players, teams or cities (e.g. Atlanta)" aria-label="Search"></div>
+        <div class="table-wrap"><table class="data-table rank-table"><thead></thead><tbody></tbody></table></div>
+        <p class="legend"></p>`;
+
+      const thead = main.querySelector("thead"), tbody = main.querySelector("tbody");
+      const renderScoring = () => {
+        main.querySelector(".scoring-slot").innerHTML = scoringControls(state.sc, sc => { state.sc = sc; draw(); });
+      };
+
+      function draw() {
+        const { tab } = state;
+        main.querySelectorAll(".pos-tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
+        main.querySelector(".sub-head").textContent = `${TAB_LABELS[tab]} · Week ${week} · ${Scoring.label(state.sc)}`;
+        const pool = players.filter(p => tab === "FLX" ? FLEX.includes(p.pos) : p.pos === tab);
+        const ranked = rankList(pool, state.sc, meta).map((r, i) => ({ ...r, rank: i + 1, game: weekGame(games, r.p.team, week) }));
+        const cols = [...LEAD_COLS, ...STAT_COLS[tab]];
+
+        const q = state.q.toLowerCase();
+        let rows = ranked.filter(({ p }) => !q || p.name.toLowerCase().includes(q) || teamMatches(p.team, q, teams));
+        if (state.sort) {
+          const get = cols.find(c => c[0] === state.sort)[2];
+          rows = [...rows].sort((a, b) => ((get(a.s, a.p) || 0) - (get(b.s, b.p) || 0)) * state.dir);
+        }
+
+        const head = (key, label, cls = "") => {
+          const on = state.sort === key;
+          return `<th class="${cls}" ${on ? `aria-sort="${state.dir < 0 ? "descending" : "ascending"}"` : ""}>
+            <button data-sort="${key}">${label}${on ? (state.dir < 0 ? " ▼" : " ▲") : ""}</button></th>`;
+        };
+        thead.innerHTML = `<tr>
+          <th class="l"><button data-sort="">Rk${state.sort ? "" : " ▲"}</button></th>
+          <th class="l">Player</th><th class="l">Opp</th>
+          ${cols.map(([k, label], i) => head(k, label, i === 0 ? "hl" : i < 2 ? "" : "hide-sm")).join("")}
+        </tr>`;
+
+        tbody.innerHTML = rows.map(({ p, s, rank, game }) => `
+          <tr class="${s.g < minGames(meta) ? "unqualified" : ""}">
+            <td class="l rank">${rank}</td>
+            <td class="l"><div class="pcell">${headshot(p, "sm")}
+              <div><a href="${playerUrl(p)}">${esc(p.pos === "DST" ? p.name : p.short)}</a> ${injuryTag(p.injury)}
+              <div class="pmeta">${esc(p.team)}${p.pos === "DST" ? "" : ` · ${esc(p.pos)}`}</div></div></div></td>
+            <td class="l opp">${game ? esc(oppLabel(game)) : `<span class="bye">BYE</span>`}</td>
+            ${cols.map(([k, , get, show], i) => `<td class="${i === 0 ? "hl strong" : i < 2 ? "" : "hide-sm"}">${show ? show(s, p) : fmt(get(s, p) ?? 0)}</td>`).join("")}
+          </tr>`).join("") || `<tr><td colspan="12" class="l muted">No players match.</td></tr>`;
+
+        main.querySelector(".legend").textContent =
+          `Ranked by fantasy points per game. Players with fewer than ${minGames(meta)} games are listed last. Stat columns are season totals; Last 3 is the average of their last three games.`;
+
+        thead.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
+          const key = b.dataset.sort || null;
+          state.dir = state.sort === key ? -state.dir : -1;
+          state.sort = key;
+          draw();
+        });
+      }
+
+      main.querySelectorAll(".pos-tab").forEach(b => b.onclick = () => {
+        state.tab = b.dataset.tab; state.sort = null;
+        history.replaceState(null, "", `rankings.html?pos=${state.tab}`);
+        draw();
+      });
+      main.querySelector(".search").oninput = e => { state.q = e.target.value.trim(); draw(); };
+      renderScoring();
+      draw();
+    });
+  </script>
+</body>
+</html>

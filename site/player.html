@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Player · Mingus</title>
+  <title>Player · Mingus Sports</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -11,18 +11,21 @@
   <main><p class="loading">Loading…</p></main>
   <script src="assets/common.js"></script>
   <script>
-    // Season tiles shown for each position.
+    // Season tiles and game-log columns per position: [key, label].
     const TILES = {
       QB: [["pass_yds", "Pass yds"], ["pass_td", "Pass TD"], ["int", "INT"], ["rush_yds", "Rush yds"], ["rush_td", "Rush TD"]],
       RB: [["car", "Carries"], ["rush_yds", "Rush yds"], ["rush_td", "Rush TD"], ["rec", "Receptions"], ["rec_yds", "Rec yds"]],
       WR: [["tgt", "Targets"], ["rec", "Receptions"], ["rec_yds", "Rec yds"], ["rec_td", "Rec TD"]],
+      K: [["fg_att", "FG att"], ["fg_50", "FG 50+"], ["fg_miss", "FG missed"], ["xp", "XP made"]],
+      DST: [["sacks", "Sacks"], ["int", "INT"], ["fr", "Fum rec"], ["td", "TD"]],
     };
     TILES.TE = TILES.WR;
-    // Game-log columns per position.
     const LOG = {
-      QB: [["pass_yds", "Pass Yds"], ["pass_td", "TD"], ["int", "INT"], ["rush_yds", "Rush Yds"], ["rush_td", "Rush TD"]],
-      RB: [["car", "Car"], ["rush_yds", "Rush Yds"], ["rush_td", "TD"], ["rec", "Rec"], ["rec_yds", "Rec Yds"]],
-      WR: [["tgt", "Tgt"], ["rec", "Rec"], ["rec_yds", "Yds"], ["rec_td", "TD"]],
+      QB: [["cmp", "Cmp"], ["att", "Att"], ["pass_yds", "Pass Yds"], ["pass_td", "TD"], ["int", "INT"], ["rush_yds", "Rush Yds"], ["rush_td", "Rush TD"]],
+      RB: [["car", "Car"], ["rush_yds", "Rush Yds"], ["rush_td", "TD"], ["tgt", "Tgt"], ["rec", "Rec"], ["rec_yds", "Rec Yds"], ["rec_td", "Rec TD"]],
+      WR: [["tgt", "Tgt"], ["rec", "Rec"], ["rec_yds", "Yds"], ["rec_td", "TD"], ["rush_yds", "Rush Yds"]],
+      K: [["fg_0_39", "FG 0-39"], ["fg_40_49", "40-49"], ["fg_50", "50+"], ["fg_miss", "Miss"], ["fg_long", "Long"], ["xp", "XP"]],
+      DST: [["pa", "Pts Allowed"], ["sacks", "Sacks"], ["int", "INT"], ["fr", "Fum Rec"], ["td", "TD"], ["safety", "Sfty"]],
     };
     LOG.TE = LOG.WR;
 
@@ -31,95 +34,111 @@
       const id = new URLSearchParams(location.search).get("id");
       const p = players.find(x => x.id === id);
       if (!p) {
-        main.innerHTML = `<a class="back" href="players.html">← All players</a><div class="notice">Player not found.</div>`;
+        main.innerHTML = `<a class="back" href="rankings.html">← Rankings</a><div class="notice">Player not found.</div>`;
         return;
       }
-      document.title = `${p.name} · Mingus`;
+      document.title = `${p.name} · Mingus Sports`;
+      const week = meta.next_week ?? meta.last_week;
+      const tab = p.pos;
+      let sc = Scoring.get();
 
-      const next = games.find(g => g.home_score === null && (g.home === p.team || g.away === p.team));
-      const ng = next && teamGame(next, p.team);
-      const maxPts = Math.max(1, ...p.log.map(e => e.ppr));
-      const facts = [
-        ["Team", p.team], ["Number", p.number != null ? `#${p.number}` : null], ["Age", p.age], ["Height", p.height],
-        ["Weight", p.weight && `${p.weight} lbs`], ["College", p.college], ["Experience", p.exp != null ? `${p.exp} yrs` : null],
-      ].filter(([, v]) => v != null && v !== "");
+      function render() {
+        const s = summarize(p, sc);
+        const ranked = rankList(players.filter(x => x.pos === p.pos), sc, meta);
+        const posRank = ranked.findIndex(r => r.p.id === p.id) + 1;
+        const next = weekGame(games, p.team, week);
+        const maxPts = Math.max(1, ...s.pts);
+        const isPlayer = p.pos !== "DST";
+        const inj = p.injury;
+        const facts = [
+          ["Team", p.team], ["Number", p.number != null ? `#${p.number}` : null], ["Age", p.age], ["Height", p.height],
+          ["Weight", p.weight && `${p.weight} lbs`], ["College", p.college], ["Experience", p.exp != null ? `${p.exp} yrs` : null],
+        ].filter(([, v]) => v != null && v !== "");
+        const result = e => {
+          const g = weekGame(games, e.team, e.week);
+          if (!g?.score) return "";
+          const [a, b] = g.score;
+          return `<span class="${a > b ? "win" : a < b ? "loss" : ""}">${a > b ? "W" : a < b ? "L" : "T"} ${a}-${b}</span>`;
+        };
 
-      main.innerHTML = `
-        <a class="back" href="players.html?pos=${p.pos}">← ${p.pos}s</a>
-        <section class="profile-head pos-${esc(p.pos)}">
-          ${headshot(p, "lg")}
-          <div>
-            <h1>${esc(p.name)} ${injuryTag(p.injury)}</h1>
-            <div class="profile-meta">${posBadge(p.pos)} <span>${esc(p.team)}</span>
-              ${p.number != null ? `<span>#${p.number}</span>` : ""}</div>
-          </div>
-          <div class="profile-rank">
-            <strong>${p.pos}${p.pos_rank}</strong>
-            <span>#${p.rank} overall · PPR</span>
-          </div>
-        </section>
-
-        <div class="grid">
-          <section class="card wide">
-            <h3>${meta.season} season</h3>
-            <div class="tiles">
-              <div class="tile accent"><strong>${fmt(p.stats.ppr)}</strong><span>PPR points</span></div>
-              <div class="tile accent"><strong>${fmt(p.ppg)}</strong><span>PPR per game</span></div>
-              <div class="tile"><strong>${p.stats.g}</strong><span>Games</span></div>
-              ${TILES[p.pos].map(([k, l]) => `<div class="tile"><strong>${fmt(p.stats[k])}</strong><span>${l}</span></div>`).join("")}
+        main.innerHTML = `
+          <a class="back" href="rankings.html?pos=${p.pos}">← ${esc(TAB_LABELS[p.pos])}</a>
+          <section class="profile-head pos-${esc(p.pos)}">
+            ${headshot(p, "lg")}
+            <div class="profile-main">
+              <h1>${esc(p.name)} ${injuryTag(inj)}</h1>
+              <div class="profile-meta">${posBadge(p.pos)} <span>${esc(p.team)}</span>${p.number != null ? `<span>#${p.number}</span>` : ""}</div>
+              ${inj ? `<p class="profile-note"><strong>${esc(inj.status)}</strong>${inj.injury ? ` · ${esc(inj.injury)}` : ""} — Week ${inj.week} injury report${inj.practice ? ` (${esc(inj.practice.toLowerCase())})` : ""}.</p>` : ""}
+              ${next ? `<p class="profile-note">Week ${week}: ${esc(oppLabel(next))} · ${esc(fmtKickoff(next))}</p>` : `<p class="profile-note">On bye in Week ${week}.</p>`}
+            </div>
+            <div class="profile-rank">
+              <strong>${p.pos}${posRank || "—"}</strong>
+              <span>${["K", "DST"].includes(p.pos) ? "Standard scoring" : esc(Scoring.label(sc))} · by FPTS/G</span>
             </div>
           </section>
 
-          <section class="card">
-            <h3>Next game</h3>
-            ${ng ? `
+          <div class="grid">
+            <section class="card wide">
+              <div class="card-head"><h3>${meta.season} season so far</h3></div>
               <div class="tiles">
-                <div class="tile"><strong>${ng.isHome ? "vs" : "@"} ${esc(ng.opp)}</strong><span>Week ${ng.week} · ${esc(fmtKickoff(ng))}</span></div>
-                <div class="tile"><strong>${spreadTag(ng.spread)}</strong><span>Spread</span></div>
-                <div class="tile"><strong>${fmt(ng.total)}</strong><span>Over/under</span></div>
-                <div class="tile"><strong>${fmt(ng.implied)}</strong><span>Implied team total</span></div>
-              </div>` : `<p class="muted">No upcoming game.</p>`}
-          </section>
+                <div class="tile accent"><strong>${fmt(s.ppg)}</strong><span>FPTS per game</span></div>
+                <div class="tile accent"><strong>${fmt(s.last3)}</strong><span>Last 3 games avg</span></div>
+                <div class="tile"><strong>${s.g}</strong><span>Games</span></div>
+                ${TILES[tab].map(([k, l]) => `<div class="tile"><strong>${fmt(s.tot[k] || 0)}</strong><span>${l}</span></div>`).join("")}
+                ${p.pos === "DST" ? `<div class="tile"><strong>${fmt(s.g ? Math.round(s.tot.pa / s.g * 10) / 10 : 0)}</strong><span>Pts allowed/G</span></div>` : ""}
+              </div>
+            </section>
 
-          <section class="card">
-            <h3>Injury report</h3>
-            ${p.injury
-              ? `<p style="margin:0 0 6px">${injuryTag(p.injury)} <strong>${esc(p.injury.status)}</strong>${p.injury.injury ? ` · ${esc(p.injury.injury)}` : ""}</p>
-                 <p class="muted" style="margin:0">${esc(p.injury.practice || "")} (Week ${p.injury.week} report)</p>`
-              : `<p class="muted" style="margin:0">Not on this week's injury report.</p>`}
-          </section>
+            <section class="card">
+              <h3>Week ${week} matchup</h3>
+              ${next ? `
+                <div class="tiles">
+                  <div class="tile"><strong>${esc(oppLabel(next))}</strong><span>${esc(fmtKickoff(next))}</span></div>
+                  <div class="tile"><strong>${spreadTag(next.spread)}</strong><span>Spread</span></div>
+                  <div class="tile"><strong>${fmt(next.total)}</strong><span>Over/under</span></div>
+                  <div class="tile"><strong>${fmt(next.implied)}</strong><span>Implied team total</span></div>
+                </div>` : `<p class="muted">Bye week.</p>`}
+            </section>
 
-          <section class="card">
-            <h3>Bio</h3>
-            <dl class="facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
-          </section>
+            ${isPlayer ? `
+            <section class="card">
+              <h3>Bio</h3>
+              <dl class="facts">${facts.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+            </section>` : ""}
 
-          <section class="card">
-            <h3>PPR points by week</h3>
-            <div class="bars">
-              ${p.log.map(e => `<div class="bar" title="Week ${e.week}: ${fmt(e.ppr)} pts">
-                <span class="v">${fmt(e.ppr)}</span>
-                <span class="fill" style="height:${Math.max(0, e.ppr) / maxPts * 100}%"></span>
-                <span class="w">W${e.week}</span></div>`).join("")}
-            </div>
-          </section>
+            <section class="card ${isPlayer ? "" : "wide"}">
+              <h3>Fantasy points by week</h3>
+              <div class="bars">
+                ${p.log.map((e, i) => `<div class="bar" title="Week ${e.week}: ${fmt(s.pts[i])} pts">
+                  <span class="v">${fmt(s.pts[i])}</span>
+                  <span class="fill" style="height:${Math.max(0, s.pts[i]) / maxPts * 100}%"></span>
+                  <span class="w">W${e.week}</span></div>`).join("")}
+              </div>
+            </section>
 
-          <section class="card wide">
-            <h3>Game log</h3>
-            <div class="table-wrap" style="border:0">
-              <table class="data-table">
-                <thead><tr><th class="l">Wk</th><th class="l">Opp</th>${LOG[p.pos].map(([, l]) => `<th>${l}</th>`).join("")}<th>PPR</th></tr></thead>
-                <tbody>
-                  ${p.log.map(e => `<tr>
-                    <td class="l">${e.week}</td>
-                    <td class="l">${e.home === false ? "@" : "vs"} ${esc(e.opp)}</td>
-                    ${LOG[p.pos].map(([k]) => `<td>${fmt(e[k])}</td>`).join("")}
-                    <td class="strong">${fmt(e.ppr)}</td></tr>`).join("")}
-                </tbody>
-              </table>
-            </div>
-          </section>
-        </div>`;
+            <section class="card wide">
+              <div class="card-head"><h3>Game log</h3><div class="log-scoring"></div></div>
+              <div class="table-wrap flat">
+                <table class="data-table">
+                  <thead><tr><th class="l">Wk</th><th class="l">Opp</th><th class="l">Result</th>
+                    ${LOG[tab].map(([, l]) => `<th>${l}</th>`).join("")}<th class="hl">FPTS</th></tr></thead>
+                  <tbody>
+                    ${p.log.map((e, i) => `<tr>
+                      <td class="l">${e.week}</td>
+                      <td class="l">${e.home === false ? "@" : "vs."} ${esc(e.opp)}</td>
+                      <td class="l">${result(e)}</td>
+                      ${LOG[tab].map(([k]) => `<td>${fmt(e[k] || 0)}</td>`).join("")}
+                      <td class="hl strong">${fmt(s.pts[i])}</td></tr>`).join("")}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>`;
+
+        // Kicker and defense scoring don't change with the format, so only show the switch for skill players.
+        if (!["K", "DST"].includes(p.pos)) main.querySelector(".log-scoring").innerHTML = scoringControls(sc, next => { sc = next; render(); });
+      }
+      render();
     });
   </script>
 </body>

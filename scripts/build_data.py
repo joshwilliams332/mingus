@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download nflverse data and write the JSON files the Mingus site reads.
+"""Download nflverse data and write the JSON files the Mingus Sports site reads.
 
 nflverse publishes its data as GitHub release assets and refreshes them through
 the week during the season. This script only uses the standard library, so it
@@ -10,8 +10,13 @@ runs anywhere with Python 3.9+:
 
 Output (in site/data/):
     meta.json     season, latest completed week, next week, build time
-    players.json  QB/RB/WR/TE with season totals, weekly log, bio and injury
+    players.json  QB/RB/WR/TE/K and team defenses, each with a weekly game log
     games.json    the full season schedule with Vegas lines and scores
+    teams.json    abbreviation -> city and nickname (for search and D/ST names)
+
+Fantasy points are NOT stored. Each game-log entry keeps the raw stats, and the
+site scores them in the browser so visitors can switch between PPR, half-PPR,
+standard and 4/6-point passing touchdowns.
 """
 
 import argparse
@@ -24,25 +29,44 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 
 BASE = "https://github.com/nflverse/nflverse-data/releases/download"
-POSITIONS = {"QB", "RB", "WR", "TE"}
+SKILL = {"QB", "RB", "WR", "TE"}
 OUT_DIR = Path(__file__).resolve().parent.parent / "site" / "data"
 
-# Season totals kept for each player (nflverse column -> short key).
-SEASON_COLS = {
-    "games": "g",
-    "completions": "cmp", "attempts": "att", "passing_yards": "pass_yds",
-    "passing_tds": "pass_td", "passing_interceptions": "int",
-    "carries": "car", "rushing_yards": "rush_yds", "rushing_tds": "rush_td",
-    "targets": "tgt", "receptions": "rec", "receiving_yards": "rec_yds",
-    "receiving_tds": "rec_td", "target_share": "tgt_share",
-    "fantasy_points": "fpts", "fantasy_points_ppr": "ppr",
+TEAMS = {
+    "ARI": ("Arizona", "Cardinals"), "ATL": ("Atlanta", "Falcons"), "BAL": ("Baltimore", "Ravens"),
+    "BUF": ("Buffalo", "Bills"), "CAR": ("Carolina", "Panthers"), "CHI": ("Chicago", "Bears"),
+    "CIN": ("Cincinnati", "Bengals"), "CLE": ("Cleveland", "Browns"), "DAL": ("Dallas", "Cowboys"),
+    "DEN": ("Denver", "Broncos"), "DET": ("Detroit", "Lions"), "GB": ("Green Bay", "Packers"),
+    "HOU": ("Houston", "Texans"), "IND": ("Indianapolis", "Colts"), "JAX": ("Jacksonville", "Jaguars"),
+    "KC": ("Kansas City", "Chiefs"), "LA": ("Los Angeles", "Rams"), "LAC": ("Los Angeles", "Chargers"),
+    "LV": ("Las Vegas", "Raiders"), "MIA": ("Miami", "Dolphins"), "MIN": ("Minnesota", "Vikings"),
+    "NE": ("New England", "Patriots"), "NO": ("New Orleans", "Saints"), "NYG": ("New York", "Giants"),
+    "NYJ": ("New York", "Jets"), "PHI": ("Philadelphia", "Eagles"), "PIT": ("Pittsburgh", "Steelers"),
+    "SEA": ("Seattle", "Seahawks"), "SF": ("San Francisco", "49ers"), "TB": ("Tampa Bay", "Buccaneers"),
+    "TEN": ("Tennessee", "Titans"), "WAS": ("Washington", "Commanders"),
 }
-# Per-game columns kept for the game log.
-WEEK_COLS = {
-    "passing_yards": "pass_yds", "passing_tds": "pass_td", "passing_interceptions": "int",
-    "carries": "car", "rushing_yards": "rush_yds", "rushing_tds": "rush_td",
-    "targets": "tgt", "receptions": "rec", "receiving_yards": "rec_yds", "receiving_tds": "rec_td",
-    "fantasy_points_ppr": "ppr",
+
+# Raw per-game stats kept for QB/RB/WR/TE (short key -> nflverse columns summed).
+SKILL_STATS = {
+    "cmp": ["completions"], "att": ["attempts"],
+    "pass_yds": ["passing_yards"], "pass_td": ["passing_tds"], "int": ["passing_interceptions"],
+    "car": ["carries"], "rush_yds": ["rushing_yards"], "rush_td": ["rushing_tds"],
+    "tgt": ["targets"], "rec": ["receptions"], "rec_yds": ["receiving_yards"], "rec_td": ["receiving_tds"],
+    "fl": ["rushing_fumbles_lost", "receiving_fumbles_lost", "sack_fumbles_lost"],
+    "two_pt": ["passing_2pt_conversions", "rushing_2pt_conversions", "receiving_2pt_conversions"],
+    "st_td": ["special_teams_tds"],
+}
+KICK_STATS = {
+    "fg_0_39": ["fg_made_0_19", "fg_made_20_29", "fg_made_30_39"],
+    "fg_40_49": ["fg_made_40_49"],
+    "fg_50": ["fg_made_50_59", "fg_made_60_"],
+    "fg_miss": ["fg_missed"], "fg_att": ["fg_att"], "fg_long": ["fg_long"],
+    "xp": ["pat_made"], "xp_att": ["pat_att"], "xp_miss": ["pat_missed"],
+}
+DST_STATS = {
+    "sacks": ["def_sacks"], "int": ["def_interceptions"], "fr": ["fumble_recovery_opp"],
+    "td": ["def_tds", "special_teams_tds"], "safety": ["def_safeties"],
+    "blk": ["def_punt_blocks", "def_fg_blocks"],
 }
 
 
@@ -61,6 +85,16 @@ def num(v):
         return None
     f = float(v)
     return int(f) if f.is_integer() else round(f, 3)
+
+
+def pick(row, mapping):
+    """Sum the nflverse columns for each short key; drop zeros to keep the JSON small."""
+    out = {}
+    for key, cols in mapping.items():
+        total = sum(num(row.get(c)) or 0 for c in cols)
+        if total:
+            out[key] = round(total, 2) if isinstance(total, float) else total
+    return out
 
 
 def height_str(inches):
@@ -112,7 +146,7 @@ def build_injuries(season):
     latest = max(int(r["week"]) for r in rows)
     out = {}
     for r in rows:
-        if int(r["week"]) != latest or r["position"] not in POSITIONS:
+        if int(r["week"]) != latest or r["position"] not in SKILL | {"K"}:
             continue
         # Game designations (Questionable/Out) arrive late in the week; until then,
         # fall back to practice participation so injuries still show up midweek.
@@ -125,7 +159,7 @@ def build_injuries(season):
             status = "DNP" if practice.startswith("Did Not") else "Limited"
         out[r["gsis_id"]] = {
             "status": status,
-            "injury": r["report_primary_injury"] or r["practice_primary_injury"] or None,
+            "injury": injury or None,
             "practice": r["practice_status"] or None,
             "week": latest,
         }
@@ -145,60 +179,79 @@ def build_roster(season):
     return best
 
 
+def short_name(full):
+    """'Kenneth Walker III' -> 'K. Walker III'."""
+    parts = full.split(" ", 1)
+    return f"{parts[0][0]}. {parts[1]}" if len(parts) == 2 else full
+
+
 def build_players(season, games, roster, injuries, today):
-    season_rows = fetch_csv(f"stats_player/stats_player_reg_{season}.csv")
-    week_rows = fetch_csv(f"stats_player/stats_player_week_{season}.csv")
-
-    # Game log per player, regular season only.
-    logs = defaultdict(list)
-    for r in week_rows:
-        if r["season_type"] != "REG" or r["position"] not in POSITIONS:
-            continue
-        entry = {"week": int(r["week"]), "team": r["team"], "opp": r["opponent_team"]}
-        entry.update({short: num(r[col]) or 0 for col, short in WEEK_COLS.items()})
-        logs[r["player_id"]].append(entry)
-
-    # Home/away for each log entry comes from the schedule.
     home_of = {(g["week"], g["home"]): True for g in games}
     home_of.update({(g["week"], g["away"]): False for g in games})
 
-    players = []
-    for r in season_rows:
-        if r["position"] not in POSITIONS:
+    people = {}
+    for r in fetch_csv(f"stats_player/stats_player_week_{season}.csv"):
+        pos = r["position"]
+        if r["season_type"] != "REG" or (pos not in SKILL and pos != "K"):
             continue
         pid = r["player_id"]
-        ros = roster.get(pid, {})
-        stats = {short: num(r[col]) or 0 for col, short in SEASON_COLS.items()}
-        log = sorted(logs.get(pid, []), key=lambda e: e["week"])
-        for e in log:
-            e["home"] = home_of.get((e["week"], e["team"]))
-        players.append({
-            "id": pid,
-            "name": r["player_display_name"],
-            "pos": r["position"],
-            "team": ros.get("team") or r["recent_team"],
-            "number": num(ros.get("jersey_number")),
-            "headshot": r["headshot_url"] or ros.get("headshot_url") or None,
-            "age": age_on(ros.get("birth_date"), today),
-            "height": height_str(ros.get("height")),
-            "weight": num(ros.get("weight")),
-            "college": ros.get("college") or None,
-            "exp": num(ros.get("years_exp")),
-            "roster_status": ros.get("status") or None,
-            "injury": injuries.get(pid),
-            "stats": stats,
-            "ppg": round(stats["ppr"] / stats["g"], 1) if stats["g"] else 0,
-            "log": log,
-        })
+        if pid not in people:
+            ros = roster.get(pid, {})
+            people[pid] = {
+                "id": pid,
+                "name": r["player_display_name"],
+                "short": short_name(r["player_display_name"]),
+                "pos": pos,
+                "team": ros.get("team") or r["team"],
+                "number": num(ros.get("jersey_number")),
+                "headshot": r["headshot_url"] or ros.get("headshot_url") or None,
+                "age": age_on(ros.get("birth_date"), today),
+                "height": height_str(ros.get("height")),
+                "weight": num(ros.get("weight")),
+                "college": ros.get("college") or None,
+                "exp": num(ros.get("years_exp")),
+                "injury": injuries.get(pid),
+                "log": [],
+            }
+        week = int(r["week"])
+        entry = {"week": week, "team": r["team"], "opp": r["opponent_team"], "home": home_of.get((week, r["team"]))}
+        entry.update(pick(r, KICK_STATS if pos == "K" else SKILL_STATS))
+        people[pid]["log"].append(entry)
 
-    # Overall and positional ranks by total PPR points.
-    players.sort(key=lambda p: p["stats"]["ppr"], reverse=True)
-    pos_count = defaultdict(int)
-    for i, p in enumerate(players, 1):
-        pos_count[p["pos"]] += 1
-        p["rank"] = i
-        p["pos_rank"] = pos_count[p["pos"]]
-    return players
+    for p in people.values():
+        p["log"].sort(key=lambda e: e["week"])
+    return list(people.values())
+
+
+def build_defenses(season, games):
+    """One D/ST entry per team, with points allowed taken from the schedule."""
+    allowed = {}
+    for g in games:
+        if g["home_score"] is not None:
+            allowed[(g["week"], g["home"])] = g["away_score"]
+            allowed[(g["week"], g["away"])] = g["home_score"]
+    home_of = {(g["week"], g["home"]): True for g in games}
+    home_of.update({(g["week"], g["away"]): False for g in games})
+
+    teams = {}
+    for r in fetch_csv(f"stats_team/stats_team_week_{season}.csv"):
+        if r["season_type"] != "REG":
+            continue
+        team, week = r["team"], int(r["week"])
+        if team not in teams:
+            city, nick = TEAMS.get(team, (team, ""))
+            teams[team] = {
+                "id": f"DST-{team}", "name": f"{nick} D/ST", "short": f"{nick} D/ST",
+                "pos": "DST", "team": team, "number": None, "headshot": None, "injury": None, "log": [],
+            }
+        entry = {"week": week, "team": team, "opp": r["opponent_team"], "home": home_of.get((week, team)),
+                 "pa": allowed.get((week, team), 0)}
+        entry.update(pick(r, DST_STATS))
+        teams[team]["log"].append(entry)
+
+    for t in teams.values():
+        t["log"].sort(key=lambda e: e["week"])
+    return list(teams.values())
 
 
 def main():
@@ -209,11 +262,11 @@ def main():
     # The NFL season runs Sep-Feb, so Jan/Feb still belong to last year's season.
     season = args.season or (today.year if today.month >= 3 else today.year - 1)
 
-    print(f"Building Mingus data for {season}")
+    print(f"Building Mingus Sports data for {season}")
     games = build_games(season)
     roster = build_roster(season)
     injuries, injury_week = build_injuries(season)
-    players = build_players(season, games, roster, injuries, today)
+    players = build_players(season, games, roster, injuries, today) + build_defenses(season, games)
 
     played = [g["week"] for g in games if g["type"] == "REG" and g["home_score"] is not None]
     upcoming = [g["week"] for g in games if g["home_score"] is None]
@@ -225,13 +278,17 @@ def main():
         "built_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "source": "nflverse (github.com/nflverse/nflverse-data)",
     }
+    teams = {abbr: {"city": c, "nickname": n} for abbr, (c, n) in TEAMS.items()}
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    for name, data in (("meta", meta), ("players", players), ("games", games)):
+    for name, data in (("meta", meta), ("players", players), ("games", games), ("teams", teams)):
         path = OUT_DIR / f"{name}.json"
         path.write_text(json.dumps(data, separators=(",", ":")))
         print(f"  wrote {path.relative_to(OUT_DIR.parent.parent)} ({path.stat().st_size // 1024} KB)")
-    print(f"Done: {len(players)} players, {len(games)} games, last completed week {meta['last_week']}")
+    counts = defaultdict(int)
+    for p in players:
+        counts[p["pos"]] += 1
+    print(f"Done: {dict(counts)}, {len(games)} games, last completed week {meta['last_week']}")
 
 
 if __name__ == "__main__":
