@@ -14,6 +14,9 @@ Output (in site/data/):
     games.json    the full season schedule with Vegas lines and scores
     teams.json    abbreviation -> city, nickname and color
 
+Sleeper projections (api.sleeper.app) are added to each player as "proj" when
+Sleeper can be reached; if it can't, the site falls back to Mingus projections.
+
 Fantasy points are NOT stored. Each game-log entry keeps the raw stats, and the
 site scores them in the browser so visitors can switch between PPR, half-PPR,
 standard and 4/6-point passing touchdowns.
@@ -226,6 +229,47 @@ def build_roster(season):
     return best
 
 
+SLEEPER_TEAM_FIX = {"LAR": "LA", "JAC": "JAX", "WSH": "WAS"}
+
+
+def fetch_json(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "mingus-build"})
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def build_sleeper(season, last_week, roster):
+    """Sleeper's weekly projections for weeks 1..last_week, keyed by our player ids.
+
+    Returns {player_id: {week: {"ppr", "half", "std", "ptd"}}}. Past weeks are kept so the
+    site can compare Sleeper's accuracy with Mingus projections.
+    """
+    to_gsis = {r["sleeper_id"]: pid for pid, r in roster.items() if r.get("sleeper_id")}
+    out = defaultdict(dict)
+    positions = "".join(f"&position[]={p}" for p in ("QB", "RB", "WR", "TE", "K", "DEF"))
+    for week in range(1, last_week + 1):
+        url = f"https://api.sleeper.app/projections/nfl/{season}/{week}?season_type=regular{positions}"
+        print(f"  downloading {url}")
+        for item in fetch_json(url):
+            st = item.get("stats") or {}
+            if st.get("pts_ppr") is None and st.get("pts_std") is None:
+                continue
+            if (item.get("player") or {}).get("position") == "DEF" or item.get("position") == "DEF":
+                team = item.get("team") or item.get("player_id")
+                pid = f"DST-{SLEEPER_TEAM_FIX.get(team, team)}"
+            else:
+                pid = to_gsis.get(str(item.get("player_id")))
+            if not pid:
+                continue
+            out[pid][week] = {
+                "ppr": round(st.get("pts_ppr") or st.get("pts_std") or 0, 2),
+                "half": round(st.get("pts_half_ppr") or st.get("pts_std") or 0, 2),
+                "std": round(st.get("pts_std") or 0, 2),
+                "ptd": st.get("pass_td") or 0,
+            }
+    return out
+
+
 def short_name(full):
     """'Kenneth Walker III' -> 'K. Walker III'."""
     parts = full.split(" ", 1)
@@ -317,7 +361,20 @@ def main():
 
     played = [g["week"] for g in games if g["type"] == "REG" and g["home_score"] is not None]
     upcoming = [g["week"] for g in games if g["home_score"] is None]
+    # Every week up to and including the next one to be played.
+    sleeper_weeks = min(upcoming) if upcoming else (max(played) if played else 0)
+    try:
+        sleeper = build_sleeper(season, sleeper_weeks, roster)
+        for p in players:
+            if p["id"] in sleeper:
+                p["proj"] = {"sleeper": sleeper[p["id"]]}
+        print(f"  Sleeper projections for {len(sleeper)} players")
+    except Exception as e:  # network blocked, API changed, etc. The site still works without it.
+        sleeper = {}
+        print(f"  WARNING: couldn't load Sleeper projections ({e}); continuing without them")
+
     meta = {
+        "projections": {"sleeper": bool(sleeper)},
         "season": season,
         "last_week": max(played) if played else 0,
         "next_week": min(upcoming) if upcoming else None,

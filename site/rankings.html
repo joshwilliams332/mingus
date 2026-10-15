@@ -26,21 +26,23 @@
             ["pa", "PA/G", s => (s.g ? Math.round(s.tot.pa / s.g * 10) / 10 : 0)]],
     };
     STAT_COLS.TE = STAT_COLS.WR;
-    const LEAD_COLS = [["ppg", "FPTS/G", s => s.ppg], ["g", "G", s => s.g], ["last3", "Last 3", s => s.last3]];
+    const LEAD_COLS = [["proj", "Proj", s => s.proj, s => (s.proj === null ? "—" : fmt(s.proj))], ["ppg", "FPTS/G", s => s.ppg], ["g", "G", s => s.g], ["last3", "Last 3", s => s.last3]];
 
     Mingus.start(async (main, meta) => {
       const [players, games, teams] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.load("teams")]);
       const params = new URLSearchParams(location.search);
       const week = meta.next_week ?? meta.last_week;
-      const state = { tab: RANK_TABS.includes(params.get("pos")) ? params.get("pos") : "QB", q: "", sort: null, dir: -1, sc: Scoring.get() };
+      const state = { tab: RANK_TABS.includes(params.get("pos")) ? params.get("pos") : "QB", q: "", sort: null, dir: -1, sc: Scoring.get(), src: ProjSource.get() };
+      if (!meta.projections?.sleeper) state.src = "mingus";
+      let projector = makeProjector(players, games, state.sc, meta);
 
       main.innerHTML = `
         <div class="page-head">
           <div>
-            <h1>Fantasy Rankings</h1>
+            <h1>Week ${week} Fantasy Rankings</h1>
             <p class="muted sub-head"></p>
           </div>
-          <div class="scoring-slot"></div>
+          <div class="rank-controls"><div class="proj-slot"></div><div class="scoring-slot"></div></div>
         </div>
         <div class="tabs-bar" role="tablist" aria-label="Position">
           ${RANK_TABS.map(t => `<button class="pos-tab" role="tab" data-tab="${t}">${t}</button>`).join("")}
@@ -51,7 +53,10 @@
 
       const thead = main.querySelector("thead"), tbody = main.querySelector("tbody");
       const renderScoring = () => {
-        main.querySelector(".scoring-slot").innerHTML = scoringControls(state.sc, sc => { state.sc = sc; draw(); });
+        main.querySelector(".scoring-slot").innerHTML = scoringControls(state.sc, sc => {
+          state.sc = sc; projector = makeProjector(players, games, sc, meta); draw();
+        });
+        main.querySelector(".proj-slot").innerHTML = projControls(state.src, projector.hasSleeper, src => { state.src = src; draw(); });
       };
 
       function draw() {
@@ -59,7 +64,11 @@
         main.querySelectorAll(".pos-tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
         main.querySelector(".sub-head").textContent = `${TAB_LABELS[tab]} · Week ${week} · ${Scoring.label(state.sc)}`;
         const pool = players.filter(p => tab === "FLX" ? FLEX.includes(p.pos) : p.pos === tab);
-        const ranked = rankList(pool, state.sc, meta).map((r, i) => ({ ...r, rank: i + 1, game: weekGame(games, r.p.team, week) }));
+        // Ranked by this week's projection; players on bye or without a projection go last.
+        const ranked = pool
+          .map(p => { const s = summarize(p, state.sc); s.proj = projector.get(p, week, state.src); return { p, s }; })
+          .sort((a, b) => ((b.s.proj ?? -99) - (a.s.proj ?? -99)) || (b.s.ppg - a.s.ppg))
+          .map((r, i) => ({ ...r, rank: i + 1, game: weekGame(games, r.p.team, week) }));
         const cols = [...LEAD_COLS, ...STAT_COLS[tab]];
 
         const q = state.q.toLowerCase();
@@ -81,7 +90,7 @@
         </tr>`;
 
         tbody.innerHTML = rows.map(({ p, s, rank, game }) => `
-          <tr class="${s.g < minGames(meta) ? "unqualified" : ""}">
+          <tr class="${s.proj === null ? "unqualified" : ""}">
             <td class="l rank">${rank}</td>
             <td class="l"><div class="pcell">${headshot(p, "sm")}
               <div><a href="${playerUrl(p)}">${esc(p.pos === "DST" ? p.name : p.short)}</a> ${injuryTag(p.injury)}
@@ -90,8 +99,12 @@
             ${cols.map(([k, , get, show], i) => `<td class="${i === 0 ? "hl strong" : i < 2 ? "" : "hide-sm"}">${show ? show(s, p) : fmt(get(s, p) ?? 0)}</td>`).join("")}
           </tr>`).join("") || `<tr><td colspan="12" class="l muted">No players match.</td></tr>`;
 
-        main.querySelector(".legend").textContent =
-          `Ranked by fantasy points per game. Players with fewer than ${minGames(meta)} games are listed last. Stat columns are season totals; Last 3 is the average of their last three games.`;
+        const acc = projector.accuracy();
+        main.querySelector(".legend").innerHTML =
+          `Ranked by ${esc(PROJ_SOURCES[state.src])} projection for Week ${week}${state.src === "avg" ? " (Sleeper and Mingus averaged)" : ""}. ` +
+          `Players on bye are listed last. Stat columns are season totals; Last 3 is the average of their last three games.` +
+          (acc.weeks.length ? `<br><strong>Projection accuracy, Weeks ${acc.weeks[0]}–${acc.weeks[acc.weeks.length - 1]}</strong> (average miss per player, lower is better): ` +
+            `Mingus ${acc.mingus ?? "—"} pts` + (acc.sleeper !== null ? ` · Sleeper ${acc.sleeper} pts` : "") : "");
 
         thead.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
           const key = b.dataset.sort || null;

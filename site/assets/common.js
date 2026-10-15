@@ -336,18 +336,20 @@ function record(list, key, win = "W", loss = "L") {
 }
 
 // Fantasy points each defense allows per game to each position, ranked 1 (most allowed = best matchup) to 32.
-function defenseVsPos(players, games, sc) {
+// Pass beforeWeek to only count games played before that week (used for projections).
+function defenseVsPos(players, games, sc, beforeWeek = Infinity) {
   const allowed = {};
   for (const p of players) {
     if (!["QB", "RB", "WR", "TE", "K"].includes(p.pos)) continue;
     for (const e of p.log) {
+      if (e.week >= beforeWeek) continue;
       const d = (allowed[e.opp] ||= {});
       d[p.pos] = (d[p.pos] || 0) + scoreGame(e, p.pos, sc);
     }
   }
   const played = {};
   for (const g of games) {
-    if (g.type !== "REG" || g.home_score === null) continue;
+    if (g.type !== "REG" || g.home_score === null || g.week >= beforeWeek) continue;
     played[g.home] = (played[g.home] || 0) + 1;
     played[g.away] = (played[g.away] || 0) + 1;
   }
@@ -386,4 +388,109 @@ async function fetchForecast(g) {
   } catch (e) {
     return null;
   }
+}
+
+// ---------- Projections ----------
+// Sleeper: Sleeper's own weekly projections (when the data build could reach Sleeper).
+// Mingus: average fantasy points in games before that week, nudged up to 15% for the
+// opponent's defense vs the position and up to 15% for the team's Vegas implied total.
+// A backtest on 2026 Weeks 3-5 showed bigger adjustments made projections less accurate this early in the season.
+
+const PROJ_SOURCES = { avg: "Average", sleeper: "Sleeper", mingus: "Mingus" };
+const ProjSource = {
+  get() {
+    try { const v = localStorage.getItem("mingus-proj"); return PROJ_SOURCES[v] ? v : "avg"; } catch (e) { return "avg"; }
+  },
+  set(v) { try { localStorage.setItem("mingus-proj", v); } catch (e) { /* storage blocked */ } },
+};
+
+function makeProjector(players, games, sc, meta) {
+  const ADJ = 0.15;
+  const dvpCache = {};
+  const dvpFor = week => {
+    if (!dvpCache[week]) {
+      const dvp = defenseVsPos(players, games, sc, week);
+      const lg = {};
+      for (const pos of ["QB", "RB", "WR", "TE", "K"]) {
+        const vals = Object.values(dvp).map(d => d[pos].ppg);
+        lg[pos] = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+      }
+      dvpCache[week] = { dvp, lg };
+    }
+    return dvpCache[week];
+  };
+  const imps = games.filter(g => g.type === "REG" && g.home_implied !== null).flatMap(g => [g.home_implied, g.away_implied]);
+  const avgImplied = imps.length ? imps.reduce((a, b) => a + b, 0) / imps.length : 22;
+  // ratio 1.0 = league average; returns a multiplier between 0.85 and 1.15.
+  const nudge = ratio => Math.min(1.15, Math.max(0.85, 1 + ADJ * (ratio - 1)));
+
+  function mingus(p, week) {
+    const tg = weekGame(games, p.team, week);
+    if (!tg) return null;
+    if (week === meta.next_week && p.injury?.status === "Out") return 0;
+    const prior = p.log.filter(e => e.week < week);
+    if (!prior.length) return null;
+    let proj = prior.reduce((a, e) => a + scoreGame(e, p.pos, sc), 0) / prior.length;
+    if (p.pos === "DST") {
+      // Defenses do better against offenses Vegas expects to score less.
+      const oppImplied = tg.implied === null ? null : tg.total - tg.implied;
+      if (oppImplied) proj *= nudge(2 - oppImplied / avgImplied);
+    } else {
+      const { dvp, lg } = dvpFor(week);
+      const allowed = dvp[tg.opp]?.[p.pos]?.ppg;
+      if (allowed && lg[p.pos]) proj *= nudge(allowed / lg[p.pos]);
+      if (tg.implied) proj *= nudge(tg.implied / avgImplied);
+    }
+    return Math.round(proj * 10) / 10;
+  }
+
+  function sleeper(p, week) {
+    const s = p.proj?.sleeper?.[week];
+    if (!s) return null;
+    if (p.pos === "K" || p.pos === "DST") return s.ppr ?? s.std;
+    const base = { ppr: s.ppr, half: s.half, std: s.std }[sc.fmt];
+    return Math.round((base + (sc.passTd - 4) * (s.ptd || 0)) * 10) / 10;
+  }
+
+  function get(p, week, source = "avg") {
+    if (source === "mingus") return mingus(p, week);
+    if (source === "sleeper") return sleeper(p, week);
+    const vals = [mingus(p, week), sleeper(p, week)].filter(v => v !== null);
+    return vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length * 10) / 10 : null;
+  }
+
+  // Average miss (in fantasy points) for each source over completed weeks, fantasy-relevant skill players only.
+  function accuracy() {
+    const out = { mingus: [], sleeper: [], weeks: [] };
+    for (let w = 3; w <= (meta.last_week || 0); w++) {
+      out.weeks.push(w);
+      for (const p of players) {
+        if (!["QB", "RB", "WR", "TE"].includes(p.pos)) continue;
+        const e = p.log.find(x => x.week === w);
+        const prior = p.log.filter(x => x.week < w);
+        if (!e || prior.length < 2) continue;
+        if (prior.reduce((a, x) => a + scoreGame(x, p.pos, sc), 0) / prior.length < 5) continue;
+        const actual = scoreGame(e, p.pos, sc);
+        const m = mingus(p, w), sl = sleeper(p, w);
+        if (m !== null) out.mingus.push(Math.abs(m - actual));
+        if (sl !== null) out.sleeper.push(Math.abs(sl - actual));
+      }
+    }
+    const mae = a => (a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length * 10) / 10 : null);
+    return { mingus: mae(out.mingus), sleeper: mae(out.sleeper), weeks: out.weeks, n: out.mingus.length };
+  }
+
+  return { get, mingus, sleeper, accuracy, hasSleeper: !!meta.projections?.sleeper };
+}
+
+function projControls(src, hasSleeper, onChange) {
+  const id = `pj${Math.random().toString(36).slice(2, 7)}`;
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (el) el.onchange = () => { ProjSource.set(el.value); onChange(el.value); };
+  });
+  const opts = hasSleeper ? Object.entries(PROJ_SOURCES) : [["mingus", "Mingus"]];
+  return `<label class="proj-label">Projection
+    <select id="${id}">${opts.map(([k, l]) => `<option value="${k}" ${src === k ? "selected" : ""}>${l}</option>`).join("")}</select>
+  </label>`;
 }
