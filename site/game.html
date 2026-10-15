@@ -48,6 +48,8 @@
         return `<section class="card">
           <div class="card-head"><h3>${esc(teamName(team, teams, false))} · last ${five.length}</h3><a class="small-link" href="${teamUrl(team)}">Team page →</a></div>
           <div class="trend-row">
+            <div><strong>${all.length ? fmt(Math.round(all.reduce((a, r) => a + r.pf, 0) / all.length * 10) / 10) : "—"}</strong><span>Pts scored/game</span></div>
+            <div><strong>${all.length ? fmt(Math.round(all.reduce((a, r) => a + r.pa, 0) / all.length * 10) / 10) : "—"}</strong><span>Pts allowed/game</span></div>
             <div><strong>${record(all, "result")}</strong><span>Record</span></div>
             <div><strong>${record(all, "ats")}</strong><span>Against spread</span></div>
             <div><strong>${record(all, "ou", "O", "U")}</strong><span>Over-under</span></div>
@@ -106,7 +108,7 @@
         const away = teamGame(g, g.away), home = teamGame(g, g.home);
         const note = notes.games?.[g.id];
         main.innerHTML = `
-          <a class="back" href="games.html?week=${g.week}">← Week ${g.week} games</a>
+          ${backLink(`games.html?week=${g.week}`)}
           <section class="h2h">
             ${sideHead(g.away, false)}
             <div class="h2h-mid">

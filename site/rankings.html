@@ -11,22 +11,15 @@
   <main><p class="loading">Loading…</p></main>
   <script src="assets/common.js"></script>
   <script>
-    // Stat columns per tab: [key, header, value(summary, player)]. FPTS/G, G and Last 3 come first on every tab.
-    const STAT_COLS = {
-      QB: [["pass_yds", "Pass Yds", s => s.tot.pass_yds], ["pass_td", "Pass TD", s => s.tot.pass_td], ["int", "INT", s => s.tot.int],
-           ["rush_yds", "Rush Yds", s => s.tot.rush_yds], ["rush_td", "Rush TD", s => s.tot.rush_td]],
-      RB: [["car", "Car", s => s.tot.car], ["rush_yds", "Rush Yds", s => s.tot.rush_yds], ["rush_td", "Rush TD", s => s.tot.rush_td],
-           ["rec", "Rec", s => s.tot.rec], ["rec_yds", "Rec Yds", s => s.tot.rec_yds]],
-      WR: [["tgt", "Tgt", s => s.tot.tgt], ["rec", "Rec", s => s.tot.rec], ["rec_yds", "Rec Yds", s => s.tot.rec_yds], ["rec_td", "Rec TD", s => s.tot.rec_td]],
-      FLX: [["rush_yds", "Rush Yds", s => s.tot.rush_yds], ["rec", "Rec", s => s.tot.rec], ["rec_yds", "Rec Yds", s => s.tot.rec_yds],
-            ["td", "TD", s => (s.tot.rush_td || 0) + (s.tot.rec_td || 0)]],
-      K: [["fg", "FG", s => (s.tot.fg_0_39 || 0) + (s.tot.fg_40_49 || 0) + (s.tot.fg_50 || 0), s => `${(s.tot.fg_0_39 || 0) + (s.tot.fg_40_49 || 0) + (s.tot.fg_50 || 0)}/${s.tot.fg_att || 0}`],
-          ["fg_50", "50+", s => s.tot.fg_50], ["fg_long", "Long", s => s.fg_long], ["xp", "XP", s => s.tot.xp, s => `${s.tot.xp || 0}/${s.tot.xp_att || 0}`]],
-      DST: [["sacks", "Sacks", s => s.tot.sacks], ["int", "INT", s => s.tot.int], ["fr", "Fum Rec", s => s.tot.fr], ["td", "TD", s => s.tot.td],
-            ["pa", "PA/G", s => (s.g ? Math.round(s.tot.pa / s.g * 10) / 10 : 0)]],
-    };
-    STAT_COLS.TE = STAT_COLS.WR;
-    const LEAD_COLS = [["proj", "Proj", s => s.proj, s => (s.proj === null ? "—" : fmt(s.proj))], ["ppg", "FPTS/G", s => s.ppg], ["g", "G", s => s.g], ["last3", "Last 3", s => s.last3]];
+    // Fantasy-only columns; full stat lines live in the Player Database.
+    // [key, header, value(row), display(row)?]
+    const COLS = [
+      ["proj", "Proj", r => r.s.proj, r => (r.s.proj === null ? "—" : fmt(r.s.proj))],
+      ["ppg", "FPTS/G", r => r.s.ppg],
+      ["fpts", "FPTS", r => r.s.fpts],
+      ["last3", "Last 3", r => r.s.last3],
+      ["g", "G", r => r.s.g],
+    ];
 
     Mingus.start(async (main, meta) => {
       const [players, games, teams] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.load("teams")]);
@@ -34,6 +27,14 @@
       const week = meta.next_week ?? meta.last_week;
       const state = { tab: RANK_TABS.includes(params.get("pos")) ? params.get("pos") : "QB", q: "", sort: null, dir: -1, sc: Scoring.get() };
       let projector = makeProjector(players, games, state.sc, meta);
+      let dvp = defenseVsPos(players, games, state.sc);
+      // For D/ST matchups: opponents ranked by points scored per game (1st = scores the fewest = best for a defense).
+      const offense = {};
+      for (const t of Object.keys(teams)) {
+        const r = teamResults(games, t);
+        offense[t] = { ppg: r.length ? Math.round(r.reduce((a, x) => a + x.pf, 0) / r.length * 10) / 10 : 0 };
+      }
+      Object.keys(offense).sort((a, b) => offense[a].ppg - offense[b].ppg).forEach((t, i) => { offense[t].rank = i + 1; });
 
       main.innerHTML = `
         <div class="page-head">
@@ -47,20 +48,25 @@
           ${RANK_TABS.map(t => `<button class="pos-tab" role="tab" data-tab="${t}">${t}</button>`).join("")}
         </div>
         <div class="controls"><input class="search" type="search" placeholder="Search players, teams or cities (e.g. Atlanta)" aria-label="Search"></div>
+        <p class="legend top-legend"></p>
         <div class="table-wrap"><table class="data-table rank-table"><thead></thead><tbody></tbody></table></div>
-        <p class="legend"></p>`;
+        <p class="legend bottom-legend"></p>`;
 
       const thead = main.querySelector("thead"), tbody = main.querySelector("tbody");
-      const renderScoring = () => {
-        main.querySelector(".scoring-slot").innerHTML = scoringControls(state.sc, sc => {
-          state.sc = sc; projector = makeProjector(players, games, sc, meta); draw();
-        });
-      };
+
+      function matchupCell(r) {
+        if (!r.game) return `<span class="muted">—</span>`;
+        if (r.p.pos === "DST") {
+          const o = offense[r.game.opp];
+          return `<span class="mchip ${matchupClass(o.rank)}" title="${esc(r.game.opp)} scores ${o.ppg} pts/game, the ${ordinal(33 - o.rank)}-most">${ordinal(o.rank)}</span>`;
+        }
+        return matchupChip(dvp[r.game.opp]?.[r.p.pos], r.game.opp, r.p.pos);
+      }
 
       function draw() {
         const { tab } = state;
         main.querySelectorAll(".pos-tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
-        main.querySelector(".sub-head").textContent = `${TAB_LABELS[tab]} · Week ${week} · ${Scoring.label(state.sc)}`;
+        main.querySelector(".sub-head").textContent = `${TAB_LABELS[tab]} · ${Scoring.label(state.sc)}`;
         const pool = players.filter(p => tab === "FLX" ? FLEX.includes(p.pos) : p.pos === tab);
         // Ranked by Sleeper's projection for this week (players on bye go last), or by points per game without it.
         const ranked = (projector.hasSleeper
@@ -68,15 +74,13 @@
               .sort((a, b) => ((b.s.proj ?? -99) - (a.s.proj ?? -99)) || (b.s.ppg - a.s.ppg))
           : rankList(pool, state.sc, meta))
           .map((r, i) => ({ ...r, rank: i + 1, game: weekGame(games, r.p.team, week) }));
-        // Without Sleeper data there's no Proj column and players are ranked by points per game.
-        const lead = projector.hasSleeper ? LEAD_COLS : LEAD_COLS.filter(c => c[0] !== "proj");
-        const cols = [...lead, ...STAT_COLS[tab]];
+        const cols = projector.hasSleeper ? COLS : COLS.filter(c => c[0] !== "proj");
 
         const q = state.q.toLowerCase();
         let rows = ranked.filter(({ p }) => !q || p.name.toLowerCase().includes(q) || teamMatches(p.team, q, teams));
         if (state.sort) {
           const get = cols.find(c => c[0] === state.sort)[2];
-          rows = [...rows].sort((a, b) => ((get(a.s, a.p) || 0) - (get(b.s, b.p) || 0)) * state.dir);
+          rows = [...rows].sort((a, b) => ((get(a) ?? -99) - (get(b) ?? -99)) * state.dir);
         }
 
         const head = (key, label, cls = "") => {
@@ -87,25 +91,29 @@
         thead.innerHTML = `<tr>
           <th class="l"><button data-sort="">Rk${state.sort ? "" : " ▲"}</button></th>
           <th class="l">Player</th><th class="l">Opp</th>
+          <th class="hide-sm" title="${tab === "DST" ? "Opponent's scoring rank (1st = scores the fewest)" : "Opponent's rank vs this position (1st = allows the most)"}">Matchup</th>
           ${cols.map(([k, label], i) => head(k, label, i === 0 ? "hl" : i < 2 ? "" : "hide-sm")).join("")}
         </tr>`;
 
-        tbody.innerHTML = rows.map(({ p, s, rank, game }) => `
-          <tr class="${projector.hasSleeper ? (s.proj === null ? "unqualified" : "") : (s.g < minGames(meta) ? "unqualified" : "")}">
-            <td class="l rank">${rank}</td>
-            <td class="l"><div class="pcell">${headshot(p, "sm")}
-              <div><a href="${playerUrl(p)}">${esc(p.pos === "DST" ? p.name : p.short)}</a> ${injuryTag(p.injury)}
-              <div class="pmeta">${esc(p.team)}${p.pos === "DST" ? "" : ` · ${esc(p.pos)}`}</div></div></div></td>
-            <td class="l opp">${game ? esc(oppLabel(game)) : `<span class="bye">BYE</span>`}</td>
-            ${cols.map(([k, , get, show], i) => `<td class="${i === 0 ? "hl strong" : i < 2 ? "" : "hide-sm"}">${show ? show(s, p) : fmt(get(s, p) ?? 0)}</td>`).join("")}
-          </tr>`).join("") || `<tr><td colspan="12" class="l muted">No players match.</td></tr>`;
+        tbody.innerHTML = rows.map(r => `
+          <tr class="${!r.game || (projector.hasSleeper ? r.s.proj === null : r.s.g < minGames(meta)) ? "unqualified" : ""}">
+            <td class="l rank">${r.rank}</td>
+            <td class="l"><div class="pcell">${headshot(r.p, "sm")}
+              <div><a href="${playerUrl(r.p)}">${esc(r.p.pos === "DST" ? r.p.name : r.p.short)}</a> ${injuryTag(r.p.injury)}
+              <div class="pmeta">${esc(r.p.team)}${r.p.pos === "DST" ? "" : ` · ${esc(r.p.pos)}`}</div></div></div></td>
+            <td class="l opp">${r.game ? `<a href="${gameUrl(r.game)}">${esc(oppLabel(r.game))}</a>` : `<span class="bye">BYE</span>`}</td>
+            <td class="hide-sm">${matchupCell(r)}</td>
+            ${cols.map(([k, , get, show], i) => `<td class="${i === 0 ? "hl strong" : i < 2 ? "" : "hide-sm"}">${show ? show(r) : fmt(get(r) ?? 0)}</td>`).join("")}
+          </tr>`).join("") || `<tr><td colspan="10" class="l muted">No players match.</td></tr>`;
 
+        const rankedBy = projector.hasSleeper
+          ? `Ranked by Sleeper's Week ${week} projection.`
+          : `Ranked by fantasy points per game (Sleeper projections weren't in this data update).`;
+        main.querySelector(".top-legend").textContent = `${rankedBy} Matchup = opponent's rank against the position this season (green = favorable, red = tough).`;
         const acc = projector.accuracy();
-        main.querySelector(".legend").innerHTML = (projector.hasSleeper
-          ? `Ranked by Sleeper's projection for Week ${week}. Players on bye are listed last.` +
-            (acc.mae !== null ? ` Sleeper's projections have missed by ${acc.mae} pts per player on average this season (Weeks ${acc.weeks[0]}–${acc.weeks[acc.weeks.length - 1]}).` : "")
-          : `Ranked by fantasy points per game (Sleeper projections weren't available in this data update). Players with fewer than ${minGames(meta)} games are listed last.`) +
-          ` Stat columns are season totals; Last 3 is the average of their last three games.`;
+        main.querySelector(".bottom-legend").textContent =
+          (projector.hasSleeper && acc.mae !== null ? `Sleeper's projections have missed by ${acc.mae} pts per player on average this season. ` : "") +
+          `FPTS is the season total; Last 3 is the average of the last three games. Full stat lines are in the Player Database.`;
 
         thead.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
           const key = b.dataset.sort || null;
@@ -115,13 +123,15 @@
         });
       }
 
+      main.querySelector(".scoring-slot").innerHTML = scoringControls(state.sc, sc => {
+        state.sc = sc; projector = makeProjector(players, games, sc, meta); dvp = defenseVsPos(players, games, sc); draw();
+      });
       main.querySelectorAll(".pos-tab").forEach(b => b.onclick = () => {
         state.tab = b.dataset.tab; state.sort = null;
         history.replaceState(null, "", `rankings.html?pos=${state.tab}`);
         draw();
       });
       main.querySelector(".search").oninput = e => { state.q = e.target.value.trim(); draw(); };
-      renderScoring();
       draw();
     });
   </script>

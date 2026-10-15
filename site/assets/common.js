@@ -58,6 +58,20 @@ const Mingus = {
       </footer>`);
   },
 
+  // "Back" links return to the page you came from (e.g. the matchup page), falling back to their href.
+  wireBackLinks() {
+    document.addEventListener("click", e => {
+      const a = e.target.closest("a[data-back]");
+      if (!a || !document.referrer) return;
+      try {
+        if (new URL(document.referrer).origin === location.origin && history.length > 1) {
+          e.preventDefault();
+          history.back();
+        }
+      } catch (err) { /* follow the link normally */ }
+    });
+  },
+
   // Loads meta, draws the header and footer, then runs the page's own code.
   async start(fn) {
     const main = document.querySelector("main");
@@ -66,6 +80,7 @@ const Mingus = {
       meta = await this.load("meta");
     } catch (e) { /* header still renders without the week */ }
     this.renderChrome(meta);
+    this.wireBackLinks();
     try {
       await fn(main, meta);
     } catch (e) {
@@ -258,6 +273,14 @@ function headshot(p, size = "md") {
     ? `<img class="headshot ${size}" src="${esc(p.headshot)}" alt="" loading="lazy"
          onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'headshot ${size} placeholder',textContent:${esc(JSON.stringify(p.name[0]))}}))">`
     : `<span class="headshot ${size} placeholder" aria-hidden="true">${esc(p.name[0])}</span>`;
+}
+function backLink(fallbackHref) {
+  return `<a class="back" href="${fallbackHref}" data-back>← Back</a>`;
+}
+// Small colored rank chip for how a defense treats a position (1st = allows the most = best matchup).
+function matchupChip(d, opp, pos) {
+  if (!d) return `<span class="muted">—</span>`;
+  return `<span class="mchip ${matchupClass(d.rank)}" title="${esc(opp)} allows the ${ordinal(d.rank)}-most fantasy pts to ${pos}s (${d.ppg}/game)">${ordinal(d.rank)}</span>`;
 }
 function playerUrl(p) {
   return `player.html?id=${encodeURIComponent(p.id)}`;

@@ -485,3 +485,16 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 }
 
 .edge-proj { color: var(--text); }
+.mchip { display: inline-block; min-width: 42px; text-align: center; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 800;
+  color: var(--mc); background: color-mix(in srgb, var(--mc) 15%, transparent); }
+.top-legend { margin: -4px 2px 10px; }
+.rank-table .opp a { text-decoration: none; }
+.rank-table .opp a:hover { text-decoration: underline; }
+.head-scoring { margin-top: 10px; }
+.head-scoring .scoring { justify-content: flex-end; }
+.trend-row { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 600px) { .head-scoring .scoring { justify-content: flex-start; } }
+@media (max-width: 600px) { .trend-row { grid-template-columns: repeat(2, 1fr); } }
+.db-table { font-size: 14px; }
+.db-table th { font-size: 11px; letter-spacing: .2px; }
+.db-table td, .db-table th { padding-left: 7px; padding-right: 7px; }

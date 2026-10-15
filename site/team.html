@@ -34,7 +34,7 @@
         const roster = rankList(players.filter(p => p.team === team && p.pos !== "DST"), sc, meta);
         const dst = players.find(p => p.id === `DST-${team}`);
         main.innerHTML = `
-          <a class="back" href="games.html">← NFL Games</a>
+          ${backLink(`games.html`)}
           <section class="team-head" style="--tc:${teams[team].color}">
             ${teamMark(team, teams, "xl")}
             <div>

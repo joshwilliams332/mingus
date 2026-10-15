@@ -4,8 +4,8 @@ Fantasy football rankings, NFL stats and Vegas lines, built from [nflverse](http
 
 ## Pages
 - **Home** (`index.html`): Game of the Week banner, injury report, your articles, this week's games, a Top 5 by position and the week's best matchups.
-- **Player Database** (`players.html`): every player and all 32 teams, filterable by position and team.
-- **Weekly Rankings** (`rankings.html?pos=QB|RB|WR|TE|FLX|K|DST`): fantasy points per game with this week's opponent and season stats.
+- **Player Database** (`players.html?pos=…`): full season stat lines (passing, rushing, receiving, kicking, defense) plus total and per-game fantasy points, filterable by position and team.
+- **Weekly Rankings** (`rankings.html?pos=QB|RB|WR|TE|FLX|K|DST`): fantasy-only view: this week's opponent, the opponent's rank against the position, Sleeper projection, fantasy points per game, season total and last-3 average.
 - **NFL Games** (`games.html?week=N`): any week's slate with lines, scores, covers and over/unders. Every game card opens its matchup page.
 - **Matchup** (`game.html?id=…`): head-to-head with lines and moneylines, venue and weather, each team's last five games against the spread, over/under and implied points, and matchup edges (which positions each defense gives up the most to, with the players who benefit).
 - **Team** (`team.html?team=SEA`): record, ATS and O/U record, full schedule with results, fantasy players and defense vs position.
