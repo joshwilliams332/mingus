@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    Mingus.start(async (main, meta) => {
+      const [players, games, teams, notes] = await Promise.all([
+        Mingus.load("players"), Mingus.load("games"), Mingus.load("teams"), Mingus.content("notes", {}),
+      ]);
+      const team = (new URLSearchParams(location.search).get("team") || "").toUpperCase();
+      if (!teams[team]) {
+        main.innerHTML = `<a class="back" href="players.html">← Player Database</a><div class="notice">Team not found.</div>`;
+        return;
+      }
+      document.title = `${teamName(team, teams)} · Mingus Sports`;
+      let sc = Scoring.get();
+      const results = teamResults(games, team);
+      const schedule = games.filter(g => g.type === "REG" && (g.home === team || g.away === team)).sort((a, b) => a.week - b.week);
+      const weeks = new Set(schedule.map(g => g.week));
+      const byeWeek = [...Array(18).keys()].map(i => i + 1).find(w => !weeks.has(w));
+      const next = schedule.find(g => g.home_score === null);
+      const pf = results.reduce((a, r) => a + r.pf, 0), pa = results.reduce((a, r) => a + r.pa, 0);
+
+      function render() {
+        const dvp = defenseVsPos(players, games, sc);
+        const roster = rankList(players.filter(p => p.team === team && p.pos !== "DST"), sc, meta);
+        const dst = players.find(p => p.id === `DST-${team}`);
+        main.innerHTML = `
+          <a class="back" href="games.html">← NFL Games</a>
+          <section class="team-head" style="--tc:${teams[team].color}">
+            ${teamMark(team, teams, "xl")}
+            <div>
+              <h1>${esc(teamName(team, teams))}</h1>
+              <p class="muted">${record(results, "result")} · ATS ${record(results, "ats")} · O/U ${record(results, "ou", "O", "U")}${byeWeek ? ` · Bye: Week ${byeWeek}` : ""}</p>
+              ${next ? `<p class="profile-note">Next: <a href="${gameUrl(next)}">Week ${next.week} ${next.home === team ? "vs." : "@"} ${esc(next.home === team ? next.away : next.home)}</a> · ${esc(fmtKickoff(next))}</p>` : ""}
+            </div>
+            <div class="team-stats">
+              <div><strong>${results.length ? fmt(Math.round(pf / results.length * 10) / 10) : "—"}</strong><span>Pts/game</span></div>
+              <div><strong>${results.length ? fmt(Math.round(pa / results.length * 10) / 10) : "—"}</strong><span>Allowed/game</span></div>
+            </div>
+          </section>
+
+          ${notes.teams?.[team] ? `<section class="card note-card" style="margin-top:14px"><h3>Mingus notes</h3><p>${esc(notes.teams[team])}</p></section>` : ""}
+
+          <section class="card" style="margin-top:14px">
+            <h3>Schedule and results</h3>
+            <div class="table-wrap flat">
+              <table class="data-table">
+                <thead><tr><th class="l">Wk</th><th class="l">Opponent</th><th class="l">Result</th><th>Spread</th><th>O/U</th><th>ATS</th><th>Total</th><th class="hide-sm">Pts vs implied</th></tr></thead>
+                <tbody>${schedule.map(g => {
+                  const r = results.find(x => x.id === g.id);
+                  const tg = teamGame(g, team);
+                  return `<tr class="click-row" data-href="${gameUrl(g)}">
+                    <td class="l">${g.week}</td>
+                    <td class="l"><span class="opp-cell">${tg.isHome ? "vs." : "@"} ${teamMark(tg.opp, teams, "sm")} ${esc(teamName(tg.opp, teams, false))}</span></td>
+                    <td class="l">${r ? `<span class="${r.result === "W" ? "win" : r.result === "L" ? "loss" : ""}">${r.result} ${r.pf}-${r.pa}</span>` : `<span class="muted">${esc(fmtKickoff(g))}</span>`}</td>
+                    <td>${spreadTag(tg.spread)}</td>
+                    <td>${fmt(g.total)}</td>
+                    <td>${r ? `<span class="pill ${r.ats === "W" ? "ok" : r.ats === "L" ? "bad" : ""}">${r.ats === "W" ? "Cover" : r.ats === "L" ? "Miss" : "Push"}</span>` : ""}</td>
+                    <td>${r ? `<span class="pill ${r.ou === "O" ? "ok" : r.ou === "U" ? "bad" : ""}">${r.ou === "O" ? "Over" : r.ou === "U" ? "Under" : "Push"}</span>` : ""}</td>
+                    <td class="hide-sm ${r?.vsImplied > 0 ? "pos-num" : r?.vsImplied < 0 ? "neg-num" : ""}">${r && r.vsImplied !== null ? (r.vsImplied > 0 ? "+" : "") + r.vsImplied : ""}</td>
+                  </tr>`;
+                }).join("")}</tbody>
+              </table>
+            </div>
+          </section>
+
+          <div class="two-col" style="margin-top:14px">
+            <section class="card">
+              <div class="card-head"><h3>Fantasy players</h3><div class="team-scoring"></div></div>
+              <div class="table-wrap flat">
+                <table class="data-table compact">
+                  <thead><tr><th class="l">Player</th><th class="l">Pos</th><th>G</th><th class="hl">FPTS/G</th></tr></thead>
+                  <tbody>${[...roster.filter(r => r.s.g >= 1).slice(0, 14), ...(dst ? [{ p: dst, s: summarize(dst, sc) }] : [])].map(({ p, s }) => `<tr>
+                    <td class="l"><div class="pcell">${headshot(p, "sm")}<a href="${playerUrl(p)}">${esc(p.name)}</a> ${injuryTag(p.injury)}</div></td>
+                    <td class="l">${posBadge(p.pos)}</td><td>${s.g}</td><td class="hl strong">${fmt(s.ppg)}</td></tr>`).join("")}</tbody>
+                </table>
+              </div>
+            </section>
+            <section class="card">
+              <h3>Defense vs position</h3>
+              <p class="muted small">Fantasy points ${esc(teamName(team, teams, false))} allow per game, ranked (1st = most allowed).</p>
+              <div class="dvp-row stacked">
+                ${["QB", "RB", "WR", "TE", "K"].map(pos => {
+                  const d = dvp[team]?.[pos];
+                  return d ? `<div class="dvp ${matchupClass(d.rank)}"><span class="dvp-pos">${pos}</span><strong>${ordinal(d.rank)}</strong><span>${d.ppg}/g allowed</span></div>` : "";
+                }).join("")}
+              </div>
+            </section>
+          </div>`;
+        main.querySelector(".team-scoring").innerHTML = scoringControls(sc, n => { sc = n; render(); });
+        main.querySelectorAll(".click-row").forEach(tr => tr.onclick = () => { location.href = tr.dataset.href; });
+      }
+      render();
+    });
+  </script>
+</body>
+</html>

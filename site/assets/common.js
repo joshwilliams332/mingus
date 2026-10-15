@@ -17,6 +17,16 @@ const Mingus = {
     return this.cache[name];
   },
 
+  // Hand-written content (notes, articles). Missing or broken files just mean "no content".
+  async content(name, fallback) {
+    try {
+      const r = await fetch(`content/${name}.json`);
+      return r.ok ? await r.json() : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  },
+
   // The header and footer are injected here so every page shares one copy.
   renderChrome(meta) {
     const here = location.pathname.split("/").pop() || "index.html";
@@ -29,13 +39,14 @@ const Mingus = {
             <span class="brand-name">Mingus Sports</span>
           </a>
           <nav class="nav" aria-label="Main">
+            <a href="players.html" ${here === "players.html" || here === "player.html" ? 'aria-current="page"' : ""}><span class="nl">Player Database</span><span class="ns">Players</span></a>
             <div class="nav-drop">
-              <a href="rankings.html" ${here === "rankings.html" ? 'aria-current="page"' : ""} aria-haspopup="true">Rankings <span aria-hidden="true">▾</span></a>
+              <a href="rankings.html" ${here === "rankings.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Weekly Rankings</span><span class="ns">Rankings</span> <span aria-hidden="true">▾</span></a>
               <div class="nav-menu">
                 ${RANK_TABS.map(t => `<a href="rankings.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
               </div>
             </div>
-            <a href="games.html" ${here === "games.html" ? 'aria-current="page"' : ""}>Games</a>
+            <a href="games.html" ${["games.html", "game.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">NFL Games</span><span class="ns">Games</span></a>
           </nav>
           <span class="header-week">${esc(week)}</span>
         </div>
@@ -271,7 +282,7 @@ function gameCard(g) {
       <span class="num ${final ? "score" : ""}">${final ? tg.score[0] : fmt(tg.implied)}</span>
     </div>`;
   };
-  return `<div class="game-card ${final ? "final" : ""}">
+  return `<a class="game-card ${final ? "final" : ""}" href="${gameUrl(g)}">
     <div class="when">${final ? "Final" : esc(fmtKickoff(g))}</div>
     <div class="game-cols"><span></span><span>Spread</span><span>${final ? "Score" : "Implied"}</span></div>
     ${row(g.away, false)}
@@ -282,5 +293,97 @@ function gameCard(g) {
         : `<span>O/U ${fmt(g.total)}</span>`}
       <span class="stadium">${esc(g.stadium || "")}</span>
     </div>
-  </div>`;
+  </a>`;
+}
+
+// ---------- Teams, matchups and weather ----------
+
+function gameUrl(g) { return `game.html?id=${encodeURIComponent(g.id)}`; }
+function teamUrl(abbr) { return `team.html?team=${encodeURIComponent(abbr)}`; }
+function teamName(abbr, teams, full = true) {
+  const t = teams?.[abbr];
+  return t ? (full ? `${t.city} ${t.nickname}` : t.nickname) : abbr;
+}
+// Colored team badge (we don't ship logos, so the abbreviation stands in).
+function teamMark(abbr, teams, size = "md") {
+  const color = teams?.[abbr]?.color || "#556";
+  return `<span class="team-badge ${size}" style="--tc:${color}">${esc(abbr)}</span>`;
+}
+
+// Every finished game for a team with betting results from that team's side.
+function teamResults(games, team) {
+  return games
+    .filter(g => g.type === "REG" && g.home_score !== null && (g.home === team || g.away === team))
+    .sort((a, b) => a.week - b.week)
+    .map(g => {
+      const tg = teamGame(g, team);
+      const [pf, pa] = tg.score;
+      const ats = tg.spread === null ? null : pf - pa + tg.spread;
+      return {
+        ...tg, pf, pa,
+        result: pf > pa ? "W" : pf < pa ? "L" : "T",
+        ats: ats === null ? null : ats > 0 ? "W" : ats < 0 ? "L" : "P",
+        ou: g.total === null ? null : pf + pa > g.total ? "O" : pf + pa < g.total ? "U" : "P",
+        vsImplied: tg.implied === null ? null : Math.round((pf - tg.implied) * 10) / 10,
+      };
+    });
+}
+// "3-2" style records from a list of results.
+function record(list, key, win = "W", loss = "L") {
+  const w = list.filter(r => r[key] === win).length, l = list.filter(r => r[key] === loss).length;
+  const p = list.filter(r => r[key] === "P" || r[key] === "T").length;
+  return `${w}-${l}${p ? `-${p}` : ""}`;
+}
+
+// Fantasy points each defense allows per game to each position, ranked 1 (most allowed = best matchup) to 32.
+function defenseVsPos(players, games, sc) {
+  const allowed = {};
+  for (const p of players) {
+    if (!["QB", "RB", "WR", "TE", "K"].includes(p.pos)) continue;
+    for (const e of p.log) {
+      const d = (allowed[e.opp] ||= {});
+      d[p.pos] = (d[p.pos] || 0) + scoreGame(e, p.pos, sc);
+    }
+  }
+  const played = {};
+  for (const g of games) {
+    if (g.type !== "REG" || g.home_score === null) continue;
+    played[g.home] = (played[g.home] || 0) + 1;
+    played[g.away] = (played[g.away] || 0) + 1;
+  }
+  const out = {};
+  for (const team of Object.keys(played)) {
+    out[team] = {};
+    for (const pos of ["QB", "RB", "WR", "TE", "K"]) out[team][pos] = { ppg: Math.round((allowed[team]?.[pos] || 0) / played[team] * 10) / 10 };
+  }
+  for (const pos of ["QB", "RB", "WR", "TE", "K"]) {
+    Object.keys(out).sort((a, b) => out[b][pos].ppg - out[a][pos].ppg).forEach((t, i) => { out[t][pos].rank = i + 1; });
+  }
+  return out;
+}
+function matchupClass(rank) { return rank <= 8 ? "great" : rank <= 16 ? "good" : rank <= 24 ? "meh" : "tough"; }
+function matchupLabel(rank) { return { great: "Great matchup", good: "Good matchup", meh: "Below average", tough: "Tough matchup" }[matchupClass(rank)]; }
+function ordinal(n) { const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+
+function roofLabel(roof) {
+  return { dome: "Indoors (dome)", closed: "Retractable roof (closed)", open: "Retractable roof (open)", outdoors: "Outdoors" }[roof] || "—";
+}
+// Live forecast for an upcoming outdoor game from Open-Meteo (free, no key). Resolves to null when unavailable.
+async function fetchForecast(g) {
+  if (!g.coords || ["dome", "closed"].includes(g.roof) || g.home_score !== null) return null;
+  const days = (new Date(`${g.date}T12:00:00`) - new Date()) / 864e5;
+  if (days < -1 || days > 15) return null;
+  const [lat, lon] = g.coords;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+    `&hourly=temperature_2m,precipitation_probability,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph` +
+    `&timezone=America%2FNew_York&start_date=${g.date}&end_date=${g.date}`;
+  try {
+    const r = await fetch(url);
+    if (!r.ok) return null;
+    const h = (await r.json()).hourly;
+    const i = Math.min(23, Number((g.time || "13:00").split(":")[0]));
+    return { temp: Math.round(h.temperature_2m[i]), rain: h.precipitation_probability?.[i], wind: Math.round(h.wind_speed_10m[i]) };
+  } catch (e) {
+    return null;
+  }
 }

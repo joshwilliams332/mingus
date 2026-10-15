@@ -3,12 +3,20 @@
 Fantasy football rankings, NFL stats and Vegas lines, built from [nflverse](https://github.com/nflverse/nflverse-data) data.
 
 ## Pages
-- **Home** (`index.html`): top players, position leaders and this week's games with spreads.
-- **Rankings** (`rankings.html?pos=QB|RB|WR|TE|FLX|K|DST`): fantasy points per game with this week's opponent and season stats. Opened from the Rankings dropdown in the header.
-- **Player** (`player.html?id=…`): season so far, this week's matchup and lines, injury note, bio, weekly points chart and game log.
-- **Games** (`games.html?week=N`): any week's slate. Upcoming games show spreads and implied totals; finished games show the score, who covered and whether the total went over or under.
+- **Home** (`index.html`): Game of the Week banner, injury report, your articles, this week's games, a Top 5 by position and the week's best matchups.
+- **Player Database** (`players.html`): every player and all 32 teams, filterable by position and team.
+- **Weekly Rankings** (`rankings.html?pos=QB|RB|WR|TE|FLX|K|DST`): fantasy points per game with this week's opponent and season stats.
+- **NFL Games** (`games.html?week=N`): any week's slate with lines, scores, covers and over/unders. Every game card opens its matchup page.
+- **Matchup** (`game.html?id=…`): head-to-head with lines and moneylines, venue and weather, each team's last five games against the spread, over/under and implied points, and matchup edges (which positions each defense gives up the most to, with the players who benefit).
+- **Team** (`team.html?team=SEA`): record, ATS and O/U record, full schedule with results, fantasy players and defense vs position.
+- **Player** (`player.html?id=…`): season so far, this week's matchup, injury note, bio, weekly points and game log.
 
-The header and footer live in `site/assets/common.js` and appear on every page.
+## Your notes and articles
+Edit the files in `site/content/` (the data script never touches them):
+- `notes.json`: notes for games, players and teams (shown on their pages), plus `featured_game` to pick the home page's Game of the Week.
+- `articles.json`: the "From Mingus" posts on the home page.
+
+Weather forecasts for upcoming outdoor games come from [Open-Meteo](https://open-meteo.com) in the visitor's browser, about two weeks out.
 
 ## Scoring
 Pick **PPR**, **Half PPR** or **Standard**, and **4 or 6 points per passing TD**. The choice is saved in the browser and shared by every page.
@@ -27,7 +35,7 @@ Players are ranked by points per game; anyone who has played fewer than half the
 | `stats_team/stats_team_week_<season>.csv` | weekly team defense stats for D/ST |
 | `rosters/roster_<season>.csv` | team, number, bio |
 | `injuries/injuries_<season>.csv` | injury tags (game status, or practice status midweek) |
-| `schedules/games.csv` | schedule, scores, spreads, totals |
+| `schedules/games.csv` | schedule, scores, spreads, totals, moneylines, roof and surface |
 
 ## Run locally
 ```sh

@@ -13,68 +13,112 @@
   <script src="assets/common.js"></script>
   <script>
     Mingus.start(async (main, meta) => {
-      const [players, games] = await Promise.all([Mingus.load("players"), Mingus.load("games")]);
+      const [players, games, teams, notes, articles] = await Promise.all([
+        Mingus.load("players"), Mingus.load("games"), Mingus.load("teams"),
+        Mingus.content("notes", {}), Mingus.content("articles", []),
+      ]);
       const week = meta.next_week ?? meta.last_week;
-      let sc = Scoring.get();
       const slate = games.filter(g => g.week === week);
+      const sc = Scoring.get();
+      // Game of the Week: the one picked in content/notes.json, else the week's highest over/under.
+      const featured = games.find(g => g.id === notes.featured_game) ||
+        [...slate].sort((a, b) => (b.total || 0) - (a.total || 0))[0];
+      const ranked = rankList(players.filter(p => ["QB", "RB", "WR", "TE"].includes(p.pos)), sc, meta).filter(r => r.s.g >= minGames(meta));
+      const dvp = defenseVsPos(players, games, sc);
+      const injured = ranked.filter(r => r.p.injury).slice(0, 10);
+      // Best matchups: top-24 players at their position facing a top-5 defense to target.
+      const edges = ranked
+        .filter(r => r.s.g && ranked.filter(x => x.p.pos === r.p.pos).indexOf(r) < 24)
+        .map(r => ({ ...r, game: weekGame(games, r.p.team, week) }))
+        .filter(r => r.game && dvp[r.game.opp]?.[r.p.pos]?.rank <= 5)
+        .slice(0, 6);
 
-      function render() {
-        const skill = rankList(players.filter(p => FLEX.includes(p.pos) || p.pos === "QB"), sc, meta);
-        const top = skill.slice(0, 12);
-        const leaders = ["QB", "RB", "WR", "TE"].map(pos => ({ pos, list: skill.filter(r => r.p.pos === pos).slice(0, 5) }));
+      const hero = featured ? (() => {
+        const a = teamGame(featured, featured.away), h = teamGame(featured, featured.home);
+        return `<a class="feature" href="${gameUrl(featured)}" style="--ta:${teams[featured.away]?.color};--th:${teams[featured.home]?.color}">
+          <span class="feature-eyebrow">Game of the Week · Week ${featured.week}</span>
+          <div class="feature-teams">
+            <div class="feature-side">${teamMark(featured.away, teams, "xl")}<strong>${esc(teamName(featured.away, teams, false))}</strong><span>${spreadTag(a.spread)} · ${fmt(a.implied)} implied</span></div>
+            <span class="feature-at">@</span>
+            <div class="feature-side">${teamMark(featured.home, teams, "xl")}<strong>${esc(teamName(featured.home, teams, false))}</strong><span>${spreadTag(h.spread)} · ${fmt(h.implied)} implied</span></div>
+          </div>
+          <span class="feature-meta">${esc(fmtKickoff(featured))} · O/U ${fmt(featured.total)} · ${esc(featured.stadium || "")}</span>
+          ${notes.games?.[featured.id] ? `<span class="feature-note">${esc(notes.games[featured.id])}</span>` : ""}
+          <span class="btn">Matchup breakdown →</span>
+        </a>`;
+      })() : "";
 
-        main.innerHTML = `
-          <section class="hero">
-            <h1>Mingus Sports</h1>
-            <p>Fantasy football rankings, NFL stats and Vegas lines. Through Week ${meta.last_week} of the ${meta.season} season.</p>
-            <div class="hero-actions">
-              <a class="btn" href="rankings.html">Fantasy rankings</a>
-              <a class="btn ghost" href="games.html">Week ${week} games</a>
-            </div>
-          </section>
+      main.innerHTML = `
+        ${hero}
+        <div class="home-grid">
+          <div class="home-main">
+            <section class="section">
+              <div class="section-head"><h2>Injury report</h2><span class="muted small">Week ${meta.injury_week ?? week} · fantasy-relevant players</span></div>
+              <div class="card list-card">
+                ${injured.map(({ p }) => `<a class="list-row" href="${playerUrl(p)}">
+                  ${headshot(p, "sm")}
+                  <span class="list-main"><strong>${esc(p.name)}</strong><span class="muted">${esc(p.pos)} · ${esc(p.team)}${p.injury.injury ? ` · ${esc(p.injury.injury)}` : ""}</span></span>
+                  ${injuryTag(p.injury)}
+                </a>`).join("") || `<p class="muted">No fantasy-relevant injuries reported yet this week.</p>`}
+              </div>
+            </section>
 
-          <section class="section">
-            <div class="section-head"><h2>Top players</h2><div class="home-scoring"></div></div>
-            <div class="top-grid">
-              ${top.map(({ p, s }, i) => `
-                <a class="player-card" href="${playerUrl(p)}">
-                  <span class="rank-num">${i + 1}</span>
-                  ${headshot(p, "md")}
-                  <span class="name">${esc(p.name)} ${injuryTag(p.injury)}</span>
-                  <span class="meta">${posBadge(p.pos)} ${esc(p.team)}</span>
-                  <span class="pts">${fmt(s.ppg)} <small>FPTS/G</small></span>
-                </a>`).join("")}
-            </div>
-          </section>
+            <section class="section">
+              <div class="section-head"><h2>From Mingus</h2></div>
+              <div class="articles">
+                ${articles.map(a => `<details class="article card">
+                  <summary>
+                    <span class="article-tag">${esc(a.tag || "Article")}</span>
+                    <strong>${esc(a.title)}</strong>
+                    <span class="muted">${esc(a.summary || "")}</span>
+                    <span class="muted small">${esc(a.date || "")}</span>
+                  </summary>
+                  <p>${esc(a.body || "")}</p>
+                </details>`).join("") || `<p class="muted">No articles yet.</p>`}
+              </div>
+            </section>
 
-          <section class="section">
-            <div class="section-head"><h2>Position leaders</h2><a href="rankings.html">Full rankings →</a></div>
-            <div class="pos-leaders">
-              ${leaders.map(({ pos, list }) => `
-                <div class="card">
-                  <div class="section-head"><h3>${pos}</h3><a href="rankings.html?pos=${pos}">More</a></div>
-                  <ol class="leader-list">
-                    ${list.map(({ p, s }, i) => `
-                      <li><a href="${playerUrl(p)}">
-                        <span class="lrank">${i + 1}</span>
-                        ${headshot(p, "sm")}
-                        <span class="lname">${esc(p.name)} ${injuryTag(p.injury)}</span>
-                        <span class="lteam">${esc(p.team)}</span>
-                        <span class="lpts">${fmt(s.ppg)}</span>
-                      </a></li>`).join("")}
-                  </ol>
-                  <p class="muted" style="margin:8px 0 0;font-size:12px">Fantasy points per game · ${esc(Scoring.label(sc))}</p>
-                </div>`).join("")}
-            </div>
-          </section>
+            <section class="section">
+              <div class="section-head"><h2>Week ${week} games</h2><a href="games.html">All games →</a></div>
+              <div class="card list-card">
+                ${slate.map(g => {
+                  const h = teamGame(g, g.home);
+                  return `<a class="list-row game-line" href="${gameUrl(g)}">
+                    <span class="gl-teams">${teamMark(g.away, teams, "sm")} ${esc(g.away)} <span class="muted">@</span> ${teamMark(g.home, teams, "sm")} ${esc(g.home)}</span>
+                    <span class="muted gl-time">${esc(fmtKickoff(g))}</span>
+                    <span class="gl-line">${esc(g.home)} ${spreadTag(h.spread)} · O/U ${fmt(g.total)}</span>
+                  </a>`;
+                }).join("")}
+              </div>
+            </section>
+          </div>
 
-          <section class="section">
-            <div class="section-head"><h2>Week ${week} games</h2><a href="games.html">All weeks →</a></div>
-            <div class="games-grid big">${slate.map(gameCard).join("") || `<p class="muted">No games this week.</p>`}</div>
-          </section>`;
-        main.querySelector(".home-scoring").innerHTML = scoringControls(sc, next => { sc = next; render(); });
-      }
-      render();
+          <aside class="home-side">
+            <section class="card side-card">
+              <div class="card-head"><h3>Top 5</h3><a class="small-link" href="rankings.html">Rankings →</a></div>
+              <div class="mini-tabs" role="tablist">${["QB", "RB", "WR", "TE"].map((p, i) => `<button role="tab" data-pos="${p}" aria-selected="${i === 0}">${p}</button>`).join("")}</div>
+              <ol class="top5"></ol>
+            </section>
+            <section class="card side-card">
+              <h3>Best matchups this week</h3>
+              ${edges.map(({ p, game }) => `<a class="list-row" href="${playerUrl(p)}">
+                ${headshot(p, "sm")}
+                <span class="list-main"><strong>${esc(p.name)}</strong>
+                <span class="muted">${esc(p.pos)} ${esc(oppLabel(game))} · ${esc(game.opp)} allows the ${ordinal(dvp[game.opp][p.pos].rank)}-most to ${p.pos}s</span></span>
+              </a>`).join("") || `<p class="muted">Check back once the week's games are set.</p>`}
+            </section>
+          </aside>
+        </div>`;
+
+      const top5 = main.querySelector(".top5");
+      const showPos = pos => {
+        main.querySelectorAll(".mini-tabs button").forEach(b => b.setAttribute("aria-selected", b.dataset.pos === pos));
+        top5.innerHTML = ranked.filter(r => r.p.pos === pos).slice(0, 5).map(({ p }, i) => `<li><a href="${playerUrl(p)}">
+          <span class="lrank">${i + 1}</span>${headshot(p, "sm")}
+          <span class="list-main"><strong>${esc(p.name)}</strong><span class="muted">${esc(teamName(p.team, teams))}</span></span></a></li>`).join("");
+      };
+      main.querySelectorAll(".mini-tabs button").forEach(b => b.onclick = () => showPos(b.dataset.pos));
+      showPos("QB");
     });
   </script>
 </body>

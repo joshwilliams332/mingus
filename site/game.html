@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Matchup · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    Mingus.start(async (main, meta) => {
+      const [players, games, teams, notes] = await Promise.all([
+        Mingus.load("players"), Mingus.load("games"), Mingus.load("teams"), Mingus.content("notes", {}),
+      ]);
+      const g = games.find(x => x.id === new URLSearchParams(location.search).get("id"));
+      if (!g) {
+        main.innerHTML = `<a class="back" href="games.html">← NFL Games</a><div class="notice">Game not found.</div>`;
+        return;
+      }
+      const sides = [g.away, g.home];
+      document.title = `${g.away} @ ${g.home} · Week ${g.week} · Mingus Sports`;
+      const final = g.home_score !== null;
+      const res = lineResults(g);
+      let sc = Scoring.get();
+      const forecastP = fetchForecast(g);
+
+      function sideHead(team, isHome) {
+        const tr = teamResults(games, team).filter(r => r.week < g.week);
+        const tg = teamGame(g, team);
+        return `<a class="h2h-team" href="${teamUrl(team)}">
+          ${teamMark(team, teams, "xl")}
+          <span class="h2h-name">${esc(teamName(team, teams))}</span>
+          <span class="muted">${record(tr, "result")}${isHome ? " · Home" : " · Away"}</span>
+          ${final ? `<span class="h2h-score ${tg.score[0] > tg.score[1] ? "won" : ""}">${tg.score[0]}</span>` : ""}
+        </a>`;
+      }
+
+      // One team's last five games before this one, with betting results.
+      function lastFive(team) {
+        const all = teamResults(games, team).filter(r => r.week < g.week);
+        const five = all.slice(-5).reverse();
+        const avgVs = all.filter(r => r.vsImplied !== null);
+        const vs = avgVs.length ? Math.round(avgVs.reduce((a, r) => a + r.vsImplied, 0) / avgVs.length * 10) / 10 : null;
+        return `<section class="card">
+          <div class="card-head"><h3>${esc(teamName(team, teams, false))} · last ${five.length}</h3><a class="small-link" href="${teamUrl(team)}">Team page →</a></div>
+          <div class="trend-row">
+            <div><strong>${record(all, "result")}</strong><span>Record</span></div>
+            <div><strong>${record(all, "ats")}</strong><span>Against spread</span></div>
+            <div><strong>${record(all, "ou", "O", "U")}</strong><span>Over-under</span></div>
+            <div><strong class="${vs > 0 ? "pos-num" : vs < 0 ? "neg-num" : ""}">${vs === null ? "—" : (vs > 0 ? "+" : "") + vs}</strong><span>Pts vs implied</span></div>
+          </div>
+          <div class="table-wrap flat">
+            <table class="data-table compact">
+              <thead><tr><th class="l">Wk</th><th class="l">Opp</th><th class="l">Result</th><th>Line</th><th>ATS</th><th>O/U</th><th>vs Imp.</th></tr></thead>
+              <tbody>${five.map(r => `<tr class="click-row" data-href="${gameUrl(r)}">
+                <td class="l">${r.week}</td>
+                <td class="l">${r.isHome ? "vs." : "@"} ${esc(r.opp)}</td>
+                <td class="l"><span class="${r.result === "W" ? "win" : r.result === "L" ? "loss" : ""}">${r.result} ${r.pf}-${r.pa}</span></td>
+                <td>${fmtSpread(r.spread)}</td>
+                <td><span class="pill ${r.ats === "W" ? "ok" : r.ats === "L" ? "bad" : ""}">${r.ats === "W" ? "Cover" : r.ats === "L" ? "Miss" : "Push"}</span></td>
+                <td><span class="pill ${r.ou === "O" ? "ok" : r.ou === "U" ? "bad" : ""}">${r.ou === "O" ? "Over" : r.ou === "U" ? "Under" : "Push"} ${fmt(r.total)}</span></td>
+                <td class="${r.vsImplied > 0 ? "pos-num" : r.vsImplied < 0 ? "neg-num" : ""}">${r.vsImplied === null ? "—" : (r.vsImplied > 0 ? "+" : "") + r.vsImplied}</td>
+              </tr>`).join("") || `<tr><td colspan="7" class="l muted">No games yet.</td></tr>`}</tbody>
+            </table>
+          </div>
+        </section>`;
+      }
+
+      // Each team's top fantasy players against the other team's defense.
+      function edges(team, opp, dvp) {
+        const roster = rankList(players.filter(p => p.team === team && ["QB", "RB", "WR", "TE"].includes(p.pos)), sc, meta)
+          .filter(r => r.s.g >= minGames(meta));
+        const pick = [["QB", 1], ["RB", 2], ["WR", 2], ["TE", 1]].flatMap(([pos, n]) => roster.filter(r => r.p.pos === pos).slice(0, n));
+        return `<section class="card">
+          <div class="card-head"><h3>${esc(teamName(team, teams, false))} offense vs ${esc(teamName(opp, teams, false))} defense</h3></div>
+          <div class="dvp-row">
+            ${["QB", "RB", "WR", "TE"].map(pos => {
+              const d = dvp[opp]?.[pos];
+              return d ? `<div class="dvp ${matchupClass(d.rank)}" title="${esc(opp)} allows ${d.ppg} fantasy pts/game to ${pos}s">
+                <span class="dvp-pos">${pos}</span><strong>${ordinal(d.rank)}</strong><span>${d.ppg}/g allowed</span></div>` : "";
+            }).join("")}
+          </div>
+          <div class="edge-list">
+            ${pick.map(({ p, s }) => {
+              const d = dvp[opp]?.[p.pos];
+              return `<a class="edge ${d ? matchupClass(d.rank) : ""}" href="${playerUrl(p)}">
+                ${headshot(p, "md")}
+                <span class="edge-body">
+                  <span class="edge-name">${esc(p.name)} ${injuryTag(p.injury)}</span>
+                  <span class="muted">${posBadge(p.pos)} ${fmt(s.ppg)} FPTS/G · last 3: ${fmt(s.last3)}</span>
+                  ${d ? `<span class="edge-tag">${matchupLabel(d.rank)}: ${esc(opp)} allows the ${ordinal(d.rank)}-most to ${p.pos}s</span>` : ""}
+                  ${notes.players?.[p.id] ? `<span class="edge-note">${esc(notes.players[p.id])}</span>` : ""}
+                </span>
+              </a>`;
+            }).join("") || `<p class="muted">Not enough games yet.</p>`}
+          </div>
+        </section>`;
+      }
+
+      function render() {
+        const dvp = defenseVsPos(players, games, sc);
+        const away = teamGame(g, g.away), home = teamGame(g, g.home);
+        const note = notes.games?.[g.id];
+        main.innerHTML = `
+          <a class="back" href="games.html?week=${g.week}">← Week ${g.week} games</a>
+          <section class="h2h">
+            ${sideHead(g.away, false)}
+            <div class="h2h-mid">
+              <span class="h2h-week">Week ${g.week}${g.div ? " · Division game" : ""}</span>
+              <strong>${final ? "Final" : "@"}</strong>
+              <span class="muted">${esc(fmtKickoff(g))}</span>
+            </div>
+            ${sideHead(g.home, true)}
+          </section>
+
+          <div class="grid">
+            <section class="card wide">
+              <h3>${final ? "Closing lines and results" : "Lines"}</h3>
+              <div class="tiles">
+                <div class="tile"><strong>${spreadTag(away.spread)} / ${spreadTag(home.spread)}</strong><span>Spread (${esc(g.away)} / ${esc(g.home)})</span></div>
+                <div class="tile"><strong>${fmt(g.total)}</strong><span>Over/under</span></div>
+                <div class="tile"><strong>${fmt(away.implied)} – ${fmt(home.implied)}</strong><span>Implied points</span></div>
+                <div class="tile"><strong>${fmtSpread(g.away_ml)} / ${fmtSpread(g.home_ml)}</strong><span>Moneyline</span></div>
+                ${final && res ? `
+                  <div class="tile accent"><strong>${res.cover ? esc(res.cover) : "Push"}</strong><span>Covered the spread</span></div>
+                  <div class="tile accent"><strong>${res.ou} (${res.sum})</strong><span>Total</span></div>` : ""}
+              </div>
+            </section>
+
+            ${note ? `<section class="card wide note-card"><h3>Mingus notes</h3><p>${esc(note)}</p></section>` : ""}
+
+            <section class="card wide">
+              <h3>Venue</h3>
+              <div class="tiles">
+                <div class="tile"><strong>${esc(g.stadium || "—")}</strong><span>Stadium</span></div>
+                <div class="tile"><strong>${esc(roofLabel(g.roof))}</strong><span>Roof</span></div>
+                <div class="tile"><strong>${esc((g.surface || "—").replace(/^\w/, c => c.toUpperCase()))}</strong><span>Surface</span></div>
+                <div class="tile weather"><strong>${["dome", "closed"].includes(g.roof) ? "Indoors" : g.temp !== null ? `${g.temp}°F` : "…"}</strong><span>Weather</span></div>
+              </div>
+            </section>
+
+            <div class="wide two-col">${lastFive(g.away)}${lastFive(g.home)}</div>
+
+            <div class="wide">
+              <div class="section-head"><h2>Matchup edges</h2><div class="edge-scoring"></div></div>
+              <p class="muted small">Defense ranks: 1st = allows the most fantasy points to that position (best matchup), 32nd = allows the fewest. Season to date.</p>
+              <div class="two-col">${edges(g.away, g.home, dvp)}${edges(g.home, g.away, dvp)}</div>
+            </div>
+          </div>`;
+
+        main.querySelector(".edge-scoring").innerHTML = scoringControls(sc, next => { sc = next; render(); });
+        main.querySelectorAll(".click-row").forEach(tr => tr.onclick = () => { location.href = tr.dataset.href; });
+        forecastP.then(f => {
+          const w = main.querySelector(".weather");
+          if (!w || ["dome", "closed"].includes(g.roof) || g.temp !== null) return;
+          w.innerHTML = f
+            ? `<strong>${f.temp}°F · ${f.wind} mph wind</strong><span>Forecast at kickoff${f.rain != null ? ` · ${f.rain}% chance of rain` : ""}</span>`
+            : `<strong>—</strong><span>${final ? "Not recorded" : "Forecast shows up within ~2 weeks of kickoff"}</span>`;
+        });
+      }
+      render();
+    });
+  </script>
+</body>
+</html>

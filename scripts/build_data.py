@@ -12,7 +12,7 @@ Output (in site/data/):
     meta.json     season, latest completed week, next week, build time
     players.json  QB/RB/WR/TE/K and team defenses, each with a weekly game log
     games.json    the full season schedule with Vegas lines and scores
-    teams.json    abbreviation -> city and nickname (for search and D/ST names)
+    teams.json    abbreviation -> city, nickname and color
 
 Fantasy points are NOT stored. Each game-log entry keeps the raw stats, and the
 site scores them in the browser so visitors can switch between PPR, half-PPR,
@@ -32,18 +32,47 @@ BASE = "https://github.com/nflverse/nflverse-data/releases/download"
 SKILL = {"QB", "RB", "WR", "TE"}
 OUT_DIR = Path(__file__).resolve().parent.parent / "site" / "data"
 
+# abbreviation: (city, nickname, primary color, stadium latitude, longitude)
 TEAMS = {
-    "ARI": ("Arizona", "Cardinals"), "ATL": ("Atlanta", "Falcons"), "BAL": ("Baltimore", "Ravens"),
-    "BUF": ("Buffalo", "Bills"), "CAR": ("Carolina", "Panthers"), "CHI": ("Chicago", "Bears"),
-    "CIN": ("Cincinnati", "Bengals"), "CLE": ("Cleveland", "Browns"), "DAL": ("Dallas", "Cowboys"),
-    "DEN": ("Denver", "Broncos"), "DET": ("Detroit", "Lions"), "GB": ("Green Bay", "Packers"),
-    "HOU": ("Houston", "Texans"), "IND": ("Indianapolis", "Colts"), "JAX": ("Jacksonville", "Jaguars"),
-    "KC": ("Kansas City", "Chiefs"), "LA": ("Los Angeles", "Rams"), "LAC": ("Los Angeles", "Chargers"),
-    "LV": ("Las Vegas", "Raiders"), "MIA": ("Miami", "Dolphins"), "MIN": ("Minnesota", "Vikings"),
-    "NE": ("New England", "Patriots"), "NO": ("New Orleans", "Saints"), "NYG": ("New York", "Giants"),
-    "NYJ": ("New York", "Jets"), "PHI": ("Philadelphia", "Eagles"), "PIT": ("Pittsburgh", "Steelers"),
-    "SEA": ("Seattle", "Seahawks"), "SF": ("San Francisco", "49ers"), "TB": ("Tampa Bay", "Buccaneers"),
-    "TEN": ("Tennessee", "Titans"), "WAS": ("Washington", "Commanders"),
+    "ARI": ("Arizona", "Cardinals", "#97233F", 33.5276, -112.2626),
+    "ATL": ("Atlanta", "Falcons", "#A71930", 33.7554, -84.4008),
+    "BAL": ("Baltimore", "Ravens", "#241773", 39.2780, -76.6227),
+    "BUF": ("Buffalo", "Bills", "#00338D", 42.7738, -78.7870),
+    "CAR": ("Carolina", "Panthers", "#0085CA", 35.2258, -80.8528),
+    "CHI": ("Chicago", "Bears", "#C83803", 41.8623, -87.6167),
+    "CIN": ("Cincinnati", "Bengals", "#FB4F14", 39.0955, -84.5161),
+    "CLE": ("Cleveland", "Browns", "#FF3C00", 41.5061, -81.6995),
+    "DAL": ("Dallas", "Cowboys", "#003594", 32.7473, -97.0945),
+    "DEN": ("Denver", "Broncos", "#FB4F14", 39.7439, -105.0201),
+    "DET": ("Detroit", "Lions", "#0076B6", 42.3400, -83.0456),
+    "GB": ("Green Bay", "Packers", "#203731", 44.5013, -88.0622),
+    "HOU": ("Houston", "Texans", "#A71930", 29.6847, -95.4107),
+    "IND": ("Indianapolis", "Colts", "#002C5F", 39.7601, -86.1639),
+    "JAX": ("Jacksonville", "Jaguars", "#006778", 30.3239, -81.6373),
+    "KC": ("Kansas City", "Chiefs", "#E31837", 39.0489, -94.4839),
+    "LA": ("Los Angeles", "Rams", "#003594", 33.9535, -118.3392),
+    "LAC": ("Los Angeles", "Chargers", "#0080C6", 33.9535, -118.3392),
+    "LV": ("Las Vegas", "Raiders", "#555F66", 36.0909, -115.1833),
+    "MIA": ("Miami", "Dolphins", "#008E97", 25.9580, -80.2389),
+    "MIN": ("Minnesota", "Vikings", "#4F2683", 44.9737, -93.2581),
+    "NE": ("New England", "Patriots", "#002244", 42.0909, -71.2643),
+    "NO": ("New Orleans", "Saints", "#A08A58", 29.9511, -90.0812),
+    "NYG": ("New York", "Giants", "#0B2265", 40.8135, -74.0745),
+    "NYJ": ("New York", "Jets", "#125740", 40.8135, -74.0745),
+    "PHI": ("Philadelphia", "Eagles", "#004C54", 39.9008, -75.1675),
+    "PIT": ("Pittsburgh", "Steelers", "#C99A00", 40.4468, -80.0158),
+    "SEA": ("Seattle", "Seahawks", "#002244", 47.5952, -122.3316),
+    "SF": ("San Francisco", "49ers", "#AA0000", 37.4030, -121.9700),
+    "TB": ("Tampa Bay", "Buccaneers", "#D50A0A", 27.9759, -82.5033),
+    "TEN": ("Tennessee", "Titans", "#4B92DB", 36.1665, -86.7713),
+    "WAS": ("Washington", "Commanders", "#5A1414", 38.9078, -76.8645),
+}
+# Neutral-site stadiums (international games): name fragment -> (latitude, longitude).
+NEUTRAL_SITES = {
+    "Wembley": (51.5560, -0.2796), "Tottenham": (51.6043, -0.0664), "Allianz": (48.2188, 11.6247),
+    "Deutsche Bank": (50.0686, 8.6455), "Olympiastadion": (52.5147, 13.2395), "Bernab": (40.4531, -3.6883),
+    "Croke": (53.3609, -6.2511), "Corinthians": (-23.5453, -46.4742), "Maracan": (-22.9122, -43.2302),
+    "Azteca": (19.3029, -99.1505), "Melbourne": (-37.8200, 144.9834),
 }
 
 # Raw per-game stats kept for QB/RB/WR/TE (short key -> nflverse columns summed).
@@ -110,6 +139,17 @@ def age_on(birth, today):
     return today.year - b.year - ((today.month, today.day) < (b.month, b.day))
 
 
+def stadium_coords(g):
+    """Lat/lon of the venue, for weather forecasts. Neutral sites are matched by stadium name."""
+    for frag, ll in NEUTRAL_SITES.items():
+        if frag.lower() in (g["stadium"] or "").lower():
+            return list(ll)
+    if g["location"] == "Neutral":
+        return None
+    t = TEAMS.get(g["home_team"])
+    return [t[3], t[4]] if t else None
+
+
 def build_games(season):
     games = []
     for g in fetch_csv("schedules/games.csv"):
@@ -132,8 +172,15 @@ def build_games(season):
             "total": total,
             "home_implied": round(total / 2 + spread / 2, 1) if spread is not None and total is not None else None,
             "away_implied": round(total / 2 - spread / 2, 1) if spread is not None and total is not None else None,
+            "away_ml": num(g["away_moneyline"]),
+            "home_ml": num(g["home_moneyline"]),
             "stadium": g["stadium"],
-            "roof": g["roof"],
+            "roof": g["roof"] or None,
+            "surface": g["surface"] or None,
+            "temp": num(g["temp"]),
+            "wind": num(g["wind"]),
+            "div": g["div_game"] == "1",
+            "coords": stadium_coords(g),
         })
     return games
 
@@ -239,7 +286,7 @@ def build_defenses(season, games):
             continue
         team, week = r["team"], int(r["week"])
         if team not in teams:
-            city, nick = TEAMS.get(team, (team, ""))
+            city, nick = TEAMS.get(team, (team, ""))[:2]
             teams[team] = {
                 "id": f"DST-{team}", "name": f"{nick} D/ST", "short": f"{nick} D/ST",
                 "pos": "DST", "team": team, "number": None, "headshot": None, "injury": None, "log": [],
@@ -278,7 +325,7 @@ def main():
         "built_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "source": "nflverse (github.com/nflverse/nflverse-data)",
     }
-    teams = {abbr: {"city": c, "nickname": n} for abbr, (c, n) in TEAMS.items()}
+    teams = {abbr: {"city": c, "nickname": n, "color": col} for abbr, (c, n, col, _, _) in TEAMS.items()}
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for name, data in (("meta", meta), ("players", players), ("games", games), ("teams", teams)):

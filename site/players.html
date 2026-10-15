@@ -1,6 +1,85 @@
 <!doctype html>
-<meta charset="utf-8">
-<title>Mingus Sports</title>
-<meta http-equiv="refresh" content="0; url=rankings.html">
-<script>location.replace("rankings.html" + location.search);</script>
-<a href="rankings.html">Rankings</a>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Player Database · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    const PAGE = 50;
+    Mingus.start(async (main, meta) => {
+      const [players, teams] = await Promise.all([Mingus.load("players"), Mingus.load("teams")]);
+      const params = new URLSearchParams(location.search);
+      const state = { pos: params.get("pos") || "ALL", team: params.get("team") || "", q: "", sort: "ppg", dir: -1, shown: PAGE, sc: Scoring.get() };
+      const abbrs = Object.keys(teams).sort((a, b) => teamName(a, teams).localeCompare(teamName(b, teams)));
+
+      main.innerHTML = `
+        <div class="page-head">
+          <div><h1>Player Database</h1><p class="muted sub-head">Every QB, RB, WR, TE, kicker and defense with a ${meta.season} game played</p></div>
+          <div class="db-scoring"></div>
+        </div>
+        <section class="team-grid" aria-label="Teams">
+          ${abbrs.map(a => `<a href="${teamUrl(a)}" title="${esc(teamName(a, teams))}">${teamMark(a, teams, "md")}<span>${esc(teams[a].nickname)}</span></a>`).join("")}
+        </section>
+        <div class="controls">
+          <select class="filter" data-f="pos" aria-label="Position">
+            ${["ALL", "QB", "RB", "WR", "TE", "K", "DST"].map(p => `<option value="${p}">${p === "ALL" ? "All positions" : TAB_LABELS[p]}</option>`).join("")}
+          </select>
+          <select class="filter" data-f="team" aria-label="Team">
+            <option value="">All teams</option>
+            ${abbrs.map(a => `<option value="${a}">${esc(teamName(a, teams))}</option>`).join("")}
+          </select>
+          <input class="search" type="search" placeholder="Search players, teams or cities" aria-label="Search">
+        </div>
+        <div class="table-wrap"><table class="data-table"><thead></thead><tbody></tbody></table></div>
+        <button class="btn-plain more" hidden>Show more</button>`;
+
+      const COLS = [
+        ["pos", "Pos", r => r.p.pos, "l"], ["team", "Team", r => r.p.team, "l"], ["age", "Age", r => r.p.age, "hide-sm"],
+        ["exp", "Exp", r => r.p.exp, "hide-sm"], ["college", "College", r => r.p.college, "l hide-sm"],
+        ["g", "G", r => r.s.g, ""], ["ppg", "FPTS/G", r => r.s.ppg, "hl"],
+      ];
+      const thead = main.querySelector("thead"), tbody = main.querySelector("tbody"), more = main.querySelector(".more");
+      main.querySelector('[data-f="pos"]').value = state.pos;
+      main.querySelector('[data-f="team"]').value = state.team;
+
+      function draw() {
+        const q = state.q.toLowerCase();
+        const col = COLS.find(c => c[0] === state.sort);
+        const rows = players
+          .filter(p => (state.pos === "ALL" || p.pos === state.pos) && (!state.team || p.team === state.team))
+          .filter(p => !q || p.name.toLowerCase().includes(q) || teamMatches(p.team, q, teams))
+          .map(p => ({ p, s: summarize(p, state.sc) }))
+          .sort((a, b) => {
+            const x = col[2](a), y = col[2](b);
+            return (typeof x === "string" || typeof y === "string" ? String(x ?? "").localeCompare(String(y ?? "")) : (x ?? -1) - (y ?? -1)) * state.dir;
+          });
+        thead.innerHTML = `<tr><th class="l">Player</th>${COLS.map(([k, label, , cls]) =>
+          `<th class="${cls}"><button data-sort="${k}">${label}${state.sort === k ? (state.dir < 0 ? " ▼" : " ▲") : ""}</button></th>`).join("")}</tr>`;
+        tbody.innerHTML = rows.slice(0, state.shown).map(r => `<tr>
+          <td class="l"><div class="pcell">${headshot(r.p, "sm")}<a href="${playerUrl(r.p)}">${esc(r.p.name)}</a> ${injuryTag(r.p.injury)}</div></td>
+          <td class="l">${posBadge(r.p.pos)}</td>
+          <td class="l"><a class="team-link" href="${teamUrl(r.p.team)}">${esc(r.p.team)}</a></td>
+          <td class="hide-sm">${r.p.age ?? "—"}</td><td class="hide-sm">${r.p.exp ?? "—"}</td>
+          <td class="l hide-sm muted">${esc(r.p.college || "—")}</td>
+          <td>${r.s.g}</td><td class="hl strong">${fmt(r.s.ppg)}</td></tr>`).join("") || `<tr><td colspan="8" class="l muted">No players match.</td></tr>`;
+        more.hidden = rows.length <= state.shown;
+        thead.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
+          state.dir = state.sort === b.dataset.sort ? -state.dir : (["pos", "team", "college"].includes(b.dataset.sort) ? 1 : -1);
+          state.sort = b.dataset.sort; draw();
+        });
+      }
+      main.querySelectorAll(".filter").forEach(sel => sel.onchange = () => { state[sel.dataset.f] = sel.value; state.shown = PAGE; draw(); });
+      main.querySelector(".search").oninput = e => { state.q = e.target.value.trim(); state.shown = PAGE; draw(); };
+      more.onclick = () => { state.shown += PAGE; draw(); };
+      main.querySelector(".db-scoring").innerHTML = scoringControls(state.sc, sc => { state.sc = sc; draw(); });
+      draw();
+    });
+  </script>
+</body>
+</html>

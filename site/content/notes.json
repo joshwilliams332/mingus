@@ -1,0 +1,7 @@
+{
+  "_help": "Your notes. Game notes are keyed by game id (shown in the game page's address bar, e.g. 2026_06_SEA_DEN). Player notes are keyed by player id (from player.html?id=...), team notes by abbreviation. Set featured_game to a game id to put it at the top of the home page; leave it empty to feature the week's highest over/under.",
+  "featured_game": "",
+  "games": {},
+  "players": {},
+  "teams": {}
+}

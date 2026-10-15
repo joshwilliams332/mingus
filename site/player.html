@@ -30,7 +30,7 @@
     LOG.TE = LOG.WR;
 
     Mingus.start(async (main, meta) => {
-      const [players, games] = await Promise.all([Mingus.load("players"), Mingus.load("games")]);
+      const [players, games, notes] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.content("notes", {})]);
       const id = new URLSearchParams(location.search).get("id");
       const p = players.find(x => x.id === id);
       if (!p) {
@@ -67,9 +67,10 @@
             ${headshot(p, "lg")}
             <div class="profile-main">
               <h1>${esc(p.name)} ${injuryTag(inj)}</h1>
-              <div class="profile-meta">${posBadge(p.pos)} <span>${esc(p.team)}</span>${p.number != null ? `<span>#${p.number}</span>` : ""}</div>
+              <div class="profile-meta">${posBadge(p.pos)} <a class="team-link" href="${teamUrl(p.team)}">${esc(p.team)}</a>${p.number != null ? `<span>#${p.number}</span>` : ""}</div>
               ${inj ? `<p class="profile-note"><strong>${esc(inj.status)}</strong>${inj.injury ? ` · ${esc(inj.injury)}` : ""} — Week ${inj.week} injury report${inj.practice ? ` (${esc(inj.practice.toLowerCase())})` : ""}.</p>` : ""}
-              ${next ? `<p class="profile-note">Week ${week}: ${esc(oppLabel(next))} · ${esc(fmtKickoff(next))}</p>` : `<p class="profile-note">On bye in Week ${week}.</p>`}
+              ${notes.players?.[p.id] ? `<p class="profile-note mingus-note">${esc(notes.players[p.id])}</p>` : ""}
+              ${next ? `<p class="profile-note">Week ${week}: <a href="${gameUrl(next)}">${esc(oppLabel(next))}</a> · ${esc(fmtKickoff(next))}</p>` : `<p class="profile-note">On bye in Week ${week}.</p>`}
             </div>
             <div class="profile-rank">
               <strong>${p.pos}${posRank || "—"}</strong>
@@ -90,7 +91,7 @@
             </section>
 
             <section class="card">
-              <h3>Week ${week} matchup</h3>
+              <div class="card-head"><h3>Week ${week} matchup</h3>${next ? `<a class="small-link" href="${gameUrl(next)}">Game breakdown →</a>` : ""}</div>
               ${next ? `
                 <div class="tiles">
                   <div class="tile"><strong>${esc(oppLabel(next))}</strong><span>${esc(fmtKickoff(next))}</span></div>
@@ -125,7 +126,7 @@
                   <tbody>
                     ${p.log.map((e, i) => `<tr>
                       <td class="l">${e.week}</td>
-                      <td class="l">${e.home === false ? "@" : "vs."} ${esc(e.opp)}</td>
+                      <td class="l"><a href="${gameUrl(weekGame(games, e.team, e.week) || { id: "" })}">${e.home === false ? "@" : "vs."} ${esc(e.opp)}</a></td>
                       <td class="l">${result(e)}</td>
                       ${LOG[tab].map(([k]) => `<td>${fmt(e[k] || 0)}</td>`).join("")}
                       <td class="hl strong">${fmt(s.pts[i])}</td></tr>`).join("")}
