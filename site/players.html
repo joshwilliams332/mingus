@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Players · Mingus</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    // Columns per view; `get` reads the value used for display and sorting.
+    const COLS = {
+      ALL: [["ppr", "PPR", p => p.stats.ppr], ["ppg", "PPG", p => p.ppg], ["g", "G", p => p.stats.g]],
+      QB: [["pass_yds", "Pass Yds", p => p.stats.pass_yds], ["pass_td", "Pass TD", p => p.stats.pass_td], ["int", "INT", p => p.stats.int],
+           ["rush_yds", "Rush Yds", p => p.stats.rush_yds], ["rush_td", "Rush TD", p => p.stats.rush_td]],
+      RB: [["car", "Car", p => p.stats.car], ["rush_yds", "Rush Yds", p => p.stats.rush_yds], ["rush_td", "Rush TD", p => p.stats.rush_td],
+           ["rec", "Rec", p => p.stats.rec], ["rec_yds", "Rec Yds", p => p.stats.rec_yds]],
+      WR: [["tgt", "Tgt", p => p.stats.tgt], ["rec", "Rec", p => p.stats.rec], ["rec_yds", "Rec Yds", p => p.stats.rec_yds],
+           ["rec_td", "Rec TD", p => p.stats.rec_td], ["tgt_share", "Tgt %", p => Math.round(p.stats.tgt_share * 100)]],
+    };
+    COLS.TE = COLS.WR;
+    const TAIL = [["ppg", "PPG", p => p.ppg], ["ppr", "PPR", p => p.stats.ppr]];
+    const PAGE = 50;
+
+    Mingus.start(async main => {
+      const players = await Mingus.load("players");
+      const params = new URLSearchParams(location.search);
+      const state = { pos: POSITIONS.includes(params.get("pos")) ? params.get("pos") : "ALL", q: "", sort: "ppr", dir: -1, shown: PAGE };
+
+      main.innerHTML = `
+        <div class="page-head"><h1>Players</h1><span class="muted">Ranked by PPR fantasy points</span></div>
+        <div class="controls">
+          <div class="tabs" role="group" aria-label="Position">
+            ${["ALL", ...POSITIONS].map(p => `<button class="tab" data-pos="${p}">${p === "ALL" ? "All" : p}</button>`).join("")}
+          </div>
+          <input class="search" type="search" placeholder="Search players or teams" aria-label="Search">
+        </div>
+        <div class="table-wrap"><table class="data-table"><thead></thead><tbody></tbody></table></div>
+        <button class="btn-plain more" hidden>Show more</button>`;
+
+      const thead = main.querySelector("thead"), tbody = main.querySelector("tbody"), more = main.querySelector(".more");
+      const cols = () => state.pos === "ALL" ? COLS.ALL : [...COLS[state.pos], ...TAIL];
+
+      function draw() {
+        main.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-pressed", t.dataset.pos === state.pos));
+        const c = cols();
+        if (!c.some(([k]) => k === state.sort)) { state.sort = "ppr"; state.dir = -1; }
+        const get = c.find(([k]) => k === state.sort)[2];
+        const q = state.q.toLowerCase();
+        const list = players
+          .filter(p => (state.pos === "ALL" || p.pos === state.pos) && (!q || p.name.toLowerCase().includes(q) || p.team.toLowerCase().includes(q)))
+          .sort((a, b) => (get(a) - get(b)) * state.dir);
+
+        thead.innerHTML = `<tr><th class="l">Rk</th><th class="l">Player</th><th class="l">Team</th>
+          ${c.map(([k, label]) => `<th ${k === state.sort ? `aria-sort="${state.dir < 0 ? "descending" : "ascending"}"` : ""}>
+            <button data-sort="${k}">${label}${k === state.sort ? (state.dir < 0 ? " ▼" : " ▲") : ""}</button></th>`).join("")}</tr>`;
+        tbody.innerHTML = list.slice(0, state.shown).map((p, i) => `
+          <tr>
+            <td class="l muted">${state.pos === "ALL" ? p.rank : p.pos_rank}</td>
+            <td class="l"><div class="pcell">${headshot(p, "sm")}<a href="${playerUrl(p)}">${esc(p.name)}</a> ${state.pos === "ALL" ? posBadge(p.pos) : ""} ${injuryTag(p.injury)}</div></td>
+            <td class="l">${esc(p.team)}</td>
+            ${c.map(([k, , g]) => `<td class="${k === state.sort ? "strong" : ""}">${fmt(g(p))}</td>`).join("")}
+          </tr>`).join("") || `<tr><td colspan="9" class="l muted">No players match.</td></tr>`;
+        more.hidden = list.length <= state.shown;
+        thead.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
+          state.dir = state.sort === b.dataset.sort ? -state.dir : -1;
+          state.sort = b.dataset.sort;
+          draw();
+        });
+      }
+
+      main.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+        state.pos = t.dataset.pos; state.shown = PAGE;
+        history.replaceState(null, "", state.pos === "ALL" ? "players.html" : `players.html?pos=${state.pos}`);
+        draw();
+      });
+      main.querySelector(".search").oninput = e => { state.q = e.target.value.trim(); state.shown = PAGE; draw(); };
+      more.onclick = () => { state.shown += PAGE; draw(); };
+      draw();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Games · Mingus</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    Mingus.start(async (main, meta) => {
+      const games = (await Mingus.load("games")).filter(g => g.type === "REG");
+      const weeks = [...new Set(games.map(g => g.week))].sort((a, b) => a - b);
+      const fromUrl = Number(new URLSearchParams(location.search).get("week"));
+      let week = weeks.includes(fromUrl) ? fromUrl : (meta.next_week ?? meta.last_week);
+
+      main.innerHTML = `
+        <div class="page-head"><h1>Games</h1><span class="muted">Spreads and totals from nflverse's closing lines</span></div>
+        <div class="week-picker" role="group" aria-label="Week">
+          ${weeks.map(w => `<button data-week="${w}">${w}</button>`).join("")}
+        </div>
+        <div class="games-grid"></div>
+        <p class="muted" style="font-size:12px;margin-top:14px">Spread is each team's line (negative = favored). Implied = points Vegas expects that team to score.</p>`;
+
+      function draw() {
+        main.querySelectorAll("[data-week]").forEach(b => b.setAttribute("aria-pressed", Number(b.dataset.week) === week));
+        main.querySelector(".games-grid").innerHTML = games.filter(g => g.week === week).map(gameCard).join("");
+        history.replaceState(null, "", `games.html?week=${week}`);
+      }
+      main.querySelectorAll("[data-week]").forEach(b => b.onclick = () => { week = Number(b.dataset.week); draw(); });
+      draw();
+    });
+  </script>
+</body>
+</html>

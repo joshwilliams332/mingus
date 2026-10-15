@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mingus</title>
+  <meta name="description" content="Mingus: NFL player rankings, stats and weekly lines.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    Mingus.start(async (main, meta) => {
+      const [players, games] = await Promise.all([Mingus.load("players"), Mingus.load("games")]);
+      const week = meta.next_week ?? meta.last_week;
+      const top = players.slice(0, 12);
+      const leaders = POSITIONS.map(pos => ({ pos, list: players.filter(p => p.pos === pos).slice(0, 5) }));
+      const slate = games.filter(g => g.week === week);
+
+      main.innerHTML = `
+        <section class="hero">
+          <h1>MINGUS</h1>
+          <p>NFL rankings, stats and Vegas lines. Through Week ${meta.last_week} of the ${meta.season} season.</p>
+          <div class="hero-actions">
+            <a class="btn" href="players.html">All players</a>
+            <a class="btn ghost" href="games.html">Week ${week} games</a>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head"><h2>Top players</h2><a href="players.html">See all →</a></div>
+          <div class="top-grid">
+            ${top.map(p => `
+              <a class="player-card" href="${playerUrl(p)}">
+                <span class="rank-num">${p.rank}</span>
+                ${headshot(p, "md")}
+                <span class="name">${esc(p.name)} ${injuryTag(p.injury)}</span>
+                <span class="meta">${posBadge(p.pos)} ${esc(p.team)}</span>
+                <span class="pts">${fmt(p.stats.ppr)} <small>PPR pts</small></span>
+              </a>`).join("")}
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head"><h2>Position leaders</h2></div>
+          <div class="pos-leaders">
+            ${leaders.map(({ pos, list }) => `
+              <div class="card">
+                <div class="section-head"><h3>${pos}</h3><a href="players.html?pos=${pos}">More</a></div>
+                <ol class="leader-list">
+                  ${list.map(p => `
+                    <li><a href="${playerUrl(p)}">
+                      <span class="lrank">${p.pos_rank}</span>
+                      ${headshot(p, "sm")}
+                      <span class="lname">${esc(p.name)} ${injuryTag(p.injury)}</span>
+                      <span class="lteam">${esc(p.team)}</span>
+                      <span class="lpts">${fmt(p.stats.ppr)}</span>
+                    </a></li>`).join("")}
+                </ol>
+                <p class="muted" style="margin:8px 0 0;font-size:12px">Total PPR points</p>
+              </div>`).join("")}
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-head"><h2>Week ${week} games</h2><a href="games.html">All weeks →</a></div>
+          <div class="games-grid">${slate.map(gameCard).join("") || `<p class="muted">No games this week.</p>`}</div>
+        </section>`;
+    });
+  </script>
+</body>
+</html>
