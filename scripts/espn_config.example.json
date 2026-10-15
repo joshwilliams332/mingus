@@ -1,14 +1,17 @@
 {
   "_help": [
     "Copy this file to scripts/espn_config.json (that file is never uploaded to GitHub) and fill it in.",
-    "league_id and team_id are in your ESPN team page URL: ...?leagueId=XXXX&teamId=Y",
-    "Public league: leave espn_s2 and swid empty.",
-    "Private league: in Chrome or Edge, open fantasy.espn.com while logged in, press F12,",
-    "go to Application > Cookies > https://fantasy.espn.com, and copy the values of espn_s2 and SWID (keep the curly braces).",
+    "Add one entry to \"leagues\" per ESPN league. league_id and team_id are in your team page URL: ...?leagueId=XXXX&teamId=Y",
+    "label is optional: a short name for the league switcher (otherwise the ESPN league name is used).",
+    "Public leagues: leave espn_s2 and swid empty. Private leagues: one pair of cookies works for all your leagues.",
+    "To find them in Edge or Chrome: on fantasy.espn.com (logged in), click the lock icon left of the address,",
+    "then Cookies (Cookies in use) > espn.com > Cookies, and copy the Content of espn_s2 and SWID (keep the curly braces).",
     "Treat these like a password: don't paste them into chats, screenshots or GitHub."
   ],
-  "league_id": "",
-  "team_id": "",
+  "leagues": [
+    { "league_id": "", "team_id": "", "label": "" },
+    { "league_id": "", "team_id": "", "label": "" }
+  ],
   "espn_s2": "",
   "swid": ""
 }

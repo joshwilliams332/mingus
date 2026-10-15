@@ -17,13 +17,14 @@ Weekly Rankings are ordered by **Sleeper's** projection for the week, pulled fro
 If Sleeper can't be reached during a data update, the build keeps going without projections and the rankings fall back to fantasy points per game.
 
 ## ESPN league sync (My League)
-`scripts/espn_sync.py` pulls an ESPN fantasy league (rosters, lineups, standings, schedule and scoring settings) into `site/data/league.json`, and a **My League** page appears in the header once that file exists.
+`scripts/espn_sync.py` pulls your ESPN fantasy leagues (rosters, lineups, standings, schedule and scoring settings) into `site/data/league.json`, and a **My League** page appears in the header once that file exists. With more than one league, the page has a **League** switcher and remembers the last one you viewed.
 
-1. Copy `scripts/espn_config.example.json` to `scripts/espn_config.json` and fill in `league_id` and `team_id` (from your ESPN team page URL).
-2. Private league: also fill in `espn_s2` and `swid` (instructions are in the example file). Treat them like a password.
-3. Run `python scripts/build_data.py` (or just `python scripts/espn_sync.py`). Look for a line like `ESPN league 'Your League': 10 teams, 140/140 rostered players matched`.
+1. Copy `scripts/espn_config.example.json` to `scripts/espn_config.json`.
+2. Add an entry to `leagues` for each league: `league_id` and `team_id` from your ESPN team page URL, plus an optional short `label` for the switcher.
+3. Private leagues: fill in `espn_s2` and `swid` once; they work for all your leagues (instructions are in the example file). Treat them like a password.
+4. Run `python scripts/build_data.py` (or just `python scripts/espn_sync.py`). Each league prints a line like `ESPN league 'Your League': 10 teams, 140/140 rostered players matched`; a league that fails prints a warning and the others still sync.
 
-`espn_config.json` and `league.json` are git-ignored, so your league stays on your computer and isn't published. ESPN's API is unofficial and may change.
+`espn_config.json` and `league.json` are git-ignored, so your leagues stay on your computer and aren't published. ESPN's API is unofficial and may change.
 
 ## Your notes and articles
 Edit the files in `site/content/` (the data script never touches them):

@@ -5,9 +5,11 @@ Uses ESPN's unofficial fantasy API (the one fantasy.espn.com itself uses), so it
 may change without notice. Settings come from scripts/espn_config.json (never
 committed; see espn_config.example.json) or from environment variables:
 
-    ESPN_LEAGUE_ID   the leagueId=... number in your league's URL
-    ESPN_TEAM_ID     your teamId=... number (optional; picks "My team")
-    ESPN_S2, ESPN_SWID   login cookies, only needed for private leagues
+    ESPN_LEAGUE_ID   leagueId=... from your league's URL (comma-separate several leagues)
+    ESPN_TEAM_ID     your teamId=... in each league, in the same order (optional)
+    ESPN_S2, ESPN_SWID   login cookies, only needed for private leagues (shared by all leagues)
+
+The config can list several leagues; each is synced and the site gets a league switcher.
 
 Run it on its own:            python scripts/espn_sync.py
 or let build_data.py run it at the end of each data update.
@@ -38,22 +40,27 @@ STARTER_ORDER = ["QB", "RB", "WR", "TE", "FLEX", "D/ST", "K", "Bench", "IR"]
 
 
 def load_config():
+    """Returns (leagues, cookies). Accepts one league_id/team_id or a "leagues" list."""
     cfg = {}
     if CONFIG.exists():
         cfg = json.loads(CONFIG.read_text())
-    env = {"league_id": "ESPN_LEAGUE_ID", "team_id": "ESPN_TEAM_ID", "espn_s2": "ESPN_S2", "swid": "ESPN_SWID"}
-    for key, var in env.items():
-        if os.environ.get(var):
-            cfg[key] = os.environ[var]
-    return cfg
+    leagues = [l for l in cfg.get("leagues", []) if l.get("league_id")]
+    if cfg.get("league_id"):
+        leagues.insert(0, {"league_id": cfg["league_id"], "team_id": cfg.get("team_id")})
+    if os.environ.get("ESPN_LEAGUE_ID"):
+        ids = [x.strip() for x in os.environ["ESPN_LEAGUE_ID"].split(",") if x.strip()]
+        teams = [x.strip() for x in os.environ.get("ESPN_TEAM_ID", "").split(",")]
+        leagues = [{"league_id": lid, "team_id": teams[i] if i < len(teams) else None} for i, lid in enumerate(ids)]
+    cookies = {"espn_s2": os.environ.get("ESPN_S2") or cfg.get("espn_s2"), "swid": os.environ.get("ESPN_SWID") or cfg.get("swid")}
+    return leagues, cookies
 
 
-def fetch_league(cfg, season):
+def fetch_league(cfg, cookies, season):
     url = API.format(season=season, league=cfg["league_id"]) + \
         "?view=mTeam&view=mRoster&view=mMatchup&view=mSettings&view=mStatus"
     headers = {"User-Agent": "mingus-build", "Accept": "application/json"}
-    if cfg.get("espn_s2") and cfg.get("swid"):
-        headers["Cookie"] = f"espn_s2={cfg['espn_s2']}; SWID={cfg['swid']}"
+    if cookies.get("espn_s2") and cookies.get("swid"):
+        headers["Cookie"] = f"espn_s2={cookies['espn_s2']}; SWID={cookies['swid']}"
     req = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=60) as resp:
@@ -61,7 +68,7 @@ def fetch_league(cfg, season):
     except urllib.error.HTTPError as e:
         if e.code in (401, 403):
             raise RuntimeError(
-                "ESPN says this league is private. Add espn_s2 and swid to scripts/espn_config.json "
+                f"ESPN says league {cfg['league_id']} is private (or the cookies are wrong/expired). Add espn_s2 and swid to scripts/espn_config.json "
                 "(see espn_config.example.json for how to find them)."
             ) from e
         raise
@@ -114,6 +121,7 @@ def parse_league(data, cfg, espn_to_gsis):
     return {
         "league": {
             "id": cfg["league_id"], "name": settings.get("name", "My League"), "season": data.get("seasonId"),
+            "label": cfg.get("label") or settings.get("name", "My League"),
             "week": status.get("currentMatchupPeriod") or data.get("scoringPeriodId"),
             "scoring": scoring_from_settings(settings),
             "size": len(teams),
@@ -130,19 +138,28 @@ def espn_ids_from_roster(roster_rows):
 
 
 def sync(season, roster_rows):
-    """Write league.json if a league is configured. Returns True when it wrote the file."""
-    cfg = load_config()
-    if not cfg.get("league_id"):
+    """Write league.json for every configured league. Returns True when at least one synced."""
+    leagues, cookies = load_config()
+    if not leagues:
         print("  ESPN sync skipped (no league configured; see scripts/espn_config.example.json)")
         return False
-    data = fetch_league(cfg, season)
-    league = parse_league(data, cfg, espn_ids_from_roster(roster_rows))
+    espn_to_gsis = espn_ids_from_roster(roster_rows)
+    synced = []
+    for cfg in leagues:
+        try:
+            league = parse_league(fetch_league(cfg, cookies, season), cfg, espn_to_gsis)
+        except Exception as e:  # one bad league shouldn't stop the others
+            print(f"  WARNING: ESPN league {cfg['league_id']} failed: {e}")
+            continue
+        synced.append(league)
+        matched = sum(1 for t in league["teams"] for r in t["roster"] if r["id"])
+        total = sum(len(t["roster"]) for t in league["teams"])
+        print(f"  ESPN league '{league['league']['name']}': {len(league['teams'])} teams, "
+              f"{matched}/{total} rostered players matched to nflverse")
+    if not synced:
+        return False
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(league, separators=(",", ":")))
-    matched = sum(1 for t in league["teams"] for r in t["roster"] if r["id"])
-    total = sum(len(t["roster"]) for t in league["teams"])
-    print(f"  ESPN league '{league['league']['name']}': {len(league['teams'])} teams, "
-          f"{matched}/{total} rostered players matched to nflverse")
+    OUT.write_text(json.dumps({"leagues": synced}, separators=(",", ":")))
     return True
 
 

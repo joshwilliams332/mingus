@@ -511,3 +511,5 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 .bench-row:first-of-type td, tr:not(.bench-row) + .bench-row td { border-top: 2px solid var(--border); }
 .me-row td { background: color-mix(in srgb, var(--brand) 10%, transparent); }
 .league-table .mchip { min-width: 46px; }
+.league-pickers { display: flex; gap: 12px; flex-wrap: wrap; }
+.league-pickers select { min-width: 180px; }
