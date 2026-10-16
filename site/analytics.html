@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Analytics · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    // ---------- Stats you can put on an axis ----------
+    // Each stat works off a player's totals for the chosen weeks (a). "count" stats can be shown per game;
+    // "rate" stats are already per-something. fn returns null when the stat can't be worked out (e.g. 0 targets).
+    const div = (a, b) => (b ? a / b : null);
+    const STAT_GROUPS = {
+      fantasy: ["Fantasy", [
+        ["fpts", "Fantasy points", "Fantasy pts", "count", "d1", a => a.fpts],
+      ]],
+      rec: ["Receiving", [
+        ["tgt", "Targets", "Targets", "count", "int", a => a.t.tgt],
+        ["rec", "Catches", "Catches", "count", "int", a => a.t.rec],
+        ["rec_yds", "Receiving yards", "Rec yards", "count", "int", a => a.t.rec_yds],
+        ["rec_td", "Receiving TDs", "Rec TDs", "count", "int", a => a.t.rec_td],
+        ["rec_fd", "Receiving first downs", "Rec 1st downs", "count", "int", a => a.t.rec_fd],
+        ["rec_air", "Air yards", "Air yards", "count", "int", a => a.t.rec_air],
+        ["yac", "Yards after catch", "YAC", "count", "int", a => a.t.yac],
+        ["rec_epa", "Receiving EPA", "Rec EPA", "count", "d1", a => a.t.rec_epa],
+        ["tgt_share", "Target share", "Target share", "rate", "pct", a => a.tgt_sh],
+        ["ay_share", "Air yards share", "Air yds share", "rate", "pct", a => a.ay_sh],
+        ["wopr", "WOPR (target + air yards share)", "WOPR", "rate", "d2", a => (a.tgt_sh === null ? null : 1.5 * a.tgt_sh + 0.7 * a.ay_sh)],
+        ["catch_pct", "Catch rate", "Catch rate", "rate", "pct", a => div(a.t.rec, a.t.tgt)],
+        ["ypt", "Yards per target", "Yds/target", "rate", "d1", a => div(a.t.rec_yds, a.t.tgt)],
+        ["ypr", "Yards per catch", "Yds/catch", "rate", "d1", a => div(a.t.rec_yds, a.t.rec)],
+        ["adot", "aDOT (avg depth of target)", "aDOT", "rate", "d1", a => div(a.t.rec_air, a.t.tgt)],
+        ["yac_rec", "YAC per catch", "YAC/catch", "rate", "d1", a => div(a.t.yac, a.t.rec)],
+        ["epa_tgt", "EPA per target", "EPA/target", "rate", "d2", a => div(a.t.rec_epa, a.t.tgt)],
+        ["racr", "RACR (rec yards ÷ air yards)", "RACR", "rate", "d2", a => (a.t.rec_air > 0 ? a.t.rec_yds / a.t.rec_air : null)],
+      ]],
+      rush: ["Rushing", [
+        ["car", "Carries", "Carries", "count", "int", a => a.t.car],
+        ["rush_yds", "Rushing yards", "Rush yards", "count", "int", a => a.t.rush_yds],
+        ["rush_td", "Rushing TDs", "Rush TDs", "count", "int", a => a.t.rush_td],
+        ["rush_fd", "Rushing first downs", "Rush 1st downs", "count", "int", a => a.t.rush_fd],
+        ["rush_epa", "Rushing EPA", "Rush EPA", "count", "d1", a => a.t.rush_epa],
+        ["touches", "Touches (carries + catches)", "Touches", "count", "int", a => a.t.car + a.t.rec],
+        ["scrim", "Scrimmage yards", "Scrim yards", "count", "int", a => a.t.rush_yds + a.t.rec_yds],
+        ["ypc", "Yards per carry", "Yds/carry", "rate", "d1", a => div(a.t.rush_yds, a.t.car)],
+        ["epa_car", "EPA per carry", "EPA/carry", "rate", "d2", a => div(a.t.rush_epa, a.t.car)],
+      ]],
+      pass: ["Passing", [
+        ["att", "Pass attempts", "Attempts", "count", "int", a => a.t.att],
+        ["pass_yds", "Passing yards", "Pass yards", "count", "int", a => a.t.pass_yds],
+        ["pass_td", "Passing TDs", "Pass TDs", "count", "int", a => a.t.pass_td],
+        ["int", "Interceptions", "INTs", "count", "int", a => a.t.int],
+        ["sk", "Sacks taken", "Sacks", "count", "int", a => a.t.sk],
+        ["pass_air", "Passing air yards", "Air yards", "count", "int", a => a.t.pass_air],
+        ["pass_epa", "Passing EPA", "Pass EPA", "count", "d1", a => a.t.pass_epa],
+        ["cmp_pct", "Completion %", "Comp %", "rate", "pct", a => div(a.t.cmp, a.t.att)],
+        ["cpoe", "CPOE (completion % over expected)", "CPOE", "rate", "d1", a => a.cpoe],
+        ["ypa", "Yards per attempt", "Yds/att", "rate", "d1", a => div(a.t.pass_yds, a.t.att)],
+        ["pass_adot", "aDOT (avg depth of throw)", "aDOT", "rate", "d1", a => div(a.t.pass_air, a.t.att)],
+        ["td_pct", "TD rate", "TD rate", "rate", "pct", a => div(a.t.pass_td, a.t.att)],
+        ["int_pct", "Interception rate", "INT rate", "rate", "pct", a => div(a.t.int, a.t.att)],
+        ["sack_pct", "Sack rate", "Sack rate", "rate", "pct", a => div(a.t.sk, a.t.att + a.t.sk)],
+        ["epa_db", "EPA per dropback", "EPA/dropback", "rate", "d2", a => div(a.t.pass_epa, a.t.att + a.t.sk)],
+      ]],
+    };
+    const STATS = {};
+    for (const [group, [, list]] of Object.entries(STAT_GROUPS)) {
+      for (const [key, label, short, kind, fmtType, fn] of list) STATS[key] = { key, label, short, kind, fmtType, fn, group };
+    }
+
+    // Which stat groups each position can pick from, its volume stat for the minimum, a sensible
+    // minimum per week, and the axes it opens with.
+    const POSITIONS = {
+      WR: { groups: ["fantasy", "rec", "rush"], vol: "tgt", perWeek: 3.5, x: "tgt", y: "rec_yds" },
+      TE: { groups: ["fantasy", "rec"], vol: "tgt", perWeek: 2.5, x: "tgt", y: "rec_yds" },
+      RB: { groups: ["fantasy", "rush", "rec"], vol: "touches", perWeek: 7, x: "touches", y: "fpts" },
+      QB: { groups: ["fantasy", "pass", "rush"], vol: "att", perWeek: 15, x: "att", y: "fpts" },
+    };
+
+    // One-click pairings. q names the quadrants [top-right, top-left, bottom-right, bottom-left].
+    const PRESETS = {
+      WR: [
+        { name: "Targets vs. yards", x: "tgt", y: "rec_yds", q: ["WR1", "Feed him", "Empty targets", "A wash"] },
+        { name: "WOPR vs. fantasy points", x: "wopr", y: "fpts", q: ["Earned it", "Beating his role", "Due for more", "Bench"] },
+        { name: "Air yards vs. yards", x: "rec_air", y: "rec_yds", q: ["Cashing in", "Doing more with less", "Leaving yards out there", "Quiet"] },
+        { name: "Deep threat vs. YAC", x: "adot", y: "yac_rec", q: ["Does it all", "YAC monster", "Deep threat", "Short and stopped"] },
+        { name: "Volume vs. efficiency", x: "tgt", y: "ypt", q: ["Alpha", "Efficient", "Volume only", "A wash"] },
+        { name: "Air yards vs. EPA", x: "rec_air", y: "rec_epa" },
+      ],
+      TE: [
+        { name: "Targets vs. yards", x: "tgt", y: "rec_yds", q: ["TE1", "Feed him", "Empty targets", "A wash"] },
+        { name: "Target share vs. fantasy points", x: "tgt_share", y: "fpts", q: ["Earned it", "Beating his role", "Due for more", "Bench"] },
+        { name: "Catch rate vs. yards per catch", x: "catch_pct", y: "ypr", q: ["Sure-handed and explosive", "Big-play only", "Safety valve", "A wash"] },
+        { name: "Volume vs. efficiency", x: "tgt", y: "ypt", q: ["Alpha", "Efficient", "Volume only", "A wash"] },
+      ],
+      RB: [
+        { name: "Touches vs. fantasy points", x: "touches", y: "fpts", q: ["RB1", "Make the most of it", "Workhorse, few points", "A wash"] },
+        { name: "Carries vs. yards per carry", x: "car", y: "ypc", q: ["Bell cow", "Change of pace", "Grinder", "A wash"] },
+        { name: "Targets vs. rushing yards", x: "tgt", y: "rush_yds", q: ["Three-down back", "Early-down back", "Pass-catching back", "A wash"] },
+        { name: "Yards per carry vs. EPA per carry", x: "ypc", y: "epa_car" },
+      ],
+      QB: [
+        { name: "Attempts vs. fantasy points", x: "att", y: "fpts", q: ["Volume and production", "Efficient scorer", "Volume, few points", "A wash"] },
+        { name: "CPOE vs. EPA per dropback", x: "cpoe", y: "epa_db", q: ["Elite", "Making plays", "Accurate, not dangerous", "Struggling"] },
+        { name: "Depth of throw vs. completion %", x: "pass_adot", y: "cmp_pct", q: ["Aggressive and accurate", "Checkdown king", "Gunslinger", "A wash"] },
+        { name: "Rushing yards vs. fantasy points", x: "rush_yds", y: "fpts", q: ["Dual threat", "Pocket passer", "Runs, few points", "A wash"] },
+      ],
+    };
+
+    // ---------- Math ----------
+    function pearson(pts) {
+      const n = pts.length;
+      if (n < 3) return null;
+      const mx = pts.reduce((s, p) => s + p.x, 0) / n, my = pts.reduce((s, p) => s + p.y, 0) / n;
+      let sxy = 0, sxx = 0, syy = 0;
+      for (const p of pts) { sxy += (p.x - mx) * (p.y - my); sxx += (p.x - mx) ** 2; syy += (p.y - my) ** 2; }
+      if (!sxx || !syy) return null;
+      return { r: sxy / Math.sqrt(sxx * syy), slope: sxy / sxx, icpt: my - (sxy / sxx) * mx, mx, my };
+    }
+
+    // "Nice" axis ticks covering [lo, hi].
+    function ticks(lo, hi, count = 7) {
+      const span = hi - lo || 1, raw = span / count, mag = 10 ** Math.floor(Math.log10(raw));
+      const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => span / s <= count) || 10 * mag;
+      const start = Math.floor(lo / step) * step, out = [];
+      for (let v = start; v <= hi + step * 1e-9; v += step) out.push(Math.round(v / step) * step);
+      if (out[out.length - 1] < hi) out.push(out[out.length - 1] + step);
+      return { list: out, step };
+    }
+
+    function fmtStat(v, type) {
+      if (v === null || v === undefined || Number.isNaN(v)) return "—";
+      if (type === "pct") return `${(v * 100).toFixed(1)}%`;
+      if (type === "int") return Math.abs(v) >= 100 || Number.isInteger(v) ? Math.round(v).toLocaleString() : v.toFixed(1);
+      return v.toFixed(type === "d2" ? 2 : 1);
+    }
+
+    // "Rec yards" -> "rec yards" for use mid-sentence; acronyms like CPOE, aDOT and EPA stay as they are.
+    const mid = s => s.replace(/\b[A-Z][a-z]+\b/g, w => w.toLowerCase());
+
+    // What r means, in plain words.
+    function verdict(r, xs, ys) {
+      const a = Math.abs(r), dir = r >= 0 ? "more" : "less";
+      if (a >= 0.9) return { label: "Very strong", cls: "var(--up)",
+        text: `${xs[0].toUpperCase() + xs.slice(1)} and ${ys} move almost in lockstep, so they nearly measure the same thing. Expect few surprises on this chart.` };
+      if (a >= 0.7) return { label: "Strong", cls: "var(--up)",
+        text: `Players with more ${xs} usually have ${dir} ${ys}. The players far off the dotted line are the story.` };
+      if (a >= 0.5) return { label: "Moderate", cls: "var(--brand)",
+        text: `There's a clear trend (more ${xs} tends to mean ${dir} ${ys}), with plenty of exceptions.` };
+      if (a >= 0.3) return { label: "Weak", cls: "var(--q)",
+        text: `There's only a slight trend. ${xs[0].toUpperCase() + xs.slice(1)} is a rough guide to ${ys} at best, so don't lean on the dotted line.` };
+      return { label: "Little to none", cls: "var(--down)",
+        text: `${xs[0].toUpperCase() + xs.slice(1)} tells you almost nothing about ${ys}. The dotted line is mostly noise here, but the quadrants still show who's high on both, high on one, or neither.` };
+    }
+
+    // ---------- Page ----------
+    Mingus.start(async (main, meta) => {
+      const [players, teams] = await Promise.all([Mingus.load("players"), Mingus.load("teams")]);
+      const lastWeek = meta.last_week || 1;
+      const params = new URLSearchParams(location.search);
+      const pos0 = POSITIONS[params.get("pos")] ? params.get("pos") : "WR";
+      const state = {
+        pos: pos0, x: params.get("x"), y: params.get("y"), pg: params.get("pg") === "1",
+        from: 1, to: lastWeek, min: null, team: "", q: "", sc: Scoring.get(),
+      };
+      const fixAxes = () => {
+        const ok = k => STATS[k] && POSITIONS[state.pos].groups.includes(STATS[k].group);
+        if (!ok(state.x)) state.x = POSITIONS[state.pos].x;
+        if (!ok(state.y)) state.y = POSITIONS[state.pos].y;
+      };
+      fixAxes();
+      // One week of slack covers a bye or a week that's only partly played.
+      const defaultMin = () => Math.round(POSITIONS[state.pos].perWeek * Math.max(1, state.to - state.from));
+      state.min = defaultMin();
+
+      const weekOpts = Array.from({ length: lastWeek }, (_, i) => `<option value="${i + 1}">Week ${i + 1}</option>`).join("");
+      main.innerHTML = `
+        <div class="page-head">
+          <div><h1>Analytics</h1><p class="muted sub-head">Build your own chart: pick any two stats and see how ${meta.season}'s players line up.</p></div>
+        </div>
+        <section class="card cb">
+          <div class="tabs-bar" role="tablist" aria-label="Position">
+            ${Object.keys(POSITIONS).map(p => `<button class="pos-tab" role="tab" data-pos="${p}"><span class="nl">${TAB_LABELS[p]}</span><span class="ns">${p}</span></button>`).join("")}
+          </div>
+          <div class="cb-controls">
+            <label class="cb-field" for="cb-x">Across (x-axis)<span class="cb-axis"><select id="cb-x"></select></span></label>
+            <label class="cb-field" for="cb-y">Up (y-axis)<span class="cb-axis"><select id="cb-y"></select>
+              <button class="btn-plain cb-swap" type="button" id="cb-swap" title="Swap axes" aria-label="Swap axes">⇅</button></span></label>
+            <div class="cb-field">Weeks<span class="cb-weeks">
+              <select id="cb-from" aria-label="From week">${weekOpts}</select><span>to</span>
+              <select id="cb-to" aria-label="To week">${weekOpts}</select></span></div>
+            <label class="cb-field" for="cb-min"><span id="cb-min-label">Minimum</span><input id="cb-min" type="number" min="0" step="1"></label>
+          </div>
+          <div class="cb-row" style="margin-top:12px">
+            <div class="tabs" role="group" aria-label="Totals or per game">
+              <button class="tab" type="button" data-pg="0">Season totals</button>
+              <button class="tab" type="button" data-pg="1">Per game</button>
+            </div>
+            <select class="filter" id="cb-team" aria-label="Highlight a team"><option value="">Highlight a team</option>
+              ${Object.keys(teams).sort((a, b) => teamName(a, teams).localeCompare(teamName(b, teams))).map(a => `<option value="${a}">${esc(teamName(a, teams))}</option>`).join("")}
+            </select>
+            <input class="search" id="cb-find" type="search" placeholder="Find a player" aria-label="Find a player">
+            <div class="cb-scoring"></div>
+          </div>
+          <div class="cb-presets"></div>
+
+          <div class="cb-r">
+            <div class="cb-rnum"><span id="cb-rval">—</span><small>r (correlation)</small></div>
+            <div>
+              <div class="cb-meter" aria-hidden="true"><i id="cb-rdot"></i></div>
+              <div class="cb-scale"><span>−1 opposite</span><span>0 no link</span><span>+1 move together</span></div>
+              <p class="cb-verdict" id="cb-verdict" style="margin-top:8px"></p>
+              <p class="cb-warn" id="cb-warn" hidden></p>
+            </div>
+          </div>
+          <div class="cb-chart"><svg id="cb-svg" viewBox="0 0 1000 640" role="img"></svg></div>
+          <div class="cb-legend">
+            <span>Dashed lines: group average · Dotted line: the trend (fainter when r is weak) · Ring color: quadrant</span>
+            <span id="cb-n"></span>
+          </div>
+        </section>
+
+        <div class="cb-out">
+          <section class="card"><h3>Above the trend line</h3><ol id="cb-above"></ol></section>
+          <section class="card"><h3>Below the trend line</h3><ol id="cb-below"></ol></section>
+        </div>
+
+        <section class="card cb-explain section">
+          <details>
+            <summary>What does r mean?</summary>
+            <p><strong>r</strong> (the correlation) measures how closely two stats move together, on a scale from −1 to +1.</p>
+            <ul>
+              <li><strong>Close to +1:</strong> when one goes up, the other almost always goes up too. Targets and receiving yards are usually around 0.8.</li>
+              <li><strong>Close to 0:</strong> no real connection. Knowing one tells you nothing about the other.</li>
+              <li><strong>Close to −1:</strong> when one goes up, the other goes down. Deeper targets usually mean a lower catch rate.</li>
+            </ul>
+            <p>A rough guide: 0.7 or higher is strong, 0.5–0.7 moderate, 0.3–0.5 weak, and under 0.3 is little to none (the same goes for negative numbers).</p>
+            <p><strong>A low r isn't a broken chart.</strong> It means the dotted trend line is a bad predictor, so ignore it and read the chart by its quadrants instead: who's high on both stats, high on one, or neither. Volume vs. efficiency charts often have an r near 0 and are some of the most interesting ones.</p>
+            <p><strong>A very high r (0.9+)</strong> usually means the two stats are close to the same thing (yards and first downs, for example), so the dots sit on one line and few players stand out.</p>
+            <p><strong>Two more things to keep in mind.</strong> A strong r doesn't mean one stat causes the other; often both come from playing time. And early in the season r can swing a lot with only a few games of data, so widen the weeks or lower the minimum if only a handful of players show up.</p>
+          </details>
+        </section>`;
+
+      const $ = id => document.getElementById(id);
+      const svg = $("cb-svg"), NS = "http://www.w3.org/2000/svg";
+      const tip = document.createElement("div");
+      tip.className = "cb-tip"; tip.hidden = true; document.body.appendChild(tip);
+      $("cb-from").value = state.from; $("cb-to").value = state.to;
+
+      function fillAxisSelects() {
+        const opts = POSITIONS[state.pos].groups.map(g => `<optgroup label="${STAT_GROUPS[g][0]}">${
+          STAT_GROUPS[g][1].map(([k, label]) => `<option value="${k}">${esc(label)}</option>`).join("")}</optgroup>`).join("");
+        $("cb-x").innerHTML = opts; $("cb-y").innerHTML = opts;
+        $("cb-x").value = state.x; $("cb-y").value = state.y;
+        $("cb-min-label").textContent = `Minimum ${mid(STATS[POSITIONS[state.pos].vol].short)}`;
+        $("cb-min").value = state.min;
+        main.querySelectorAll(".pos-tab").forEach(b => b.setAttribute("aria-selected", b.dataset.pos === state.pos));
+      }
+
+      // Totals for a player over the chosen weeks.
+      function aggregate(p) {
+        const log = p.log.filter(e => e.week >= state.from && e.week <= state.to);
+        if (!log.length) return null;
+        const t = new Proxy({}, { get: (o, k) => o[k] || 0 });
+        let cpoeW = 0, cpoeAtt = 0, tsh = 0, ash = 0, fpts = 0;
+        for (const e of log) {
+          for (const [k, v] of Object.entries(e)) if (typeof v === "number" && k !== "week") t[k] = t[k] + v;
+          if (e.cpoe !== undefined && e.att) { cpoeW += e.cpoe * e.att; cpoeAtt += e.att; }
+          tsh += e.tgt_sh || 0; ash += e.ay_sh || 0;
+          fpts += scoreGame(e, p.pos, state.sc);
+        }
+        const g = log.length;
+        return { t, g, fpts, cpoe: cpoeAtt ? cpoeW / cpoeAtt : null, tgt_sh: tsh / g, ay_sh: ash / g };
+      }
+      function value(stat, a) {
+        const v = stat.fn(a);
+        if (v === null || v === undefined || !Number.isFinite(v)) return null;
+        return state.pg && stat.kind === "count" ? v / a.g : v;
+      }
+
+      function el(tag, attrs, parent, text) {
+        const e = document.createElementNS(NS, tag);
+        for (const k in attrs) e.setAttribute(k, attrs[k]);
+        if (text !== undefined) e.textContent = text;
+        parent.appendChild(e);
+        return e;
+      }
+
+      function draw() {
+        const P = POSITIONS[state.pos], X = STATS[state.x], Y = STATS[state.y], vol = STATS[P.vol];
+        const xs = mid(X.short), ys = mid(Y.short);
+        const preset = PRESETS[state.pos].find(p => p.x === state.x && p.y === state.y);
+        main.querySelectorAll("[data-pg]").forEach(b => b.setAttribute("aria-pressed", String(state.pg) === String(b.dataset.pg === "1")));
+        main.querySelectorAll(".cb-presets .chip-btn").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.x === state.x && b.dataset.y === state.y)));
+        history.replaceState(null, "", `analytics.html?pos=${state.pos}&x=${state.x}&y=${state.y}${state.pg ? "&pg=1" : ""}`);
+
+        const pts = [];
+        for (const p of players) {
+          if (p.pos !== state.pos) continue;
+          const a = aggregate(p);
+          if (!a || (vol.fn(a) || 0) < state.min) continue;
+          const x = value(X, a), y = value(Y, a);
+          if (x === null || y === null) continue;
+          pts.push({ p, a, x, y });
+        }
+        const fit = pearson(pts);
+        const sfx = st => (state.pg && st.kind === "count" ? " per game" : "");
+
+        // Correlation readout
+        $("cb-n").textContent = `${pts.length} ${TAB_LABELS[state.pos].toLowerCase()} · weeks ${state.from}–${state.to} · at least ${state.min} ${mid(vol.short)}`;
+        const warn = $("cb-warn");
+        if (!fit) {
+          $("cb-rval").textContent = "—"; $("cb-rdot").style.left = "50%";
+          $("cb-verdict").textContent = pts.length < 3 ? "Not enough players to chart. Lower the minimum or widen the weeks." : "One of these stats is the same for every player, so there's nothing to compare.";
+          warn.hidden = true;
+        } else {
+          const v = verdict(fit.r, xs + sfx(X), ys + sfx(Y));
+          $("cb-rval").textContent = (fit.r >= 0 ? "+" : "−") + Math.abs(fit.r).toFixed(2);
+          $("cb-rdot").style.left = `${(fit.r + 1) * 50}%`;
+          $("cb-verdict").innerHTML = `<strong style="--vc:${v.cls}">${v.label}</strong>${esc(v.text)}`;
+          const notes = [];
+          if (pts.length < 15) notes.push(`Only ${pts.length} players, so this r could change a lot. Lower the minimum or widen the weeks for a steadier number.`);
+          if (state.x === state.y) notes.push("Both axes are the same stat, so r is exactly 1. Pick two different stats.");
+          warn.textContent = notes.join(" "); warn.hidden = !notes.length;
+        }
+
+        // Chart
+        svg.innerHTML = "";
+        svg.setAttribute("aria-label", `Scatter plot of ${X.label}${sfx(X)} against ${Y.label}${sfx(Y)}`);
+        const narrow = svg.parentNode.clientWidth < 640;
+        const W = narrow ? 560 : 1000, H = narrow ? 620 : 640, M = { l: 62, r: 14, t: 46, b: 58 };
+        svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+        if (!pts.length) { el("text", { x: W / 2, y: H / 2, "text-anchor": "middle", fill: "var(--muted)", "font-size": 18 }, svg, "No players match these settings."); return; }
+        const pad = (lo, hi) => { const s = (hi - lo) || Math.abs(hi) || 1; return [lo - s * 0.06, hi + s * 0.06]; };
+        const [x0, x1] = pad(Math.min(...pts.map(d => d.x)), Math.max(...pts.map(d => d.x)));
+        const [y0, y1] = pad(Math.min(...pts.map(d => d.y)), Math.max(...pts.map(d => d.y)));
+        const tx = ticks(x0, x1, narrow ? 5 : 8), ty = ticks(y0, y1, 7);
+        const xa = tx.list[0], xb = tx.list[tx.list.length - 1], ya = ty.list[0], yb = ty.list[ty.list.length - 1];
+        const sx = v => M.l + (v - xa) / (xb - xa) * (W - M.l - M.r), sy = v => H - M.b - (v - ya) / (yb - ya) * (H - M.t - M.b);
+        const tickFmt = (v, st) => st.fmtType === "pct" ? `${Math.round(v * 1000) / 10}%` : String(Math.round(v * 1000) / 1000);
+
+        const g0 = el("g", {}, svg);
+        for (const v of tx.list) {
+          el("line", { x1: sx(v), x2: sx(v), y1: M.t, y2: H - M.b, stroke: "var(--border)" }, g0);
+          el("text", { x: sx(v), y: H - M.b + 22, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "var(--text)" }, g0, tickFmt(v, X));
+        }
+        for (const v of ty.list) {
+          el("line", { x1: M.l, x2: W - M.r, y1: sy(v), y2: sy(v), stroke: "var(--border)" }, g0);
+          el("text", { x: M.l - 10, y: sy(v) + 5, "text-anchor": "end", "font-size": 15, "font-weight": 700, fill: "var(--text)" }, g0, tickFmt(v, Y));
+        }
+        el("rect", { x: M.l, y: M.t, width: W - M.l - M.r, height: H - M.t - M.b, fill: "none", stroke: "var(--text)", "stroke-width": 1.5 }, g0);
+        el("text", { x: (M.l + W - M.r) / 2, y: H - 14, "text-anchor": "middle", "font-size": 17, "font-weight": 800, fill: "var(--text)", "letter-spacing": ".04em" }, g0, (X.label + sfx(X)).toUpperCase());
+        el("text", { x: 8, y: M.t - 18, "font-size": 17, "font-weight": 800, fill: "var(--text)", "letter-spacing": ".04em" }, g0, (Y.label + sfx(Y)).toUpperCase());
+
+        // Averages, trend line and quadrant names
+        const mx = fit ? fit.mx : pts.reduce((s, d) => s + d.x, 0) / pts.length;
+        const my = fit ? fit.my : pts.reduce((s, d) => s + d.y, 0) / pts.length;
+        el("line", { x1: sx(mx), x2: sx(mx), y1: M.t, y2: H - M.b, stroke: "var(--muted)", "stroke-dasharray": "6 5", "stroke-width": 1.4 }, g0);
+        el("line", { x1: M.l, x2: W - M.r, y1: sy(my), y2: sy(my), stroke: "var(--muted)", "stroke-dasharray": "6 5", "stroke-width": 1.4 }, g0);
+        const fitAt = v => fit.icpt + fit.slope * v;
+        if (fit) {
+          // Clip the line to the plot box.
+          let lx0 = xa, lx1 = xb;
+          if (fit.slope) {
+            const xsAt = [(ya - fit.icpt) / fit.slope, (yb - fit.icpt) / fit.slope].sort((a, b) => a - b);
+            lx0 = Math.max(xa, xsAt[0]); lx1 = Math.min(xb, xsAt[1]);
+          }
+          if (lx1 > lx0) el("line", { x1: sx(lx0), y1: sy(fitAt(lx0)), x2: sx(lx1), y2: sy(fitAt(lx1)), stroke: "var(--text)",
+            "stroke-dasharray": "2 6", "stroke-width": 2.4, "stroke-linecap": "round", opacity: 0.25 + 0.6 * Math.min(1, Math.abs(fit.r)) }, g0);
+        }
+        const qn = preset?.q || [`High ${xs}, high ${ys}`, `Low ${xs}, high ${ys}`, `High ${xs}, low ${ys}`, "Low on both"];
+        const QC = ["var(--q-tr)", "var(--q-tl)", "var(--q-br)", "var(--q-bl)"];
+        const corners = [[W - M.r - 12, M.t + 26, "end"], [M.l + 12, M.t + 26, "start"], [W - M.r - 12, H - M.b - 14, "end"], [M.l + 12, H - M.b - 14, "start"]];
+        const reserved = [];
+        corners.forEach(([x, y, anchor], i) => {
+          const t = el("text", { x, y, "text-anchor": anchor, "font-size": qn[i].length > 16 || narrow ? 15 : 21, "font-weight": 900, fill: QC[i], "letter-spacing": ".02em" }, g0, qn[i].toUpperCase());
+          const w = t.getComputedTextLength ? t.getComputedTextLength() : qn[i].length * 13;
+          reserved.push({ x: anchor === "end" ? x - w - 4 : x - 4, y: y - 22, w: w + 8, h: 30 });
+        });
+        const quad = d => (d.x >= mx ? (d.y >= my ? 0 : 2) : (d.y >= my ? 1 : 3));
+
+        // Greedy label placement: outliers first, then whoever still fits.
+        const R = 11, LH = 14, boxes = [];
+        const overlaps = (b, o) => b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y;
+        const free = b => b.x > M.l + 2 && b.x + b.w < W - M.r - 2 && b.y > M.t + 2 && b.y + b.h < H - M.b - 2
+          && !boxes.some(o => overlaps(b, o)) && !reserved.some(o => overlaps(b, o))
+          && !pts.some(d => { const cx = sx(d.x), cy = sy(d.y), nx = Math.max(b.x, Math.min(cx, b.x + b.w)), ny = Math.max(b.y, Math.min(cy, b.y + b.h)); return (nx - cx) ** 2 + (ny - cy) ** 2 < (R + 1) ** 2; });
+        const spreadX = (xb - xa) || 1, spreadY = (yb - ya) || 1;
+        const order = [...pts].sort((a, b) => Math.hypot((b.x - mx) / spreadX, (b.y - my) / spreadY) - Math.hypot((a.x - mx) / spreadX, (a.y - my) / spreadY));
+        const labels = new Map();
+        for (const d of order) {
+          const cx = sx(d.x), cy = sy(d.y), w = d.p.short.length * 7 + 4;
+          let found = null;
+          for (const dist of [R + 4, R + 20, R + 36]) {
+            const c = [[cx + dist, cy - LH / 2], [cx - dist - w, cy - LH / 2], [cx - w / 2, cy - dist - LH + 3], [cx - w / 2, cy + dist - 3],
+              [cx + dist * 0.8, cy - dist * 0.8 - LH / 2], [cx + dist * 0.8, cy + dist * 0.8 - LH / 2], [cx - dist * 0.8 - w, cy - dist * 0.8 - LH / 2], [cx - dist * 0.8 - w, cy + dist * 0.8 - LH / 2]];
+            for (const [x, y] of c) { const b = { x, y, w, h: LH }; if (free(b)) { found = { ...b, lead: dist > R + 4 }; break; } }
+            if (found) break;
+          }
+          if (found) { boxes.push(found); labels.set(d, found); }
+        }
+
+        const gLab = el("g", {}, svg), gDots = el("g", {}, svg);
+        const hiTeam = state.team, q = state.q.toLowerCase();
+        const match = d => (!hiTeam || d.p.team === hiTeam) && (!q || d.p.name.toLowerCase().includes(q));
+        const filtering = !!(hiTeam || q);
+        for (const d of [...pts].sort((a, b) => match(a) - match(b))) {
+          const cx = sx(d.x), cy = sy(d.y), lab = labels.get(d), dim = filtering && !match(d) ? "dim" : "";
+          if (lab) {
+            if (lab.lead) {
+              const ex = Math.max(lab.x, Math.min(cx, lab.x + lab.w)), ey = Math.max(lab.y, Math.min(cy, lab.y + lab.h));
+              el("line", { x1: cx, y1: cy, x2: ex, y2: ey, stroke: "var(--muted)", "stroke-width": 1, class: dim }, gLab);
+            }
+            el("text", { x: lab.x + 2, y: lab.y + LH - 3, "font-size": 12.5, "font-weight": 700, fill: "var(--text)", class: dim }, gLab, d.p.short);
+          }
+          const a = el("a", { href: playerUrl(d.p), class: `dot ${dim}`, "aria-label": `${d.p.name}, ${d.p.team}: ${fmtStat(d.x, X.fmtType)} ${xs}, ${fmtStat(d.y, Y.fmtType)} ${ys}` }, gDots);
+          el("circle", { cx, cy, r: R - 2, fill: teams[d.p.team]?.color || "#556" }, a);
+          el("circle", { class: "ring", cx, cy, r: R, fill: "none", stroke: QC[quad(d)], "stroke-width": 2.4 }, a);
+          el("text", { x: cx, y: cy + 3.3, "text-anchor": "middle", "font-size": d.p.team.length > 2 ? 8.5 : 10, "font-weight": 800, fill: "#fff", "pointer-events": "none" }, a, d.p.team);
+          const show = e => {
+            const diff = fit ? d.y - fitAt(d.x) : null;
+            tip.innerHTML = `<b>${esc(d.p.name)}</b>${esc(d.p.team)} · ${d.a.g} game${d.a.g === 1 ? "" : "s"}<br>
+              ${esc(X.short)}${sfx(X)}: ${fmtStat(d.x, X.fmtType)}<br>${esc(Y.short)}${sfx(Y)}: ${fmtStat(d.y, Y.fmtType)}
+              ${diff === null ? "" : `<br>${diff >= 0 ? "+" : "−"}${fmtStat(Math.abs(diff), Y.fmtType)} ${esc(ys)} vs. the trend line`}`;
+            tip.hidden = false;
+            const pt = e.type === "focus" ? (() => { const b = a.getBoundingClientRect(); return { x: b.right, y: b.top }; })() : { x: e.clientX, y: e.clientY };
+            tip.style.left = `${Math.max(8, Math.min(innerWidth - tip.offsetWidth - 8, pt.x + 14))}px`;
+            tip.style.top = `${Math.max(8, pt.y - tip.offsetHeight - 10)}px`;
+          };
+          a.addEventListener("pointermove", show); a.addEventListener("focus", show);
+          a.addEventListener("pointerleave", () => { tip.hidden = true; }); a.addEventListener("blur", () => { tip.hidden = true; });
+        }
+
+        // Biggest gaps from the trend line
+        const list = (rows, cls) => rows.map(d => {
+          const diff = d.y - fitAt(d.x);
+          return `<li><a href="${playerUrl(d.p)}"><span>${esc(d.p.name)} <span class="muted">${esc(d.p.team)}</span></span>
+            <span class="v ${cls}">${diff >= 0 ? "+" : "−"}${fmtStat(Math.abs(diff), Y.fmtType)}</span></a></li>`;
+        }).join("") || `<li class="muted">—</li>`;
+        if (fit) {
+          const byGap = [...pts].sort((a, b) => (b.y - fitAt(b.x)) - (a.y - fitAt(a.x)));
+          $("cb-above").innerHTML = list(byGap.slice(0, 5).filter(d => d.y - fitAt(d.x) > 0), "up");
+          $("cb-below").innerHTML = list(byGap.slice(-5).reverse().filter(d => d.y - fitAt(d.x) < 0), "down");
+        } else {
+          $("cb-above").innerHTML = $("cb-below").innerHTML = `<li class="muted">—</li>`;
+        }
+        main.querySelectorAll(".cb-out h3").forEach((h, i) => {
+          h.textContent = `${i ? "Fewer" : "More"} ${ys}${sfx(Y)} than the trend line expects`;
+        });
+      }
+
+      function drawPresets() {
+        main.querySelector(".cb-presets").innerHTML = `<span>Try:</span>` + PRESETS[state.pos]
+          .map(p => `<button class="chip-btn" type="button" data-x="${p.x}" data-y="${p.y}">${esc(p.name)}</button>`).join("");
+        main.querySelectorAll(".cb-presets .chip-btn").forEach(b => b.onclick = () => {
+          state.x = b.dataset.x; state.y = b.dataset.y; fillAxisSelects(); draw();
+        });
+      }
+
+      main.querySelectorAll(".pos-tab").forEach(b => b.onclick = () => {
+        state.pos = b.dataset.pos; state.x = state.y = null; fixAxes(); state.min = defaultMin();
+        fillAxisSelects(); drawPresets(); draw();
+      });
+      $("cb-x").onchange = e => { state.x = e.target.value; draw(); };
+      $("cb-y").onchange = e => { state.y = e.target.value; draw(); };
+      $("cb-swap").onclick = () => { [state.x, state.y] = [state.y, state.x]; fillAxisSelects(); draw(); };
+      const weeksChanged = () => {
+        let f = Number($("cb-from").value), t = Number($("cb-to").value);
+        if (f > t) [f, t] = [t, f];
+        state.from = f; state.to = t; $("cb-from").value = f; $("cb-to").value = t;
+        state.min = defaultMin(); $("cb-min").value = state.min; draw();
+      };
+      $("cb-from").onchange = weeksChanged; $("cb-to").onchange = weeksChanged;
+      $("cb-min").oninput = e => { state.min = Math.max(0, Number(e.target.value) || 0); draw(); };
+      main.querySelectorAll("[data-pg]").forEach(b => b.onclick = () => { state.pg = b.dataset.pg === "1"; draw(); });
+      $("cb-team").onchange = e => { state.team = e.target.value; draw(); };
+      $("cb-find").oninput = e => { state.q = e.target.value.trim(); draw(); };
+      main.querySelector(".cb-scoring").innerHTML = scoringControls(state.sc, sc => { state.sc = sc; draw(); });
+
+      let lastNarrow = null;
+      addEventListener("resize", () => {
+        const n = svg.parentNode.clientWidth < 640;
+        if (n !== lastNarrow) { lastNarrow = n; draw(); }
+      });
+      fillAxisSelects(); drawPresets(); draw();
+      lastNarrow = svg.parentNode.clientWidth < 640;
+    });
+  </script>
+</body>
+</html>

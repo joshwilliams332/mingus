@@ -10,6 +10,7 @@ Fantasy football rankings, NFL stats and Vegas lines, built from [nflverse](http
 - **Matchup** (`game.html?id=…`): head-to-head with lines and moneylines, venue and weather, each team's last five games against the spread, over/under and implied points, and matchup edges (which positions each defense gives up the most to, with the players who benefit).
 - **Team** (`team.html?team=SEA`): record, ATS and O/U record, full schedule with results, fantasy players and defense vs position.
 - **Player** (`player.html?id=…`): season so far, this week's matchup, injury note, bio, weekly points and game log.
+- **Analytics** (`analytics.html?pos=WR&x=tgt&y=rec_yds`): a chart builder. Pick a position and any two stats (volume, efficiency, air yards, YAC, EPA, target share, WOPR, CPOE, fantasy points and more) and it plots every qualifying player, with the correlation (r) explained in plain words, the trend line, quadrants and the players furthest above and below the trend. Choose the weeks, a minimum volume, and season totals or per game; the URL keeps the chosen axes so a chart can be shared.
 
 ## Projections
 Weekly Rankings are ordered by **Sleeper's** projection for the week, pulled from `api.sleeper.app` by `build_data.py` and shown in your chosen scoring format. The rankings page also shows how far off Sleeper's projections have been on weeks already played, and the player page game log shows Sleeper's projection next to the actual score.
