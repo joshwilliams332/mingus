@@ -87,6 +87,13 @@ SKILL_STATS = {
     "fl": ["rushing_fumbles_lost", "receiving_fumbles_lost", "sack_fumbles_lost"],
     "two_pt": ["passing_2pt_conversions", "rushing_2pt_conversions", "receiving_2pt_conversions"],
     "st_td": ["special_teams_tds"],
+    # Advanced stats for the Analytics page's chart builder.
+    "pass_air": ["passing_air_yards"], "pass_epa": ["passing_epa"], "pass_fd": ["passing_first_downs"],
+    "cpoe": ["passing_cpoe"], "sk": ["sacks_suffered"],
+    "rush_epa": ["rushing_epa"], "rush_fd": ["rushing_first_downs"],
+    "rec_air": ["receiving_air_yards"], "yac": ["receiving_yards_after_catch"],
+    "rec_fd": ["receiving_first_downs"], "rec_epa": ["receiving_epa"],
+    "tgt_sh": ["target_share"], "ay_sh": ["air_yards_share"],
 }
 KICK_STATS = {
     "fg_0_39": ["fg_made_0_19", "fg_made_20_29", "fg_made_30_39"],
