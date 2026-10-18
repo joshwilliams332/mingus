@@ -77,8 +77,8 @@
           ${Object.keys(POS).map(p => `<button class="pos-tab" role="tab" data-pos="${p}"><span class="nl">${TAB_LABELS[p]}</span><span class="ns">${p}</span></button>`).join("")}
         </div>
         <div class="trend-lists">
-          <section class="card"><h3>Biggest risers</h3><div class="mv-head"></div><ol class="movers" id="risers"></ol></section>
-          <section class="card"><h3>Biggest fallers</h3><div class="mv-head"></div><ol class="movers" id="fallers"></ol></section>
+          <section class="card"><h3>Biggest risers</h3><ol class="movers" id="risers"></ol></section>
+          <section class="card"><h3>Biggest fallers</h3><ol class="movers" id="fallers"></ol></section>
         </div>
         <div class="section-head section"><h2 id="table-title"></h2></div>
         <div class="controls">
@@ -118,14 +118,16 @@
 
       function mover(r) {
         const P = POS[state.pos];
-        // Before → after pairs line up in columns so players can be compared down the list.
-        const pair = (a, b) => `<span class="mv-pair"><span>${pct(a)}</span><span class="mv-arrow">→</span><b>${pct(b)}</b></span>`;
+        // A small grid per player: the weeks compared sit directly above the numbers they belong to.
+        const line = (label, a, b) => `<span class="mv-k">${label}</span><span>${pct(a)}</span><span class="mv-arrow">→</span><b>${pct(b)}</b>`;
         return `<li><a href="${playerUrl(r.p)}">
           ${headshot(r.p, "sm")}
-          <span class="mv-main"><strong>${esc(r.p.name)}</strong>
-            <span class="muted">${esc(r.p.team)} · ${weeks(r.before)} → ${weeks(r.recent).replace("Wk ", "")}</span></span>
-          ${pair(r.main_before, r.main)}
-          ${r.snap_d !== null ? pair(r.snap_before, r.snap) : `<span class="mv-pair muted">—</span>`}
+          <span class="mv-main"><strong>${esc(r.p.name)}</strong><span class="muted">${esc(r.p.team)}</span></span>
+          <span class="mv-grid">
+            <span></span><span class="mv-wk">${weeks(r.before)}</span><span></span><span class="mv-wk">${weeks(r.recent)}</span>
+            ${line(P.mainShort, r.main_before, r.main)}
+            ${r.snap_d !== null ? line("Snaps", r.snap_before, r.snap) : ""}
+          </span>
           <span class="mv-d">${change(r.main_d)}</span>
           ${r.dropped ? `<span class="mv-warn">⚠ Last game (Wk ${r.last.week}): only ${pct(r.last_snap)} of snaps</span>` : ""}
         </a></li>`;
@@ -157,9 +159,6 @@
         $("risers").innerHTML = top(movers, 1).map(mover).join("") || `<li class="muted">No big risers yet.</li>`;
         $("fallers").innerHTML = top(movers, -1).map(mover).join("") || `<li class="muted">No big fallers yet.</li>`;
         main.querySelectorAll(".trend-lists h3").forEach((h, i) => { h.textContent = `Biggest ${i ? "fallers" : "risers"} · ${P.mainLabel.toLowerCase()}`; });
-        main.querySelectorAll(".mv-head").forEach(h => {
-          h.innerHTML = `<span></span><span>Player</span><span>${P.mainShort}<small>before → last ${RECENT}</small></span><span>Snaps<small>before → last ${RECENT}</small></span><span>+/−</span>`;
-        });
 
         // Table: everyone with a real role, filtered and sorted.
         const q = state.q.toLowerCase(), cols = COLS();
