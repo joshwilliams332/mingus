@@ -52,7 +52,7 @@
             <option value="">All teams</option>
             ${abbrs.map(a => `<option value="${a}">${esc(teamName(a, teams))}</option>`).join("")}
           </select>
-          <input class="search" type="search" placeholder="Search players, teams or cities" aria-label="Search">
+          <input class="search" type="search" placeholder="Search players or teams" aria-label="Search">
         </div>
         <div class="table-wrap"><table class="data-table compact db-table"><thead></thead><tbody></tbody></table></div>
         <button class="btn-plain more" hidden>Show more</button>`;

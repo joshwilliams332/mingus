@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Rankings · Mingus Sports</title>
+  <title>Fantasy Rankings · Mingus Sports</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -13,41 +13,66 @@
   <script>
     // Fantasy-only columns; full stat lines live in the Player Database.
     // [key, header, value(row), display(row)?]
+    const dash = v => (v === null || v === undefined ? "—" : fmt(v));
     const COLS = [
-      ["proj", "Proj", r => r.s.proj, r => (r.s.proj === null ? "—" : fmt(r.s.proj))],
+      ["proj", "Proj", r => r.s.proj, r => dash(r.s.proj)],
       ["ppg", "FPTS/G", r => r.s.ppg],
       ["fpts", "FPTS", r => r.s.fpts],
       ["last3", "Last 3", r => r.s.last3],
-      ["g", "G", r => r.s.g],
+    ];
+    // Past weeks: the ranking as it stood before kickoff, next to what each player actually scored.
+    const PAST_COLS = [
+      ["proj", "Proj", r => r.s.proj, r => dash(r.s.proj)],
+      ["actual", "Actual", r => r.actual, r => dash(r.actual)],
+      ["diff", "+/−", r => r.diff, r => (r.diff === null ? "—" : `<span class="${r.diff >= 0 ? "beat" : "missed"}">${r.diff > 0 ? "+" : r.diff < 0 ? "−" : ""}${fmt(Math.abs(r.diff))}</span>`)],
+      ["ppg", "FPTS/G", r => r.s.ppg],
+      ["last3", "Last 3", r => r.s.last3],
     ];
 
     Mingus.start(async (main, meta) => {
       const [players, games, teams] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.load("teams")]);
       const params = new URLSearchParams(location.search);
-      const week = meta.next_week ?? meta.last_week;
-      const state = { tab: RANK_TABS.includes(params.get("pos")) ? params.get("pos") : "QB", q: "", sort: null, dir: -1, sc: Scoring.get() };
+      const thisWeek = meta.next_week ?? meta.last_week;
+      const urlWeek = Number(params.get("week"));
+      const state = {
+        tab: RANK_TABS.includes(params.get("pos")) ? params.get("pos") : "QB", q: "", sort: null, dir: -1, sc: Scoring.get(),
+        week: urlWeek >= 1 && urlWeek <= thisWeek ? urlWeek : thisWeek,
+      };
       let projector = makeProjector(players, games, state.sc, meta);
-      let dvp = defenseVsPos(players, games, state.sc);
-      // For D/ST matchups: opponents ranked by points scored per game (1st = scores the fewest = best for a defense).
-      const offense = {};
-      for (const t of Object.keys(teams)) {
-        const r = teamResults(games, t);
-        offense[t] = { ppg: r.length ? Math.round(r.reduce((a, x) => a + x.pf, 0) / r.length * 10) / 10 : 0 };
+      let dvp, offense;
+      // Matchup ranks use only games played before the chosen week, so a past week shows what was known then.
+      function computeMatchups() {
+        const before = state.week < thisWeek ? state.week : Infinity;
+        dvp = defenseVsPos(players, games, state.sc, before);
+        // For D/ST matchups: opponents ranked by points scored per game (1st = scores the fewest = best for a defense).
+        offense = {};
+        for (const t of Object.keys(teams)) {
+          const r = teamResults(games, t).filter(x => x.week < before);
+          offense[t] = { ppg: r.length ? Math.round(r.reduce((a, x) => a + x.pf, 0) / r.length * 10) / 10 : 0 };
+        }
+        Object.keys(offense).sort((a, b) => offense[a].ppg - offense[b].ppg).forEach((t, i) => { offense[t].rank = i + 1; });
       }
-      Object.keys(offense).sort((a, b) => offense[a].ppg - offense[b].ppg).forEach((t, i) => { offense[t].rank = i + 1; });
+      computeMatchups();
 
       main.innerHTML = `
         <div class="page-head">
           <div>
-            <h1>Week ${week} Fantasy Rankings</h1>
+            <h1></h1>
             <p class="muted sub-head"></p>
           </div>
-          <div class="scoring-slot"></div>
+          <div class="rank-head-controls">
+            <label class="week-select">Week
+              <select id="rank-week" aria-label="Week">
+                ${Array.from({ length: thisWeek }, (_, i) => thisWeek - i).map(w => `<option value="${w}">Week ${w}${w === thisWeek ? " (this week)" : ""}</option>`).join("")}
+              </select>
+            </label>
+            <div class="scoring-slot"></div>
+          </div>
         </div>
         <div class="tabs-bar" role="tablist" aria-label="Position">
           ${RANK_TABS.map(t => `<button class="pos-tab" role="tab" data-tab="${t}">${t}</button>`).join("")}
         </div>
-        <div class="controls"><input class="search" type="search" placeholder="Search players, teams or cities (e.g. Atlanta)" aria-label="Search"></div>
+        <div class="controls"><input class="search" type="search" placeholder="Search players or teams" aria-label="Search"></div>
         <p class="legend top-legend"></p>
         <div class="table-wrap"><table class="data-table rank-table"><thead></thead><tbody></tbody></table></div>
         <p class="legend bottom-legend"></p>`;
@@ -66,15 +91,32 @@
       function draw() {
         const { tab } = state;
         main.querySelectorAll(".pos-tab").forEach(b => b.setAttribute("aria-selected", b.dataset.tab === tab));
-        main.querySelector(".sub-head").textContent = `${TAB_LABELS[tab]} · ${Scoring.label(state.sc)}`;
+        const week = state.week, past = week < thisWeek;
+        history.replaceState(null, "", `rankings.html?pos=${tab}${past ? `&week=${week}` : ""}`);
+        main.querySelector("h1").textContent = `Week ${week} Fantasy Rankings`;
+        main.querySelector(".sub-head").textContent = `${TAB_LABELS[tab]} · ${Scoring.label(state.sc)}${past ? " · past week" : ""}`;
         const pool = players.filter(p => tab === "FLX" ? FLEX.includes(p.pos) : p.pos === tab);
-        // Ranked by Sleeper's projection for this week (players on bye go last), or by points per game without it.
-        const ranked = (projector.hasSleeper
-          ? pool.map(p => { const s = summarize(p, state.sc); s.proj = projector.get(p, week); return { p, s }; })
-              .sort((a, b) => ((b.s.proj ?? -99) - (a.s.proj ?? -99)) || (b.s.ppg - a.s.ppg))
-          : rankList(pool, state.sc, meta))
-          .map((r, i) => ({ ...r, rank: i + 1, game: weekGame(games, r.p.team, week) }));
-        const cols = projector.hasSleeper ? COLS : COLS.filter(c => c[0] !== "proj");
+        // For a past week, season stats only count games before that week, and each player is placed on the team
+        // he played for that week.
+        const min = past ? Math.max(1, Math.ceil((week - 1) / 2)) : minGames(meta);
+        const rows0 = pool.map(p => {
+          const played = p.log.find(e => e.week === week);
+          const s = summarize(past ? { ...p, log: p.log.filter(e => e.week < week) } : p, state.sc);
+          s.proj = projector.hasSleeper ? projector.get(p, week) : null;
+          const actual = past ? (played ? scoreGame(played, p.pos, state.sc) : null) : null;
+          return {
+            p, s, actual,
+            diff: actual !== null && s.proj !== null ? Math.round((actual - s.proj) * 10) / 10 : null,
+            game: weekGame(games, played?.team || p.team, week),
+          };
+        });
+        // Ranked by Sleeper's projection for the week (players on bye go last), or by points per game without it.
+        const ranked = rows0
+          .sort(projector.hasSleeper
+            ? (a, b) => ((b.s.proj ?? -99) - (a.s.proj ?? -99)) || (b.s.ppg - a.s.ppg)
+            : (a, b) => ((b.s.g >= min) - (a.s.g >= min)) || (b.s.ppg - a.s.ppg))
+          .map((r, i) => ({ ...r, rank: i + 1 }));
+        const cols = (past ? PAST_COLS : COLS).filter(c => projector.hasSleeper || !["proj", "diff"].includes(c[0]));
 
         const q = state.q.toLowerCase();
         let rows = ranked.filter(({ p }) => !q || p.name.toLowerCase().includes(q) || teamMatches(p.team, q, teams));
@@ -96,7 +138,7 @@
         </tr>`;
 
         tbody.innerHTML = rows.map(r => `
-          <tr class="${!r.game || (projector.hasSleeper ? r.s.proj === null : r.s.g < minGames(meta)) ? "unqualified" : ""}">
+          <tr class="${!r.game || (projector.hasSleeper ? r.s.proj === null : r.s.g < min) ? "unqualified" : ""}">
             <td class="l rank">${r.rank}</td>
             <td class="l"><div class="pcell">${headshot(r.p, "sm")}
               <div><a href="${playerUrl(r.p)}">${esc(r.p.pos === "DST" ? r.p.name : r.p.short)}</a> ${injuryTag(r.p.injury)}
@@ -108,12 +150,18 @@
 
         const rankedBy = projector.hasSleeper
           ? `Ranked by Sleeper's Week ${week} projection.`
-          : `Ranked by fantasy points per game (Sleeper projections weren't in this data update).`;
-        main.querySelector(".top-legend").textContent = `${rankedBy} Matchup = opponent's rank against the position this season (green = favorable, red = tough).`;
+          : `Ranked by fantasy points per game${past ? ` before Week ${week}` : ""} (Sleeper projections weren't in this data update).`;
+        main.querySelector(".top-legend").textContent = past
+          ? `Week ${week} as it looked before kickoff. ${rankedBy} Actual = points scored that week${projector.hasSleeper ? "; +/− = actual minus projection" : ""}. Matchup = opponent's rank against the position before Week ${week}.`
+          : `${rankedBy} Matchup = opponent's rank against the position this season (green = favorable, red = tough).`;
+        // How far off Sleeper was: this week only for a past week, otherwise the season so far.
+        const misses = past ? ranked.filter(r => r.diff !== null && r.s.proj >= 5).map(r => Math.abs(r.diff)) : [];
         const acc = projector.accuracy();
-        main.querySelector(".bottom-legend").textContent =
-          (projector.hasSleeper && acc.mae !== null ? `Sleeper's projections have missed by ${acc.mae} pts per player on average this season. ` : "") +
-          `FPTS is the season total; Last 3 is the average of the last three games. Full stat lines are in the Player Database.`;
+        main.querySelector(".bottom-legend").textContent = past
+          ? (misses.length ? `Sleeper's Week ${week} projections missed by ${fmt(Math.round(misses.reduce((a, b) => a + b, 0) / misses.length * 10) / 10)} pts per player on average (players projected for 5+). ` : "") +
+            `FPTS/G and Last 3 count games before Week ${week}. Full stat lines are in the Player Database.`
+          : (projector.hasSleeper && acc.mae !== null ? `Sleeper's projections have missed by ${acc.mae} pts per player on average this season. ` : "") +
+            `FPTS is the season total; Last 3 is the average of the last three games. Full stat lines are in the Player Database.`;
 
         thead.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
           const key = b.dataset.sort || null;
@@ -124,13 +172,15 @@
       }
 
       main.querySelector(".scoring-slot").innerHTML = scoringControls(state.sc, sc => {
-        state.sc = sc; projector = makeProjector(players, games, sc, meta); dvp = defenseVsPos(players, games, sc); draw();
+        state.sc = sc; projector = makeProjector(players, games, sc, meta); computeMatchups(); draw();
       });
       main.querySelectorAll(".pos-tab").forEach(b => b.onclick = () => {
         state.tab = b.dataset.tab; state.sort = null;
-        history.replaceState(null, "", `rankings.html?pos=${state.tab}`);
         draw();
       });
+      const weekSel = main.querySelector("#rank-week");
+      weekSel.value = state.week;
+      weekSel.onchange = () => { state.week = Number(weekSel.value); state.sort = null; computeMatchups(); draw(); };
       main.querySelector(".search").oninput = e => { state.q = e.target.value.trim(); draw(); };
       draw();
     });

@@ -39,14 +39,20 @@ const Mingus = {
             <span class="brand-name">Mingus Sports</span>
           </a>
           <nav class="nav" aria-label="Main">
-            <a href="players.html" ${here === "players.html" || here === "player.html" ? 'aria-current="page"' : ""}><span class="nl">Player Database</span><span class="ns">Players</span></a>
             <div class="nav-drop">
-              <a href="rankings.html" ${here === "rankings.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Weekly Rankings</span><span class="ns">Rankings</span> <span aria-hidden="true">▾</span></a>
+              <a href="players.html" ${here === "players.html" || here === "player.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Player Database</span><span class="ns">Players</span> <span aria-hidden="true">▾</span></a>
+              <div class="nav-menu">
+                <a href="players.html"><strong>All</strong><span>Every position</span></a>
+                ${["QB", "RB", "WR", "TE", "K", "DST"].map(t => `<a href="players.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
+              </div>
+            </div>
+            <div class="nav-drop">
+              <a href="rankings.html" ${here === "rankings.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Fantasy Rankings</span><span class="ns">Rankings</span> <span aria-hidden="true">▾</span></a>
               <div class="nav-menu">
                 ${RANK_TABS.map(t => `<a href="rankings.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
               </div>
             </div>
-            <a href="games.html" ${["games.html", "game.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">NFL Games</span><span class="ns">Games</span></a>
+            <a href="games.html" ${["games.html", "game.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Schedule</span><span class="ns">Schedule</span></a>
             <a href="analytics.html" ${here === "analytics.html" ? 'aria-current="page"' : ""}><span class="nl">Analytics</span><span class="ns">Charts</span></a>
           </nav>
           <span class="header-week">${esc(week)}</span>
@@ -293,30 +299,27 @@ function spreadTag(n) {
 
 // Game card used on the home and games pages. Before kickoff it shows the lines;
 // once final it shows the score, the closing line and who covered.
-function gameCard(g) {
+// One row of the schedule: both teams with logos, then the spread and total. Before kickoff it shows
+// each team's implied points; once final it shows the score, who covered and how the total landed.
+function scheduleRow(g, teams) {
   const final = g.home_score !== null;
   const res = lineResults(g);
-  const row = (team, isHome) => {
+  const fav = g.home_spread === null ? null : g.home_spread <= 0 ? g.home : g.away;
+  const side = (team, isHome) => {
     const tg = teamGame(g, team);
     const won = final && tg.score[0] > tg.score[1];
-    const covered = res && res.cover === team;
-    return `<div class="game-row ${won ? "winner" : ""}">
-      <span class="team">${esc(team)}${isHome ? "<small>home</small>" : ""}${covered ? `<span class="badge cover">Covered</span>` : ""}</span>
-      <span class="num">${spreadTag(tg.spread)}</span>
-      <span class="num ${final ? "score" : ""}">${final ? tg.score[0] : fmt(tg.implied)}</span>
-    </div>`;
+    const name = `<span class="sr-name">${esc(teamName(team, teams, false))}<small>${final ? esc(team) : `${esc(team)} · ${fmt(tg.implied)} implied`}</small></span>`;
+    const score = final ? `<span class="sr-score ${won ? "won" : ""}">${tg.score[0]}</span>` : "";
+    return `<span class="sr-team ${isHome ? "home" : "away"} ${final && !won ? "lost" : ""}">
+      ${isHome ? `${score}${name}${teamMark(team, teams, "md")}` : `${teamMark(team, teams, "md")}${name}${score}`}</span>`;
   };
-  return `<a class="game-card ${final ? "final" : ""}" href="${gameUrl(g)}">
-    <div class="when">${final ? "Final" : esc(fmtKickoff(g))}</div>
-    <div class="game-cols"><span></span><span>Spread</span><span>${final ? "Score" : "Implied"}</span></div>
-    ${row(g.away, false)}
-    ${row(g.home, true)}
-    <div class="game-foot">
-      ${final && res
-        ? `<span>O/U ${fmt(g.total)} · <strong class="ou-${res.ou.toLowerCase()}">${res.ou}</strong> (${res.sum})</span>${res.cover ? "" : "<span>ATS push</span>"}`
-        : `<span>O/U ${fmt(g.total)}</span>`}
-      <span class="stadium">${esc(g.stadium || "")}</span>
-    </div>
+  const spread = fav === null ? "—" : g.home_spread === 0 ? "Pick'em" : `${esc(fav)} ${fmtSpread(-Math.abs(g.home_spread))}`;
+  return `<a class="sched-row ${final ? "final" : ""}" href="${gameUrl(g)}">
+    <span class="sr-matchup">${side(g.away, false)}<span class="sr-at">${final ? "–" : "@"}</span>${side(g.home, true)}</span>
+    <span class="sr-lines">
+      <span class="sr-line"><span class="sr-k">Spread</span><strong>${spread}</strong>${res ? `<span class="sr-res">${res.cover ? `${esc(res.cover)} covered` : "Push"}</span>` : ""}</span>
+      <span class="sr-line"><span class="sr-k">Total</span><strong>${fmt(g.total)}</strong>${res?.ou ? `<span class="sr-res">${res.ou} · ${res.sum}</span>` : ""}</span>
+    </span>
   </a>`;
 }
 
@@ -328,10 +331,12 @@ function teamName(abbr, teams, full = true) {
   const t = teams?.[abbr];
   return t ? (full ? `${t.city} ${t.nickname}` : t.nickname) : abbr;
 }
-// Colored team badge (we don't ship logos, so the abbreviation stands in).
+// Team logo (linked from ESPN). If the image can't load, the colored abbreviation badge takes its place.
 function teamMark(abbr, teams, size = "md") {
-  const color = teams?.[abbr]?.color || "#556";
-  return `<span class="team-badge ${size}" style="--tc:${color}">${esc(abbr)}</span>`;
+  const t = teams?.[abbr];
+  const badge = `<span class="team-badge ${size}" style="--tc:${t?.color || "#556"}">${esc(abbr)}</span>`;
+  if (!t?.logo) return badge;
+  return `<img class="team-logo ${size}" src="${esc(t.logo)}" alt="${esc(abbr)}" loading="lazy" data-fallback="${esc(badge)}" onerror="this.outerHTML=this.dataset.fallback">`;
 }
 
 // Every finished game for a team with betting results from that team's side.

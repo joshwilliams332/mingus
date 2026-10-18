@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Games · Mingus Sports</title>
+  <title>Schedule · Mingus Sports</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -12,7 +12,8 @@
   <script src="assets/common.js"></script>
   <script>
     Mingus.start(async (main, meta) => {
-      const games = (await Mingus.load("games")).filter(g => g.type === "REG");
+      const [allGames, teams] = await Promise.all([Mingus.load("games"), Mingus.load("teams")]);
+      const games = allGames.filter(g => g.type === "REG");
       const weeks = [...new Set(games.map(g => g.week))].sort((a, b) => a - b);
       const fromUrl = Number(new URLSearchParams(location.search).get("week"));
       let week = weeks.includes(fromUrl) ? fromUrl : (meta.next_week ?? meta.last_week);
@@ -20,8 +21,8 @@
       main.innerHTML = `
         <div class="page-head">
           <div>
-            <h1>NFL Regular Season</h1>
-            <p class="muted sub-head">${meta.season} season · scores, spreads and over/unders</p>
+            <h1>Schedule</h1>
+            <p class="muted sub-head">${meta.season} regular season · scores, spreads and totals</p>
           </div>
           <label class="week-select">Week
             <select aria-label="Week">
@@ -30,15 +31,31 @@
           </label>
         </div>
         <div class="week-summary"></div>
-        <div class="games-grid big"></div>
-        <p class="legend">Spread is each team's line (negative = favored). Implied = points Vegas expects that team to score.
-          After the game, "Covered" marks the team that beat the spread and the over/under shows whether the total went over or under.</p>`;
+        <div class="schedule"></div>
+        <p class="legend">Spread: the favorite and how many points they're giving. Implied: the points Vegas expects each team to score.
+          After the game, the spread shows who covered and the total shows whether the score went over or under, with the final combined score.</p>`;
 
       const select = main.querySelector(".week-select select");
+      // Games grouped by kickoff slot, e.g. "Sunday, Oct 18 · 1:00 PM ET".
+      const slotLabel = g => {
+        const d = new Date(`${g.date}T${g.time || "13:00"}:00`);
+        const day = d.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+        return g.time ? `${day} · ${d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} ET` : day;
+      };
       function draw() {
         select.value = week;
-        const slate = games.filter(g => g.week === week);
-        main.querySelector(".games-grid").innerHTML = slate.map(gameCard).join("");
+        const slate = games.filter(g => g.week === week).sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`));
+        const slots = [];
+        for (const g of slate) {
+          const label = slotLabel(g);
+          if (slots.at(-1)?.label !== label) slots.push({ label, games: [] });
+          slots.at(-1).games.push(g);
+        }
+        main.querySelector(".schedule").innerHTML = slots.map(s => `
+          <section class="slot">
+            <h2 class="slot-head">${esc(s.label)}</h2>
+            <div class="slot-games">${s.games.map(g => scheduleRow(g, teams)).join("")}</div>
+          </section>`).join("");
         // Quick betting recap for finished weeks.
         const done = slate.map(g => ({ g, r: lineResults(g) })).filter(x => x.r);
         const count = f => done.filter(f).length;
