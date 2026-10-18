@@ -9,7 +9,9 @@ const Mingus = {
 
   async load(name) {
     if (!this.cache[name]) {
-      this.cache[name] = fetch(`data/${name}.json`).then(r => {
+      // "no-cache" makes the browser check for a newer copy every time (a quick "not modified" when
+      // nothing changed), so a new deploy's pages never run on yesterday's data.
+      this.cache[name] = fetch(`data/${name}.json`, { cache: "no-cache" }).then(r => {
         if (!r.ok) throw new Error(`Couldn't load data/${name}.json (${r.status})`);
         return r.json();
       });
@@ -20,7 +22,7 @@ const Mingus = {
   // Hand-written content (notes, articles). Missing or broken files just mean "no content".
   async content(name, fallback) {
     try {
-      const r = await fetch(`content/${name}.json`);
+      const r = await fetch(`content/${name}.json`, { cache: "no-cache" });
       return r.ok ? await r.json() : fallback;
     } catch (e) {
       return fallback;
