@@ -26,6 +26,10 @@ jobs:
           python-version: "3.12"
       - name: Download nflverse data
         run: python3 scripts/build_data.py
+      # Browsers keep style.css and common.js cached for a while, so after a deploy a page could load the new
+      # HTML with the old script. Tagging the links with this commit makes every deploy fetch fresh copies.
+      - name: Tag asset links with this commit
+        run: sed -i -E "s#assets/(common\.js|style\.css)\"#assets/\1?v=${GITHUB_SHA::8}\"#g" site/*.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
