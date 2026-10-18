@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usage Trends · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    // Usage = a player's role in his offense: how often he's on the field and how much of the team's
+    // volume he gets. Each player's last RECENT games are compared with his games before that.
+    const RECENT = 3;
+    const pct = v => (v === null || v === undefined ? "—" : `${Math.round(v * 100)}%`);
+    const change = (v, unit = "pts") => {
+      if (v === null || v === undefined) return `<span class="muted">—</span>`;
+      const n = Math.round(v * 100);
+      if (n === 0) return `<span class="muted">0</span>`;
+      return `<span class="${n > 0 ? "beat" : "missed"}">${n > 0 ? "▲" : "▼"} ${Math.abs(n)}</span>`;
+    };
+
+    // The share each position's role is judged by, plus the other columns it shows.
+    const POS = {
+      WR: { main: "tgt_sh", mainLabel: "Target share", mainShort: "Tgt %", rz: "rz_tgt", rzLabel: "RZ targets/g" },
+      TE: { main: "tgt_sh", mainLabel: "Target share", mainShort: "Tgt %", rz: "rz_tgt", rzLabel: "RZ targets/g" },
+      RB: { main: "opp_sh", mainLabel: "Opportunity share", mainShort: "Opp %", rz: "rz_touch", rzLabel: "RZ touches/g", extra: "car_sh", extraShort: "Carry %" },
+    };
+
+    // Average of a stat over a list of game-log entries (missing = 0, except snaps, where missing = no data).
+    function avg(entries, key) {
+      const vals = entries.map(e => (key === "rz_touch" ? (e.rz_tgt || 0) + (e.rz_car || 0) : e[key])).filter(v => key !== "snap_pct" || v !== undefined);
+      return vals.length ? vals.reduce((a, b) => a + (b || 0), 0) / vals.length : null;
+    }
+
+    // Small line of a player's snap share by week; gaps are weeks he didn't play.
+    function sparkline(p, lastWeek) {
+      const W = 112, H = 30, pad = 3, byWeek = new Map(p.log.map(e => [e.week, e.snap_pct]));
+      const x = w => pad + (w - 1) / Math.max(1, lastWeek - 1) * (W - pad * 2), y = v => H - pad - v * (H - pad * 2);
+      let path = "", dots = "", open = false;
+      for (let w = 1; w <= lastWeek; w++) {
+        const v = byWeek.get(w);
+        if (v === undefined) { open = false; continue; }
+        path += `${open ? "L" : "M"}${x(w).toFixed(1)},${y(v).toFixed(1)}`;
+        dots += `<circle cx="${x(w).toFixed(1)}" cy="${y(v).toFixed(1)}" r="${w === lastWeek || !byWeek.has(w + 1) ? 2.6 : 1.6}"></circle>`;
+        open = true;
+      }
+      const label = [...byWeek].map(([w, v]) => `Week ${w}: ${pct(v)}`).join(", ");
+      return `<svg class="spark" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Snap share by week. ${esc(label)}">
+        <line x1="${pad}" x2="${W - pad}" y1="${y(0.5)}" y2="${y(0.5)}" class="spark-mid"></line>
+        <path d="${path}"></path>${dots}</svg>`;
+    }
+
+    Mingus.start(async (main, meta) => {
+      const [players, teams] = await Promise.all([Mingus.load("players"), Mingus.load("teams")]);
+      const lastWeek = Math.max(1, ...players.flatMap(p => p.log.map(e => e.week)));
+      const params = new URLSearchParams(location.search);
+      const state = { pos: POS[params.get("pos")] ? params.get("pos") : "WR", team: "", q: "", sort: "main_d", dir: -1 };
+      const hasSnaps = players.some(p => p.log.some(e => e.snap_pct !== undefined));
+
+      main.innerHTML = `
+        <div class="page-head">
+          <div>
+            <h1>Usage Trends</h1>
+            <p class="muted sub-head">Whose role is growing or shrinking: each player's last ${RECENT} games compared with his games before that.</p>
+          </div>
+        </div>
+        <div class="tabs-bar abbr-tabs" role="tablist" aria-label="Position">
+          ${Object.keys(POS).map(p => `<button class="pos-tab" role="tab" data-pos="${p}"><span class="nl">${TAB_LABELS[p]}</span><span class="ns">${p}</span></button>`).join("")}
+        </div>
+        <div class="trend-lists">
+          <section class="card"><h3>Biggest risers</h3><ol class="movers" id="risers"></ol></section>
+          <section class="card"><h3>Biggest fallers</h3><ol class="movers" id="fallers"></ol></section>
+        </div>
+        <div class="section-head section"><h2 id="table-title"></h2></div>
+        <div class="controls">
+          <select class="filter" id="tr-team" aria-label="Team"><option value="">All teams</option>
+            ${Object.keys(teams).sort((a, b) => teamName(a, teams).localeCompare(teamName(b, teams))).map(a => `<option value="${a}">${esc(teamName(a, teams))}</option>`).join("")}
+          </select>
+          <input class="search" id="tr-find" type="search" placeholder="Search players or teams" aria-label="Search">
+        </div>
+        <div class="table-wrap"><table class="data-table trend-table"><thead></thead><tbody></tbody></table></div>
+        <p class="legend" id="tr-legend"></p>`;
+
+      const $ = id => document.getElementById(id);
+
+      // Recent vs earlier usage for one player at the current position.
+      function trend(p) {
+        const P = POS[state.pos], log = p.log;
+        const recent = log.slice(-RECENT), before = log.slice(0, -RECENT);
+        const r = {
+          p, g: log.length, recent, before,
+          snap: avg(recent, "snap_pct"), main: avg(recent, P.main), rz: avg(recent, P.rz),
+          extra: P.extra ? avg(recent, P.extra) : null,
+          ppg: recent.length ? recent.reduce((a, e) => a + scoreGame(e, p.pos, Scoring.get()), 0) / recent.length : 0,
+          // Still active: played in one of the last two weeks.
+          active: log.length && log[log.length - 1].week >= lastWeek - 1,
+        };
+        const enough = recent.length === RECENT && before.length >= 2;
+        r.snap_d = enough && r.snap !== null && avg(before, "snap_pct") !== null ? r.snap - avg(before, "snap_pct") : null;
+        r.main_before = enough ? avg(before, P.main) : null;
+        r.main_d = enough ? r.main - r.main_before : null;
+        r.extra_d = enough && P.extra ? r.extra - avg(before, P.extra) : null;
+        r.snap_before = enough ? avg(before, "snap_pct") : null;
+        return r;
+      }
+
+      function mover(r) {
+        const P = POS[state.pos];
+        return `<li><a href="${playerUrl(r.p)}">
+          ${headshot(r.p, "sm")}
+          <span class="mv-main"><strong>${esc(r.p.name)}</strong>
+            <span class="muted">${esc(r.p.team)} · ${P.mainShort} ${pct(r.main_before)} → <b>${pct(r.main)}</b>${r.snap_d !== null ? ` · Snaps ${pct(r.snap_before)} → ${pct(r.snap)}` : ""}</span></span>
+          <span class="mv-d">${change(r.main_d)}</span>
+        </a></li>`;
+      }
+
+      const COLS = () => {
+        const P = POS[state.pos];
+        return [
+          ["snap", "Snap %", r => r.snap, r => pct(r.snap), `Share of the team's offensive snaps he played, last ${RECENT} games`],
+          ["snap_d", "+/−", r => r.snap_d, r => change(r.snap_d), "Change in snap share vs his earlier games (percentage points)"],
+          ["main", P.mainShort, r => r.main, r => pct(r.main), `${P.mainLabel}, last ${RECENT} games`],
+          ["main_d", "+/−", r => r.main_d, r => change(r.main_d), `Change in ${P.mainLabel.toLowerCase()} vs his earlier games (percentage points)`],
+          ...(P.extra ? [["extra", P.extraShort, r => r.extra, r => pct(r.extra), `Share of the team's carries, last ${RECENT} games`]] : []),
+          ["rz", P.rzLabel, r => r.rz, r => (r.rz === null ? "—" : r.rz.toFixed(1)), "Red-zone looks per game (inside the opponent's 20), last 3 games"],
+          ["ppg", "FPTS/G", r => r.ppg, r => fmt(Math.round(r.ppg * 10) / 10), `Fantasy points per game, last ${RECENT} games (${Scoring.label(Scoring.get())})`],
+        ];
+      };
+
+      function draw() {
+        const P = POS[state.pos];
+        main.querySelectorAll(".pos-tab").forEach(b => b.setAttribute("aria-selected", b.dataset.pos === state.pos));
+        history.replaceState(null, "", `trends.html?pos=${state.pos}`);
+        const all = players.filter(p => p.pos === state.pos && p.log.length).map(trend);
+
+        // Movers: active players whose main share changed most, ignoring fringe roles (under 10% on both sides).
+        const movers = all.filter(r => r.active && r.main_d !== null && Math.max(r.main, r.main_before) >= 0.1);
+        const top = (list, dir) => [...list].sort((a, b) => (b.main_d - a.main_d) * dir).filter(r => r.main_d * dir > 0.005).slice(0, 8);
+        $("risers").innerHTML = top(movers, 1).map(mover).join("") || `<li class="muted">No big risers yet.</li>`;
+        $("fallers").innerHTML = top(movers, -1).map(mover).join("") || `<li class="muted">No big fallers yet.</li>`;
+        main.querySelectorAll(".trend-lists h3").forEach((h, i) => { h.textContent = `Biggest ${i ? "fallers" : "risers"} · ${P.mainLabel.toLowerCase()}`; });
+
+        // Table: everyone with a real role, filtered and sorted.
+        const q = state.q.toLowerCase(), cols = COLS();
+        const get = (cols.find(c => c[0] === state.sort) || cols[3])[2];
+        const rows = all
+          .filter(r => r.active && ((r.snap ?? 0) >= 0.2 || r.main >= 0.08))
+          .filter(r => (!state.team || r.p.team === state.team) && (!q || r.p.name.toLowerCase().includes(q) || teamMatches(r.p.team, q, teams)))
+          .sort((a, b) => ((get(a) ?? -9) - (get(b) ?? -9)) * state.dir);
+        $("table-title").textContent = `All ${TAB_LABELS[state.pos].toLowerCase()} · last ${RECENT} games`;
+        main.querySelector("thead").innerHTML = `<tr><th class="l">Player</th><th class="l hide-sm">Snaps by week</th>
+          ${cols.map(([k, l, , , t]) => `<th title="${esc(t)}" ${state.sort === k ? `aria-sort="${state.dir < 0 ? "descending" : "ascending"}"` : ""}>
+            <button data-sort="${k}">${esc(l)}${state.sort === k ? (state.dir < 0 ? " ▼" : " ▲") : ""}</button></th>`).join("")}</tr>`;
+        main.querySelector("tbody").innerHTML = rows.map(r => `<tr>
+          <td class="l"><div class="pcell">${headshot(r.p, "sm")}<div><a href="${playerUrl(r.p)}">${esc(r.p.short)}</a> ${injuryTag(r.p.injury)}
+            <div class="pmeta">${esc(r.p.team)} · ${r.g} games</div></div></div></td>
+          <td class="l hide-sm">${sparkline(r.p, lastWeek)}</td>
+          ${cols.map(([k, , , show]) => `<td class="${k === state.sort ? "hl" : ""}">${show(r)}</td>`).join("")}
+        </tr>`).join("") || `<tr><td colspan="10" class="l muted">No players match.</td></tr>`;
+        main.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
+          state.dir = state.sort === b.dataset.sort ? -state.dir : -1;
+          state.sort = b.dataset.sort; draw();
+        });
+        $("tr-legend").textContent = (hasSnaps ? "" : "Snap counts weren't in this data update. ") +
+          `${P.mainLabel}: ${state.pos === "RB" ? "his carries plus targets out of the team's" : "his share of the team's targets"}. ` +
+          `+/− compares his last ${RECENT} games with his earlier games, in percentage points (▲ 10 = 10 points higher). ` +
+          `Risers and fallers need at least ${RECENT + 2} games and a 10%+ share before or after. ` +
+          `Red zone = plays snapped at the opponent's 20 or closer. Traded players' earlier games count with their old team.`;
+      }
+
+      main.querySelectorAll(".pos-tab").forEach(b => b.onclick = () => { state.pos = b.dataset.pos; draw(); });
+      $("tr-team").onchange = e => { state.team = e.target.value; draw(); };
+      $("tr-find").oninput = e => { state.q = e.target.value.trim(); draw(); };
+      draw();
+    });
+  </script>
+</body>
+</html>

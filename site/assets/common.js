@@ -40,19 +40,20 @@ const Mingus = {
           </a>
           <nav class="nav" aria-label="Main">
             <div class="nav-drop">
-              <a href="players.html" ${here === "players.html" || here === "player.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Player Database</span><span class="ns">Players</span> <span aria-hidden="true">▾</span></a>
+              <a href="players.html" ${here === "players.html" || here === "player.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Player Database</span><span class="ns">Players</span> <span class="caret" aria-hidden="true">▾</span></a>
               <div class="nav-menu">
                 <a href="players.html"><strong>All</strong><span>Every position</span></a>
                 ${["QB", "RB", "WR", "TE", "K", "DST"].map(t => `<a href="players.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
               </div>
             </div>
             <div class="nav-drop">
-              <a href="rankings.html" ${here === "rankings.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Fantasy Rankings</span><span class="ns">Rankings</span> <span aria-hidden="true">▾</span></a>
+              <a href="rankings.html" ${here === "rankings.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Fantasy Rankings</span><span class="ns">Rankings</span> <span class="caret" aria-hidden="true">▾</span></a>
               <div class="nav-menu">
                 ${RANK_TABS.map(t => `<a href="rankings.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
               </div>
             </div>
             <a href="games.html" ${["games.html", "game.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Schedule</span><span class="ns">Schedule</span></a>
+            <a href="trends.html" ${here === "trends.html" ? 'aria-current="page"' : ""}><span class="nl">Trends</span><span class="ns">Trends</span></a>
             <a href="analytics.html" ${here === "analytics.html" ? 'aria-current="page"' : ""}><span class="nl">Analytics</span><span class="ns">Charts</span></a>
           </nav>
           <span class="header-week">${esc(week)}</span>

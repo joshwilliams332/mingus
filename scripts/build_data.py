@@ -24,6 +24,7 @@ standard and 4/6-point passing touchdowns.
 
 import argparse
 import csv
+import gzip
 import io
 import json
 import urllib.request
@@ -287,14 +288,63 @@ def short_name(full):
     return f"{parts[0][0]}. {parts[1]}" if len(parts) == 2 else full
 
 
-def build_players(season, games, roster, injuries, today):
+def build_usage(season, roster):
+    """Per player and week: offensive snaps (snap counts file) and red-zone looks (play-by-play).
+
+    Returns {(player_id, week): {"snaps", "snap_pct", "rz_tgt", "rz_car"}}. Either source can fail
+    without stopping the build; the Trends page then shows what it has.
+    """
+    usage = defaultdict(dict)
+    try:
+        to_gsis = {r["pfr_id"]: pid for pid, r in roster.items() if r.get("pfr_id")}
+        for r in fetch_csv(f"snap_counts/snap_counts_{season}.csv"):
+            pid = to_gsis.get(r["pfr_player_id"])
+            snaps = num(r["offense_snaps"])
+            if r["game_type"] != "REG" or not pid or not snaps:
+                continue
+            usage[(pid, int(r["week"]))].update(snaps=snaps, snap_pct=round(num(r["offense_pct"]) or 0, 3))
+    except Exception as e:
+        print(f"  WARNING: couldn't load snap counts ({e}); continuing without them")
+    try:
+        url = f"{BASE}/pbp/play_by_play_{season}.csv.gz"
+        print(f"  downloading {url}")
+        req = urllib.request.Request(url, headers={"User-Agent": "mingus-build"})
+        with urllib.request.urlopen(req, timeout=180) as resp:
+            rows = csv.DictReader(io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(resp.read())), encoding="utf-8"))
+            for r in rows:
+                # Red zone = snapped at the opponent's 20 or closer. Penalties, kneels and two-point tries don't count.
+                yl = num(r["yardline_100"])
+                if (r["season_type"] != "REG" or yl is None or yl > 20 or r["play_type"] == "no_play"
+                        or r["qb_kneel"] == "1" or r["two_point_attempt"] == "1"):
+                    continue
+                week = int(r["week"])
+                if r["play_type"] == "pass" and r["receiver_player_id"] not in ("", "NA"):
+                    u = usage[(r["receiver_player_id"], week)]
+                    u["rz_tgt"] = u.get("rz_tgt", 0) + 1
+                elif r["play_type"] == "run" and r["rusher_player_id"] not in ("", "NA"):
+                    u = usage[(r["rusher_player_id"], week)]
+                    u["rz_car"] = u.get("rz_car", 0) + 1
+    except Exception as e:
+        print(f"  WARNING: couldn't load play-by-play ({e}); continuing without red-zone stats")
+    return usage
+
+
+def build_players(season, games, roster, injuries, today, usage):
     home_of = {(g["week"], g["home"]): True for g in games}
     home_of.update({(g["week"], g["away"]): False for g in games})
 
+    rows = [r for r in fetch_csv(f"stats_player/stats_player_week_{season}.csv") if r["season_type"] == "REG"]
+    # Team carries and targets per game, for each player's share of them.
+    team_car, team_tgt = defaultdict(float), defaultdict(float)
+    for r in rows:
+        key = (int(r["week"]), r["team"])
+        team_car[key] += num(r["carries"]) or 0
+        team_tgt[key] += num(r["targets"]) or 0
+
     people = {}
-    for r in fetch_csv(f"stats_player/stats_player_week_{season}.csv"):
+    for r in rows:
         pos = r["position"]
-        if r["season_type"] != "REG" or (pos not in SKILL and pos != "K"):
+        if pos not in SKILL and pos != "K":
             continue
         pid = r["player_id"]
         if pid not in people:
@@ -318,6 +368,14 @@ def build_players(season, games, roster, injuries, today):
         week = int(r["week"])
         entry = {"week": week, "team": r["team"], "opp": r["opponent_team"], "home": home_of.get((week, r["team"]))}
         entry.update(pick(r, KICK_STATS if pos == "K" else SKILL_STATS))
+        if pos != "K":
+            tc, tt = team_car[(week, r["team"])], team_tgt[(week, r["team"])]
+            if tc and entry.get("car"):
+                entry["car_sh"] = round(entry["car"] / tc, 3)
+            # Opportunity share: the player's carries + targets out of the team's.
+            if tc + tt and (entry.get("car") or entry.get("tgt")):
+                entry["opp_sh"] = round((entry.get("car", 0) + entry.get("tgt", 0)) / (tc + tt), 3)
+            entry.update(usage.get((pid, week), {}))
         people[pid]["log"].append(entry)
 
     for p in people.values():
@@ -368,7 +426,8 @@ def main():
     games = build_games(season)
     roster = build_roster(season)
     injuries, injury_week = build_injuries(season)
-    players = build_players(season, games, roster, injuries, today) + build_defenses(season, games)
+    usage = build_usage(season, roster)
+    players = build_players(season, games, roster, injuries, today, usage) + build_defenses(season, games)
 
     played = [g["week"] for g in games if g["type"] == "REG" and g["home_score"] is not None]
     upcoming = [g["week"] for g in games if g["home_score"] is None]
