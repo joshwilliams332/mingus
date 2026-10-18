@@ -601,13 +601,33 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 /* ---------- Usage trends ---------- */
 .trend-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .movers { list-style: none; margin: 0; padding: 0; }
-.movers li a { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--border); text-decoration: none; }
+.movers li a, .mv-head {
+  display: grid; grid-template-columns: 36px minmax(0, 1fr) 96px 96px 42px; column-gap: 10px; align-items: center;
+}
+.movers li a { padding: 9px 0; border-top: 1px solid var(--border); text-decoration: none; }
 .movers li:first-child a { border-top: 0; }
 .movers li a:hover strong { text-decoration: underline; }
-.mv-main { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.mv-head { padding: 0 0 6px; border-bottom: 1px solid var(--border); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+.mv-head span:nth-child(n+3) { text-align: right; }
+.mv-head small { display: block; font-size: 10px; font-weight: 600; text-transform: none; letter-spacing: 0; }
+.mv-main { display: flex; flex-direction: column; min-width: 0; }
+.mv-main strong { line-height: 1.25; }
 .mv-main .muted { font-size: 12px; }
-.mv-main b { color: var(--text); }
-.mv-d { font-size: 15px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.mv-pair { display: grid; grid-template-columns: 1fr auto 3.6ch; gap: 5px; text-align: right; font-size: 14px; font-variant-numeric: tabular-nums; color: var(--muted); }
+.mv-pair b { color: var(--text); }
+.mv-arrow { font-size: 12px; }
+.mv-d { font-size: 15px; white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+.mv-warn { grid-column: 2 / -1; margin-top: 2px; }
+/* Phones: name on its own line, then the numbers in three aligned columns underneath. */
+@media (max-width: 480px) {
+  .movers li a, .mv-head { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px; row-gap: 4px; }
+  .movers .headshot, .mv-head span:nth-child(-n+2) { display: none; }
+  .mv-main { grid-column: 1 / -1; }
+  .mv-pair { grid-template-columns: auto auto 3.6ch; justify-content: start; text-align: left; }
+  .mv-head span:nth-child(n+3) { text-align: left; }
+  .mv-head span:last-child { text-align: right; }
+  .mv-warn { grid-column: 1 / -1; }
+}
 .spark { display: block; overflow: visible; }
 .spark path { fill: none; stroke: var(--brand); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .spark circle { fill: var(--brand); }
