@@ -72,10 +72,15 @@
         </section>`;
       }
 
-      // Each team's top fantasy players against the other team's defense.
+      // Each team's top fantasy players against the other team's defense. Picked by Sleeper's projection for this
+      // game's week when it's in the data, so trades and role changes count; otherwise by fantasy points per game.
       function edges(team, opp, dvp) {
-        const roster = rankList(players.filter(p => p.team === team && ["QB", "RB", "WR", "TE"].includes(p.pos)), sc, meta)
-          .filter(r => r.s.g >= minGames(meta));
+        const pool = players.filter(p => p.team === team && ["QB", "RB", "WR", "TE"].includes(p.pos));
+        const roster = projector.hasSleeper
+          ? pool.map(p => { const s = summarize(p, sc); s.proj = projector.get(p, g.week); return { p, s }; })
+              .filter(r => r.s.proj !== null)
+              .sort((a, b) => (b.s.proj - a.s.proj) || (b.s.ppg - a.s.ppg))
+          : rankList(pool, sc, meta).filter(r => r.s.g >= minGames(meta));
         const pick = [["QB", 1], ["RB", 2], ["WR", 2], ["TE", 1]].flatMap(([pos, n]) => roster.filter(r => r.p.pos === pos).slice(0, n));
         return `<section class="card">
           <div class="card-head"><h3>${esc(teamName(team, teams, false))} offense vs ${esc(teamName(opp, teams, false))} defense</h3></div>
@@ -149,7 +154,8 @@
 
             <div class="wide">
               <div class="section-head"><h2>Matchup edges</h2><div class="edge-scoring"></div></div>
-              <p class="muted small">Defense ranks: 1st = allows the most fantasy points to that position (best matchup), 32nd = allows the fewest. Season to date.</p>
+              <p class="muted small">Defense ranks: 1st = allows the most fantasy points to that position (best matchup), 32nd = allows the fewest. Season to date.
+                ${projector.hasSleeper ? `Players are picked by Sleeper's Week ${g.week} projection.` : "Players are picked by fantasy points per game."}</p>
               <div class="two-col">${edges(g.away, g.home, dvp)}${edges(g.home, g.away, dvp)}</div>
             </div>
           </div>`;
