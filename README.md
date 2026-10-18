@@ -50,6 +50,6 @@ python3 -m http.server -d site 8000  # then open http://localhost:8000
 The pages load JSON with `fetch`, so they need a local server; opening the HTML file directly won't work.
 
 ## Automatic updates
-`.github/workflows/update-and-deploy.yml` rebuilds the data and deploys the site to GitHub Pages every Tuesday, on every push to `main`, and whenever you click **Run workflow** in the Actions tab.
+`.github/workflows/update-and-deploy.yml` rebuilds the data and deploys the site to GitHub Pages every evening (23:17 UTC, so the day's injury reports are included), on every push to `main`, and whenever you click **Run workflow** in the Actions tab.
 
 One-time setup: in the repository go to **Settings → Pages** and set **Source** to **GitHub Actions**.
