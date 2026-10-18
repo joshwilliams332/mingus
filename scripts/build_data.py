@@ -70,6 +70,10 @@ TEAMS = {
     "TEN": ("Tennessee", "Titans", "#4B92DB", 36.1665, -86.7713),
     "WAS": ("Washington", "Commanders", "#5A1414", 38.9078, -76.8645),
 }
+# Team logos are linked from ESPN's image server (the same source nflverse uses), not stored in the repo.
+# ESPN's abbreviations differ from nflverse's for two teams.
+ESPN_LOGO = "https://a.espncdn.com/i/teamlogos/nfl/500/{}.png"
+ESPN_CODE = {"LA": "LAR", "WAS": "WSH"}
 # Neutral-site stadiums (international games): name fragment -> (latitude, longitude).
 NEUTRAL_SITES = {
     "Wembley": (51.5560, -0.2796), "Tottenham": (51.6043, -0.0664), "Allianz": (48.2188, 11.6247),
@@ -389,7 +393,8 @@ def main():
         "built_at": datetime.now(timezone.utc).isoformat(timespec="minutes"),
         "source": "nflverse (github.com/nflverse/nflverse-data)",
     }
-    teams = {abbr: {"city": c, "nickname": n, "color": col} for abbr, (c, n, col, _, _) in TEAMS.items()}
+    teams = {abbr: {"city": c, "nickname": n, "color": col, "logo": ESPN_LOGO.format(ESPN_CODE.get(abbr, abbr).lower())}
+             for abbr, (c, n, col, _, _) in TEAMS.items()}
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     for name, data in (("meta", meta), ("players", players), ("games", games), ("teams", teams)):

@@ -25,7 +25,12 @@
         [...slate].sort((a, b) => (b.total || 0) - (a.total || 0))[0];
       const ranked = rankList(players.filter(p => ["QB", "RB", "WR", "TE"].includes(p.pos)), sc, meta).filter(r => r.s.g >= minGames(meta));
       const dvp = defenseVsPos(players, games, sc);
-      const injured = ranked.filter(r => r.p.injury).slice(0, 10);
+      // Game designations first (Out, Doubtful, Questionable), then practice-only tags; best players first within each.
+      const SEVERITY = { Out: 0, Doubtful: 1, Questionable: 2, DNP: 3, Limited: 4 };
+      const injured = ranked.filter(r => r.p.injury).slice(0, 10)
+        .sort((a, b) => (SEVERITY[a.p.injury.status] ?? 5) - (SEVERITY[b.p.injury.status] ?? 5));
+      const injuryCounts = Object.entries(injured.reduce((c, { p }) => ({ ...c, [p.injury.status]: (c[p.injury.status] || 0) + 1 }), {}))
+        .sort((a, b) => (SEVERITY[a[0]] ?? 5) - (SEVERITY[b[0]] ?? 5)).map(([k, n]) => `${n} ${k}`).join(" · ");
       // Best matchups: top-24 players at their position facing a top-5 defense to target.
       const edges = ranked
         .filter(r => r.s.g && ranked.filter(x => x.p.pos === r.p.pos).indexOf(r) < 24)
@@ -53,14 +58,20 @@
         <div class="home-grid">
           <div class="home-main">
             <section class="section">
-              <div class="section-head"><h2>Injury report</h2><span class="muted small">Week ${meta.injury_week ?? week} · fantasy-relevant players</span></div>
-              <div class="card list-card">
+              <details class="card injury-drop">
+                <summary>
+                  <span class="injury-sum"><strong>Injury report</strong>
+                    <span class="muted small">Week ${meta.injury_week ?? week} · ${injured.length ? `${injured.length} fantasy-relevant players${injuryCounts ? ` · ${injuryCounts}` : ""}` : "no fantasy-relevant injuries yet"}</span></span>
+                  <span class="injury-toggle" aria-hidden="true"></span>
+                </summary>
+                <div class="list-card">
                 ${injured.map(({ p }) => `<a class="list-row" href="${playerUrl(p)}">
                   ${headshot(p, "sm")}
                   <span class="list-main"><strong>${esc(p.name)}</strong><span class="muted">${esc(p.pos)} · ${esc(p.team)}${p.injury.injury ? ` · ${esc(p.injury.injury)}` : ""}</span></span>
                   ${injuryTag(p.injury)}
                 </a>`).join("") || `<p class="muted">No fantasy-relevant injuries reported yet this week.</p>`}
-              </div>
+                </div>
+              </details>
             </section>
 
             <section class="section">
