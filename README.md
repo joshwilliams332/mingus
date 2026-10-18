@@ -10,6 +10,7 @@ Fantasy football rankings, NFL stats and Vegas lines, built from [nflverse](http
 - **Matchup** (`game.html?id=…`): head-to-head with lines and moneylines, venue and weather, each team's last five games against the spread, over/under and implied points, and matchup edges (which positions each defense gives up the most to, with the players who benefit).
 - **Team** (`team.html?team=SEA`): record, ATS and O/U record, full schedule with results, fantasy players and defense vs position.
 - **Player** (`player.html?id=…`): season so far, this week's matchup, injury note, bio, weekly points and game log.
+- **Usage Trends** (`trends.html?pos=WR|TE|RB`): whose role is growing or shrinking. Biggest risers and fallers by target share (WR/TE) or opportunity share (RB: carries plus targets out of the team's), then a table of snap share by week, target/opportunity/carry share and red-zone looks over each player's last 3 games, with the change from his earlier games.
 - **Analytics** (`analytics.html?pos=WR&x=tgt&y=rec_yds`): a chart builder. Pick a position and any two stats (volume, efficiency, air yards, YAC, EPA, target share, WOPR, CPOE, fantasy points and more) and it plots every qualifying player, with the correlation (r) explained in plain words, the trend line, quadrants and the players furthest above and below the trend. Choose the weeks, a minimum volume, and season totals or per game; the URL keeps the chosen axes so a chart can be shared.
 
 ## Projections
@@ -39,6 +40,8 @@ Players are ranked by points per game; anyone who has played fewer than half the
 | --- | --- |
 | `stats_player/stats_player_week_<season>.csv` | weekly game logs for QB/RB/WR/TE/K |
 | `stats_team/stats_team_week_<season>.csv` | weekly team defense stats for D/ST |
+| `snap_counts/snap_counts_<season>.csv` | offensive snap share per game (Usage Trends, player game logs) |
+| `pbp/play_by_play_<season>.csv.gz` | red-zone targets and carries (Usage Trends) |
 | `rosters/roster_<season>.csv` | team, number, bio |
 | `injuries/injuries_<season>.csv` | injury tags (game status, or practice status midweek) |
 | `schedules/games.csv` | schedule, scores, spreads, totals, moneylines, roof and surface |

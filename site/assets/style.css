@@ -597,3 +597,32 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 .rank-head-controls .week-select select { font-size: 15px; padding: 6px 10px; min-width: 0; }
 .beat { color: var(--up); font-weight: 700; }
 .missed { color: var(--down); font-weight: 700; }
+
+/* ---------- Usage trends ---------- */
+.trend-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.movers { list-style: none; margin: 0; padding: 0; }
+.movers li a { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--border); text-decoration: none; }
+.movers li:first-child a { border-top: 0; }
+.movers li a:hover strong { text-decoration: underline; }
+.mv-main { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+.mv-main .muted { font-size: 12px; }
+.mv-main b { color: var(--text); }
+.mv-d { font-size: 15px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.spark { display: block; overflow: visible; }
+.spark path { fill: none; stroke: var(--brand); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.spark circle { fill: var(--brand); }
+.spark-mid { stroke: var(--border); stroke-dasharray: 2 3; }
+.trend-table th button { all: unset; cursor: pointer; }
+@media (max-width: 700px) { .trend-lists { grid-template-columns: 1fr; } }
+.abbr-tabs .pos-tab .ns { display: none; }
+@media (max-width: 600px) {
+  .abbr-tabs .pos-tab .nl { display: none; }
+  .abbr-tabs .pos-tab .ns { display: inline; }
+}
+.nav a { white-space: nowrap; }
+@media (max-width: 480px) {
+  .nav { gap: 0; }
+  .nav .caret { display: none; }
+}
+.mv-warn, .warn { color: var(--q); font-weight: 700; }
+.mv-warn { font-size: 12px; }

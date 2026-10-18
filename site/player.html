@@ -20,10 +20,12 @@
       DST: [["sacks", "Sacks"], ["int", "INT"], ["fr", "Fum rec"], ["td", "TD"]],
     };
     TILES.TE = TILES.WR;
+    // [key, header, format?]. Shares are stored as fractions and shown as percentages.
+    const pct = v => (v ? `${Math.round(v * 100)}%` : "—");
     const LOG = {
-      QB: [["cmp", "Cmp"], ["att", "Att"], ["pass_yds", "Pass Yds"], ["pass_td", "TD"], ["int", "INT"], ["rush_yds", "Rush Yds"], ["rush_td", "Rush TD"]],
-      RB: [["car", "Car"], ["rush_yds", "Rush Yds"], ["rush_td", "TD"], ["tgt", "Tgt"], ["rec", "Rec"], ["rec_yds", "Rec Yds"], ["rec_td", "Rec TD"]],
-      WR: [["tgt", "Tgt"], ["rec", "Rec"], ["rec_yds", "Yds"], ["rec_td", "TD"], ["rush_yds", "Rush Yds"]],
+      QB: [["snap_pct", "Snap %", pct], ["cmp", "Cmp"], ["att", "Att"], ["pass_yds", "Pass Yds"], ["pass_td", "TD"], ["int", "INT"], ["rush_yds", "Rush Yds"], ["rush_td", "Rush TD"]],
+      RB: [["snap_pct", "Snap %", pct], ["opp_sh", "Opp %", pct], ["car", "Car"], ["rush_yds", "Rush Yds"], ["rush_td", "TD"], ["tgt", "Tgt"], ["rec", "Rec"], ["rec_yds", "Rec Yds"], ["rec_td", "Rec TD"]],
+      WR: [["snap_pct", "Snap %", pct], ["tgt_sh", "Tgt %", pct], ["tgt", "Tgt"], ["rec", "Rec"], ["rec_yds", "Yds"], ["rec_td", "TD"], ["rush_yds", "Rush Yds"]],
       K: [["fg_0_39", "FG 0-39"], ["fg_40_49", "40-49"], ["fg_50", "50+"], ["fg_miss", "Miss"], ["fg_long", "Long"], ["xp", "XP"]],
       DST: [["pa", "Pts Allowed"], ["sacks", "Sacks"], ["int", "INT"], ["fr", "Fum Rec"], ["td", "TD"], ["safety", "Sfty"]],
     };
@@ -133,7 +135,7 @@
                       <td class="l">${e.week}</td>
                       <td class="l"><a href="${gameUrl(weekGame(games, e.team, e.week) || { id: "" })}">${e.home === false ? "@" : "vs."} ${esc(e.opp)}</a></td>
                       <td class="l">${result(e)}</td>
-                      ${LOG[tab].map(([k]) => `<td>${fmt(e[k] || 0)}</td>`).join("")}
+                      ${LOG[tab].map(([k, , f]) => `<td>${(f || fmt)(e[k] || 0)}</td>`).join("")}
                       ${projector.hasSleeper ? `<td class="muted">${(v => (v === null ? "—" : fmt(v)))(projector.get(p, e.week))}</td>` : ""}
                       <td class="hl strong">${fmt(s.pts[i])}</td></tr>`).join("")}
                   </tbody>
