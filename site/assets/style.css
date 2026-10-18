@@ -624,3 +624,5 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
   .nav { gap: 0; }
   .nav .caret { display: none; }
 }
+.mv-warn, .warn { color: var(--q); font-weight: 700; }
+.mv-warn { font-size: 12px; }
