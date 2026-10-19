@@ -27,6 +27,7 @@
       const weeks = new Set(schedule.map(g => g.week));
       const byeWeek = [...Array(18).keys()].map(i => i + 1).find(w => !weeks.has(w));
       const next = schedule.find(g => g.home_score === null);
+      const avg = teamAverages(games);
       const pf = results.reduce((a, r) => a + r.pf, 0), pa = results.reduce((a, r) => a + r.pa, 0);
 
       function render() {
@@ -43,8 +44,8 @@
               ${next ? `<p class="profile-note">Next: <a href="${gameUrl(next)}">Week ${next.week} ${next.home === team ? "vs." : "@"} ${esc(next.home === team ? next.away : next.home)}</a> · ${esc(fmtKickoff(next))}</p>` : ""}
             </div>
             <div class="team-stats">
-              <div><strong>${results.length ? fmt(Math.round(pf / results.length * 10) / 10) : "—"}</strong><span>Pts/game</span></div>
-              <div><strong>${results.length ? fmt(Math.round(pa / results.length * 10) / 10) : "—"}</strong><span>Allowed/game</span></div>
+              <div><strong>${results.length ? fmt(Math.round(pf / results.length * 10) / 10) : "—"}${rankOf(avg, team, "pf")}</strong><span>Pts/game</span></div>
+              <div><strong>${results.length ? fmt(Math.round(pa / results.length * 10) / 10) : "—"}${rankOf(avg, team, "pa", true)}</strong><span>Allowed/game</span></div>
             </div>
           </section>
 

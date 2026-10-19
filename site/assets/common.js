@@ -366,6 +366,30 @@ function teamResults(games, team) {
       };
     });
 }
+// Per-game averages for every team (points scored, allowed, and vs the implied total) from finished
+// regular-season games before beforeWeek.
+function teamAverages(games, beforeWeek = Infinity) {
+  const out = {};
+  for (const team of new Set(games.flatMap(g => [g.home, g.away]))) {
+    const rs = teamResults(games, team).filter(r => r.week < beforeWeek);
+    if (!rs.length) continue;
+    const mean = list => (list.length ? Math.round(list.reduce((a, b) => a + b, 0) / list.length * 10) / 10 : null);
+    out[team] = { pf: mean(rs.map(r => r.pf)), pa: mean(rs.map(r => r.pa)), vs: mean(rs.filter(r => r.vsImplied !== null).map(r => r.vsImplied)) };
+  }
+  return out;
+}
+// " (5th)" after a stat: where a value ranks in a list of values (1st = highest, or lowest when lowBetter).
+// Ties share the better rank.
+function rankTag(value, values, lowBetter = false, title = "") {
+  const pool = values.filter(x => x !== null && x !== undefined);
+  if (value === null || value === undefined || pool.length < 2) return "";
+  const r = pool.filter(x => (lowBetter ? x < value : x > value)).length + 1;
+  return ` <span class="rank-tag ${r <= 5 ? "top" : ""}" title="${esc(`${ordinal(r)} of ${pool.length}${title ? ` ${title}` : ""}`)}">(${ordinal(r)})</span>`;
+}
+// Rank of one team's average among all teams, e.g. rankOf(avg, "SF", "pa", true).
+function rankOf(avg, team, key, lowBetter = false) {
+  return rankTag(avg[team]?.[key], Object.values(avg).map(t => t[key]), lowBetter, `NFL teams${lowBetter ? " (fewest = 1st)" : ""}`);
+}
 // "3-2" style records from a list of results.
 function record(list, key, win = "W", loss = "L") {
   const w = list.filter(r => r[key] === win).length, l = list.filter(r => r[key] === loss).length;

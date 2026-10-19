@@ -675,14 +675,6 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 
 /* ---------- Matchup page after the game ---------- */
 .notice.soft { border-left-color: var(--brand); margin-bottom: 14px; }
-.edge.result { align-items: flex-start; }
-.edge.result .headshot { margin-top: 2px; }
-.edge.result .edge-body { flex: 1; }
-.stat-line { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.small-line { font-size: 12px; }
-.res-pts { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; font-variant-numeric: tabular-nums; }
-.res-pts strong { font-size: 22px; line-height: 1.1; color: var(--mc, var(--text)); }
-.res-pts span { font-size: 12px; }
 .box-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 20px; align-items: start; }
 @media (max-width: 900px) { .box-grid { grid-template-columns: 1fr; } }
 .team-compare .c { text-align: center; }
@@ -698,3 +690,11 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 
 /* Grid children may shrink below their content, so wide tables scroll inside their card instead of widening the page. */
 .two-col > *, .grid > *, .box-grid > * { min-width: 0; }
+
+/* "(5th)" league ranks after a stat */
+.rank-tag { font-size: 12px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+:is(.tile, .trend-row, .team-stats) strong .rank-tag { font-size: 12px; font-weight: 700; color: var(--muted); }
+:is(.tile, .trend-row, .team-stats) strong .rank-tag.top { color: var(--brand); }
+.rank-tag.top { color: var(--brand); }
+.trend-row strong span:not(.rank-tag) { font-size: inherit; }
+.trend-row strong .pos-num { color: var(--up); } .trend-row strong .neg-num { color: var(--down); }
