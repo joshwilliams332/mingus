@@ -56,7 +56,7 @@ const Mingus = {
             </div>
             <a href="games.html" ${["games.html", "game.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Schedule</span><span class="ns">Schedule</span></a>
             <a href="trends.html" ${here === "trends.html" ? 'aria-current="page"' : ""}><span class="nl">Trends</span><span class="ns">Trends</span></a>
-            <a href="analytics.html" ${here === "analytics.html" ? 'aria-current="page"' : ""}><span class="nl">Analytics</span><span class="ns">Charts</span></a>
+            <a href="analytics.html" ${here === "analytics.html" ? 'aria-current="page"' : ""}><span class="nl">Analytics</span><span class="ns">Analytics</span></a>
           </nav>
           <span class="header-week">${esc(week)}</span>
         </div>
