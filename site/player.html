@@ -22,6 +22,9 @@
     TILES.TE = TILES.WR;
     // Bad stats: the most still ranks 1st, but a top-5 rank shows in red (a defense's INT are good, though).
     const BAD_STATS = ["int", "fg_miss"];
+    // Season tiles link to the Player Database at this position, sorted by that stat, with this player highlighted.
+    // Tile key -> database column (null = no matching column, so the tile isn't a link).
+    const DB_SORT = { fg_att: "fg", fg_miss: null, last3: null };
     // [key, header, format?]. Shares are stored as fractions and shown as percentages.
     const pct = v => (v ? `${Math.round(v * 100)}%` : "—");
     const LOG = {
@@ -72,6 +75,12 @@
           ["Team", p.team], ["Number", p.number != null ? `#${p.number}` : null], ["Age", p.age], ["Height", p.height],
           ["Weight", p.weight && `${p.weight} lbs`], ["College", p.college], ["Experience", p.exp != null ? `${p.exp} yrs` : null],
         ].filter(([, v]) => v != null && v !== "");
+        const tile = (key, inner, cls = "", asc = false) => {
+          const col = key in DB_SORT ? DB_SORT[key] : key;
+          if (!col) return `<div class="tile ${cls}">${inner}</div>`;
+          const q = new URLSearchParams({ pos: p.pos, sort: col, ...(asc && { dir: "asc" }), hl: p.id });
+          return `<a class="tile tile-link ${cls}" href="players.html?${q}" title="See all ${esc(posName)} sorted by this">${inner}</a>`;
+        };
         const result = e => {
           const g = weekGame(games, e.team, e.week);
           if (!g?.score) return "";
@@ -101,12 +110,12 @@
             <section class="card wide">
               <div class="card-head"><h3>${meta.season} season so far</h3></div>
               <div class="tiles">
-                <div class="tile accent"><strong>${fmt(s.ppg)}${rk(r => r.ppg)}</strong><span>FPTS per game</span></div>
-                <div class="tile accent"><strong>${fmt(s.last3)}${rk(r => r.last3)}</strong><span>Last 3 games avg</span></div>
-                <div class="tile"><strong>${fmt(s.fpts)}${rk(r => r.fpts)}</strong><span>Total FPTS</span></div>
-                <div class="tile"><strong>${s.g}</strong><span>Games</span></div>
-                ${TILES[tab].map(([k, l]) => `<div class="tile"><strong>${fmt(s.tot[k] || 0)}${rk(r => r.tot[k] || 0, false, BAD_STATS.includes(k) && p.pos !== "DST")}</strong><span>${l}</span></div>`).join("")}
-                ${p.pos === "DST" ? `<div class="tile"><strong>${fmt(paG(s))}${rk(paG, true)}</strong><span>Pts allowed/G</span></div>` : ""}
+                ${tile("ppg", `<strong>${fmt(s.ppg)}${rk(r => r.ppg)}</strong><span>FPTS per game</span>`, "accent")}
+                ${tile("last3", `<strong>${fmt(s.last3)}${rk(r => r.last3)}</strong><span>Last 3 games avg</span>`, "accent")}
+                ${tile("fpts", `<strong>${fmt(s.fpts)}${rk(r => r.fpts)}</strong><span>Total FPTS</span>`)}
+                ${tile("g", `<strong>${s.g}</strong><span>Games</span>`)}
+                ${TILES[tab].map(([k, l]) => tile(k, `<strong>${fmt(s.tot[k] || 0)}${rk(r => r.tot[k] || 0, false, BAD_STATS.includes(k) && p.pos !== "DST")}</strong><span>${l}</span>`)).join("")}
+                ${p.pos === "DST" ? tile("pag", `<strong>${fmt(paG(s))}${rk(paG, true)}</strong><span>Pts allowed/G</span>`, "", true) : ""}
               </div>
             </section>
 

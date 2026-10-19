@@ -701,3 +701,20 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 .rank-tag.top.bad, :is(.tile, .trend-row, .team-stats) strong .rank-tag.top.bad { color: var(--down); }
 .data-table th.has-help { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
 .log-help { margin: 10px 2px 0; line-height: 1.5; }
+
+/* ---------- Player page: stat tiles link to the database ---------- */
+.tile-link { display: block; position: relative; text-decoration: none; color: inherit; border: 1px solid transparent; transition: border-color .15s; }
+.tile-link::after { content: "›"; position: absolute; top: 6px; right: 10px; font-size: 18px; font-weight: 700; color: var(--muted); }
+.tile-link:hover, .tile-link:focus-visible { border-color: var(--brand); }
+.data-table tr.hl-row td { background: color-mix(in srgb, var(--brand) 16%, transparent); }
+.data-table tr.hl-row td:first-child { box-shadow: inset 4px 0 0 var(--brand); }
+/* Database: the player column stays put while the stats scroll sideways; the sorted column is tinted. */
+.db-table th:first-child, .db-table td:first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); }
+.db-table th:first-child { background: var(--surface-2); }
+.db-table tr.hl-row td:first-child { background: color-mix(in srgb, var(--brand) 16%, var(--surface)); }
+.db-table th.sorted { color: var(--text); }
+.db-table td.sorted { font-weight: 700; background: color-mix(in srgb, var(--brand) 8%, transparent); }
+@media (max-width: 600px) {
+  .db-table .pcell .headshot, .db-table .pmeta { display: none; }
+  .db-table td:first-child { max-width: 140px; white-space: normal; }
+}

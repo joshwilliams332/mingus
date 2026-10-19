@@ -36,7 +36,12 @@
     Mingus.start(async (main, meta) => {
       const [players, teams] = await Promise.all([Mingus.load("players"), Mingus.load("teams")]);
       const params = new URLSearchParams(location.search);
-      const state = { pos: STATS[params.get("pos")] ? params.get("pos") : "ALL", team: params.get("team") || "", q: "", sort: "ppg", dir: -1, shown: PAGE, sc: Scoring.get() };
+      // ?sort=car&dir=asc opens the table already sorted; ?hl=<player id> highlights that player (links from player pages).
+      const state = {
+        pos: STATS[params.get("pos")] ? params.get("pos") : "ALL", team: params.get("team") || "", q: "",
+        sort: params.get("sort") || "ppg", dir: params.get("dir") === "asc" ? 1 : -1, shown: PAGE, sc: Scoring.get(),
+        hl: params.get("hl"), scrolled: false,
+      };
       const abbrs = Object.keys(teams).sort((a, b) => teamName(a, teams).localeCompare(teamName(b, teams)));
 
       main.innerHTML = `
@@ -71,19 +76,32 @@
           .filter(p => !q || p.name.toLowerCase().includes(q) || teamMatches(p.team, q, teams))
           .map(p => ({ p, s: summarize(p, state.sc) }))
           .sort((a, b) => ((get(a) ?? -1) - (get(b) ?? -1)) * state.dir);
+        // Make sure the highlighted player is on the page, even if he's past the first 50.
+        const hlAt = state.hl ? rows.findIndex(r => r.p.id === state.hl) : -1;
+        if (hlAt >= state.shown) state.shown = Math.ceil((hlAt + 1) / PAGE) * PAGE;
 
         thead.innerHTML = `<tr><th class="l">Player</th>${state.pos === "ALL" ? `<th class="l">Pos</th>` : ""}<th class="l">Team</th>
-          ${cols.map(([k, label]) => `<th class="${k === "ppg" ? "hl" : ""}"><button data-sort="${k}">${label}${state.sort === k ? (state.dir < 0 ? " ▼" : " ▲") : ""}</button></th>`).join("")}</tr>`;
-        tbody.innerHTML = rows.slice(0, state.shown).map(r => `<tr>
+          ${cols.map(([k, label]) => `<th class="${k === "ppg" ? "hl" : ""} ${k === state.sort ? "sorted" : ""}"><button data-sort="${k}">${label}${state.sort === k ? (state.dir < 0 ? " ▼" : " ▲") : ""}</button></th>`).join("")}</tr>`;
+        tbody.innerHTML = rows.slice(0, state.shown).map((r, i) => `<tr class="${r.p.id === state.hl ? "hl-row" : ""}">
           <td class="l"><div class="pcell">${headshot(r.p, "sm")}<div>
             <a href="${playerUrl(r.p)}">${esc(r.p.name)}</a> ${injuryTag(r.p.injury)}
             ${r.p.pos === "DST" ? "" : `<div class="pmeta">${[r.p.age && `Age ${r.p.age}`, r.p.college].filter(Boolean).map(esc).join(" · ")}</div>`}
           </div></div></td>
           ${state.pos === "ALL" ? `<td class="l">${posBadge(r.p.pos)}</td>` : ""}
           <td class="l"><a class="team-link" href="${teamUrl(r.p.team)}">${esc(r.p.team)}</a></td>
-          ${cols.map(([k, , g, show]) => `<td class="${k === "ppg" ? "hl strong" : ""}">${show ? show(r) : fmt(g(r) ?? 0)}</td>`).join("")}
+          ${cols.map(([k, , g, show]) => `<td class="${k === "ppg" ? "hl strong" : ""} ${k === state.sort ? "sorted" : ""}">${show ? show(r) : fmt(g(r) ?? 0)}</td>`).join("")}
         </tr>`).join("") || `<tr><td colspan="14" class="l muted">No players match.</td></tr>`;
         more.hidden = rows.length <= state.shown;
+        if (hlAt >= 0 && !state.scrolled) {
+          state.scrolled = true;
+          tbody.querySelector(".hl-row")?.scrollIntoView({ block: "center" });
+          // On narrow screens the table scrolls sideways; bring the sorted column into view next to the names.
+          const wrap = main.querySelector(".table-wrap"), th = thead.querySelector("th.sorted"), first = thead.querySelector("th");
+          if (th && wrap.scrollWidth > wrap.clientWidth) wrap.scrollLeft = Math.max(0, th.offsetLeft - first.offsetWidth - 8);
+        }
+        history.replaceState(null, "", `players.html?${new URLSearchParams({
+          ...(state.pos !== "ALL" && { pos: state.pos }), ...(state.sort !== "ppg" && { sort: state.sort }),
+          ...(state.dir > 0 && { dir: "asc" }), ...(state.hl && { hl: state.hl }) })}`.replace(/\?$/, ""));
         thead.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
           state.dir = state.sort === b.dataset.sort ? -state.dir : -1;
           state.sort = b.dataset.sort; draw();
@@ -91,7 +109,6 @@
       }
       main.querySelectorAll(".pos-tab").forEach(b => b.onclick = () => {
         state.pos = b.dataset.pos; state.shown = PAGE;
-        history.replaceState(null, "", state.pos === "ALL" ? "players.html" : `players.html?pos=${state.pos}`);
         draw();
       });
       main.querySelector(".filter").onchange = e => { state.team = e.target.value; state.shown = PAGE; draw(); };
