@@ -20,8 +20,8 @@
       DST: [["sacks", "Sacks"], ["int", "INT"], ["fr", "Fum rec"], ["td", "TD"]],
     };
     TILES.TE = TILES.WR;
-    // Stats where fewer is better, so the fewest ranks 1st (a defense's INT are the other way round).
-    const LOW_BETTER = ["int", "fg_miss"];
+    // Bad stats: the most still ranks 1st, but a top-5 rank shows in red (a defense's INT are good, though).
+    const BAD_STATS = ["int", "fg_miss"];
     // [key, header, format?]. Shares are stored as fractions and shown as percentages.
     const pct = v => (v ? `${Math.round(v * 100)}%` : "—");
     const LOG = {
@@ -54,7 +54,7 @@
         // "(3rd)" ranks among the same position, counting players with enough games to be ranked (and this one).
         const peers = ranked.filter(r => r.s.g >= minGames(meta) || r.p.id === p.id).map(r => r.s);
         const posName = TAB_LABELS[p.pos].toLowerCase();
-        const rk = (f, low = false) => rankTag(f(s), peers.map(f), low, `${posName}${low ? " (fewest = 1st)" : ""}`);
+        const rk = (f, low = false, bad = false) => rankTag(f(s), peers.map(f), low, `${posName}${low ? " (fewest = 1st)" : ""}`, bad);
         const paG = x => (x.g ? Math.round((x.tot.pa || 0) / x.g * 10) / 10 : 0);
         const posRank = ranked.findIndex(r => r.p.id === p.id) + 1;
         const next = weekGame(games, p.team, week);
@@ -98,7 +98,7 @@
                 <div class="tile accent"><strong>${fmt(s.last3)}${rk(r => r.last3)}</strong><span>Last 3 games avg</span></div>
                 <div class="tile"><strong>${fmt(s.fpts)}${rk(r => r.fpts)}</strong><span>Total FPTS</span></div>
                 <div class="tile"><strong>${s.g}</strong><span>Games</span></div>
-                ${TILES[tab].map(([k, l]) => `<div class="tile"><strong>${fmt(s.tot[k] || 0)}${rk(r => r.tot[k] || 0, LOW_BETTER.includes(k) && p.pos !== "DST")}</strong><span>${l}</span></div>`).join("")}
+                ${TILES[tab].map(([k, l]) => `<div class="tile"><strong>${fmt(s.tot[k] || 0)}${rk(r => r.tot[k] || 0, false, BAD_STATS.includes(k) && p.pos !== "DST")}</strong><span>${l}</span></div>`).join("")}
                 ${p.pos === "DST" ? `<div class="tile"><strong>${fmt(paG(s))}${rk(paG, true)}</strong><span>Pts allowed/G</span></div>` : ""}
               </div>
             </section>

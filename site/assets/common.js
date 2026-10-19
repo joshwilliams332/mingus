@@ -379,12 +379,12 @@ function teamAverages(games, beforeWeek = Infinity) {
   return out;
 }
 // " (5th)" after a stat: where a value ranks in a list of values (1st = highest, or lowest when lowBetter).
-// Ties share the better rank.
-function rankTag(value, values, lowBetter = false, title = "") {
+// Ties share the better rank. Top 5 is highlighted green, or red when bad is set (most interceptions thrown).
+function rankTag(value, values, lowBetter = false, title = "", bad = false) {
   const pool = values.filter(x => x !== null && x !== undefined);
   if (value === null || value === undefined || pool.length < 2) return "";
   const r = pool.filter(x => (lowBetter ? x < value : x > value)).length + 1;
-  return ` <span class="rank-tag ${r <= 5 ? "top" : ""}" title="${esc(`${ordinal(r)} of ${pool.length}${title ? ` ${title}` : ""}`)}">(${ordinal(r)})</span>`;
+  return ` <span class="rank-tag ${r <= 5 ? (bad ? "top bad" : "top") : ""}" title="${esc(`${ordinal(r)} of ${pool.length}${title ? ` ${title}` : ""}`)}">(${ordinal(r)})</span>`;
 }
 // Rank of one team's average among all teams, e.g. rankOf(avg, "SF", "pa", true).
 function rankOf(avg, team, key, lowBetter = false) {
