@@ -380,11 +380,21 @@ function teamAverages(games, beforeWeek = Infinity) {
 }
 // " (5th)" after a stat: where a value ranks in a list of values (1st = highest, or lowest when lowBetter).
 // Ties share the better rank. Top 5 is highlighted green, or red when bad is set (most interceptions thrown).
-function rankTag(value, values, lowBetter = false, title = "", bad = false) {
+function rankTag(value, values, lowBetter = false, title = "", bad = false, showOf = false) {
   const pool = values.filter(x => x !== null && x !== undefined);
   if (value === null || value === undefined || pool.length < 2) return "";
   const r = pool.filter(x => (lowBetter ? x < value : x > value)).length + 1;
-  return ` <span class="rank-tag ${r <= 5 ? (bad ? "top bad" : "top") : ""}" title="${esc(`${ordinal(r)} of ${pool.length}${title ? ` ${title}` : ""}`)}">(${ordinal(r)})</span>`;
+  return ` <span class="rank-tag ${r <= 5 ? (bad ? "top bad" : "top") : ""}" title="${esc(`${ordinal(r)} of ${pool.length}${title ? ` ${title}` : ""}`)}">(${ordinal(r)}${showOf ? ` of ${pool.length}` : ""})</span>`;
+}
+// Where a game's over/under and a team's implied total rank among that week's games (1st = highest).
+function weekLineRanks(games, week) {
+  const wk = games.filter(g => g.week === week && g.total !== null);
+  const totals = wk.map(g => g.total);
+  const implied = wk.flatMap(g => [g.home_implied, g.away_implied]);
+  return {
+    total: g => rankTag(g.total, totals, false, `Week ${week} games, by over/under`, false, true),
+    implied: v => rankTag(v, implied, false, `Week ${week} teams, by implied points`, false, true),
+  };
 }
 // Rank of one team's average among all teams, e.g. rankOf(avg, "SF", "pa", true).
 function rankOf(avg, team, key, lowBetter = false) {

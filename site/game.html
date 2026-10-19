@@ -209,6 +209,7 @@
         const dvp = defenseVsPos(players, games, sc);
         const away = teamGame(g, g.away), home = teamGame(g, g.home);
         const note = notes.games?.[g.id];
+        const wr = weekLineRanks(games, g.week);
         main.innerHTML = `
           ${backLink(`games.html?week=${g.week}`)}
           <section class="h2h">
@@ -226,7 +227,7 @@
               <h3>${final ? "Closing lines and results" : "Lines"}</h3>
               <div class="tiles">
                 <div class="tile"><strong>${spreadTag(away.spread)} / ${spreadTag(home.spread)}</strong><span>Spread (${esc(g.away)} / ${esc(g.home)})</span></div>
-                <div class="tile"><strong>${fmt(g.total)}</strong><span>Over/under</span></div>
+                <div class="tile"><strong>${fmt(g.total)}${wr.total(g)}</strong><span>Over/under</span></div>
                 <div class="tile"><strong>${fmt(away.implied)} – ${fmt(home.implied)}</strong><span>Implied points</span></div>
                 <div class="tile"><strong>${fmtSpread(g.away_ml)} / ${fmtSpread(g.home_ml)}</strong><span>Moneyline</span></div>
                 ${final && res ? `
