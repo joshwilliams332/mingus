@@ -748,3 +748,13 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
   .wk-table th, .wk-table td { padding: 7px 6px; }
   .wk-table th { font-size: 10px; letter-spacing: 0; }
 }
+/* Narrow phones: tighter header so all five links fit next to the logo. */
+@media (max-width: 420px) {
+  .header-inner { gap: 8px; padding-left: max(10px, env(safe-area-inset-left, 0px)); padding-right: max(10px, env(safe-area-inset-right, 0px)); }
+  .brand-mark { width: 30px; height: 30px; font-size: 17px; }
+  .nav a { font-size: 12.5px; padding: 6px 5px; }
+}
+@media (max-width: 370px) {
+  .nav a { font-size: 12px; padding: 6px 4px; letter-spacing: -.1px; }
+}
+@media (max-width: 340px) { .brand { display: none; } }
