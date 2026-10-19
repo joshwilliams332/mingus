@@ -53,19 +53,19 @@
           <section class="card" style="margin-top:14px">
             <h3>Schedule and results</h3>
             <div class="table-wrap flat">
-              <table class="data-table">
-                <thead><tr><th class="l">Wk</th><th class="l">Opponent</th><th class="l">Result</th><th>Spread</th><th>O/U</th><th>ATS</th><th>Total</th><th class="hide-sm">Pts vs implied</th></tr></thead>
+              <table class="data-table team-sched">
+                <thead><tr><th class="l">Wk</th><th class="l">Opp</th><th class="l">Result</th><th>Spread</th><th class="hide-sm">O/U</th><th>ATS</th><th class="hide-sm">Total</th><th class="hide-sm">Pts vs implied</th></tr></thead>
                 <tbody>${schedule.map(g => {
                   const r = results.find(x => x.id === g.id);
                   const tg = teamGame(g, team);
                   return `<tr class="click-row" data-href="${gameUrl(g)}">
                     <td class="l">${g.week}</td>
-                    <td class="l"><span class="opp-cell">${tg.isHome ? "vs." : "@"} ${teamMark(tg.opp, teams, "sm")} ${esc(teamName(tg.opp, teams, false))}</span></td>
-                    <td class="l">${r ? `<span class="${r.result === "W" ? "win" : r.result === "L" ? "loss" : ""}">${r.result} ${r.pf}-${r.pa}</span>` : `<span class="muted">${esc(fmtKickoff(g))}</span>`}</td>
+                    <td class="l"><span class="opp-cell">${tg.isHome ? "vs." : "@"} ${teamMark(tg.opp, teams, "sm")} <span class="opp-name">${esc(teamName(tg.opp, teams, false))}</span></span></td>
+                    <td class="l">${r ? `<span class="${r.result === "W" ? "win" : r.result === "L" ? "loss" : ""}">${r.result} ${r.pf}-${r.pa}</span>` : kickoffCell(g)}</td>
                     <td>${spreadTag(tg.spread)}</td>
-                    <td>${fmt(g.total)}</td>
+                    <td class="hide-sm">${fmt(g.total)}</td>
                     <td>${r ? `<span class="pill ${r.ats === "W" ? "ok" : r.ats === "L" ? "bad" : ""}">${r.ats === "W" ? "Cover" : r.ats === "L" ? "Miss" : "Push"}</span>` : ""}</td>
-                    <td>${r ? `<span class="pill ${r.ou === "O" ? "ok" : r.ou === "U" ? "bad" : ""}">${r.ou === "O" ? "Over" : r.ou === "U" ? "Under" : "Push"}</span>` : ""}</td>
+                    <td class="hide-sm">${r ? `<span class="pill ${r.ou === "O" ? "ok" : r.ou === "U" ? "bad" : ""}">${r.ou === "O" ? "Over" : r.ou === "U" ? "Under" : "Push"}</span>` : ""}</td>
                     <td class="hide-sm ${r?.vsImplied > 0 ? "pos-num" : r?.vsImplied < 0 ? "neg-num" : ""}">${r && r.vsImplied !== null ? (r.vsImplied > 0 ? "+" : "") + r.vsImplied : ""}</td>
                   </tr>`;
                 }).join("")}</tbody>

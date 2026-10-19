@@ -108,6 +108,149 @@
         </section>`;
       }
 
+      // ---------- After the game ----------
+      const SKILL_POS = ["QB", "RB", "WR", "TE"];
+      // Everyone who played for a team in this game, with their stat line from it.
+      function gamePlayers(team) {
+        return players.flatMap(p => {
+          const e = p.log.find(x => x.week === g.week && x.team === team);
+          return e ? [{ p, e }] : [];
+        });
+      }
+      const hasBox = final && gamePlayers(g.away).length > 0 && gamePlayers(g.home).length > 0;
+      // A player's season as it stood going into this game.
+      const preGame = p => summarize({ ...p, log: p.log.filter(e => e.week < g.week) }, sc);
+      const v = (e, k) => e[k] || 0;
+
+      function statLine(e, pos) {
+        if (pos === "K") {
+          const made = v(e, "fg_0_39") + v(e, "fg_40_49") + v(e, "fg_50");
+          return `${made}/${v(e, "fg_att")} FG${e.fg_long ? ` (long ${e.fg_long})` : ""} · ${v(e, "xp")}/${v(e, "xp_att")} XP`;
+        }
+        const parts = [];
+        if (e.att) parts.push(`${v(e, "cmp")}/${e.att}, ${v(e, "pass_yds")} yds${e.pass_td ? `, ${e.pass_td} TD` : ""}${e.int ? `, ${e.int} INT` : ""}`);
+        if (e.car) parts.push(`${e.car} car, ${v(e, "rush_yds")} yds${e.rush_td ? `, ${e.rush_td} TD` : ""}`);
+        if (e.tgt || e.rec) parts.push(`${v(e, "rec")} rec (${v(e, "tgt")} tgt), ${v(e, "rec_yds")} yds${e.rec_td ? `, ${e.rec_td} TD` : ""}`);
+        if (e.fl) parts.push(`${e.fl} fumble${e.fl > 1 ? "s" : ""} lost`);
+        return parts.join(" · ") || "No touches";
+      }
+
+      // How each team's top fantasy players actually did. "Expected" is Sleeper's projection for this week when
+      // it's in the data, otherwise the player's fantasy points per game going into this game.
+      function results(team, opp, dvpPre) {
+        const rows = gamePlayers(team).filter(r => SKILL_POS.includes(r.p.pos)).map(({ p, e }) => {
+          const pre = preGame(p), proj = projector.get(p, g.week);
+          return { p, e, proj, exp: proj ?? (pre.g ? pre.ppg : null), act: scoreGame(e, p.pos, sc) };
+        }).sort((a, b) => ((b.exp ?? -1) - (a.exp ?? -1)) || (b.act - a.act));
+        const pick = [["QB", 1], ["RB", 2], ["WR", 2], ["TE", 1]].flatMap(([pos, n]) => rows.filter(r => r.p.pos === pos).slice(0, n));
+        // Anyone outside the top plays who outscored at least one of them.
+        const low = Math.min(...pick.map(r => r.act));
+        const surprise = rows.filter(r => !pick.includes(r) && r.act >= 10 && r.act > low).sort((a, b) => b.act - a.act)[0];
+        const row = (r, isSurprise) => {
+          const diff = r.exp === null ? null : Math.round((r.act - r.exp) * 10) / 10;
+          const cls = diff === null ? "" : diff >= 5 ? "great" : diff >= 0 ? "good" : diff > -5 ? "meh" : "tough";
+          const d = dvpPre[opp]?.[r.p.pos];
+          return `<a class="edge result ${cls}" href="${playerUrl(r.p)}">
+            ${headshot(r.p, "md")}
+            <span class="edge-body">
+              <span class="edge-name">${esc(r.p.name)} ${posBadge(r.p.pos)}${isSurprise ? ` <span class="pill ok">Surprise</span>` : ""}</span>
+              <span class="stat-line">${statLine(r.e, r.p.pos)}</span>
+              <span class="muted small-line">${r.exp === null ? "First game" : `${r.proj !== null ? "Proj" : "Avg"} ${fmt(r.exp)}`}${d ? ` · ${esc(opp)} D ${ordinal(d.rank)} vs ${r.p.pos}` : ""}</span>
+            </span>
+            <span class="res-pts"><strong>${fmt(r.act)}</strong>${diff === null ? "" : `<span class="${diff >= 0 ? "pos-num" : "neg-num"}">${diff > 0 ? "+" : ""}${fmt(diff)}</span>`}</span>
+          </a>`;
+        };
+        return `<section class="card">
+          <div class="card-head"><h3>${esc(teamName(team, teams, false))} vs ${esc(teamName(opp, teams, false))} defense</h3></div>
+          <div class="edge-list">${pick.map(r => row(r, false)).join("")}${surprise ? row(surprise, true) : ""}</div>
+        </section>`;
+      }
+
+      // Team totals summed from the player stat lines.
+      function teamTotals(team) {
+        const t = { pass: 0, rush: 0, ptd: 0, rtd: 0, to: 0, sk: 0, fd: 0, fg: 0, fga: 0 };
+        for (const { p, e } of gamePlayers(team)) {
+          if (p.pos === "K") { t.fg += v(e, "fg_0_39") + v(e, "fg_40_49") + v(e, "fg_50"); t.fga += v(e, "fg_att"); continue; }
+          if (!SKILL_POS.includes(p.pos)) continue;
+          t.pass += v(e, "pass_yds"); t.rush += v(e, "rush_yds"); t.ptd += v(e, "pass_td"); t.rtd += v(e, "rush_td");
+          t.to += v(e, "int") + v(e, "fl"); t.sk += v(e, "sk"); t.fd += v(e, "pass_fd") + v(e, "rush_fd");
+        }
+        return t;
+      }
+
+      function teamCompare() {
+        const a = teamTotals(g.away), h = teamTotals(g.home);
+        // [label, away, home, higher is better?]
+        const rows = [
+          ["Total yards", a.pass + a.rush, h.pass + h.rush, true],
+          ["Passing yards", a.pass, h.pass, true],
+          ["Rushing yards", a.rush, h.rush, true],
+          ["First downs", a.fd, h.fd, true],
+          ["Passing TDs", a.ptd, h.ptd, true],
+          ["Rushing TDs", a.rtd, h.rtd, true],
+          ["Turnovers", a.to, h.to, false],
+          ["Sacks taken", a.sk, h.sk, false],
+          ["Field goals", `${a.fg}/${a.fga}`, `${h.fg}/${h.fga}`, null],
+        ];
+        const better = (x, y, hi) => hi === null || x === y ? "" : (hi ? x > y : x < y) ? "better" : "";
+        return `<table class="data-table compact team-compare">
+          <thead><tr><th class="l"><span class="opp-cell">${teamMark(g.away, teams, "sm")} ${esc(g.away)}</span></th><th class="c">Team stats</th><th><span class="opp-cell">${esc(g.home)} ${teamMark(g.home, teams, "sm")}</span></th></tr></thead>
+          <tbody>${rows.map(([label, x, y, hi]) => `<tr>
+            <td class="l ${better(x, y, hi)}">${typeof x === "number" ? fmt(x) : x}</td><td class="c muted">${label}</td><td class="${better(y, x, hi)}">${typeof y === "number" ? fmt(y) : y}</td>
+          </tr>`).join("")}</tbody>
+        </table>`;
+      }
+
+      // One team's player box score: passing, rushing, receiving, kicking and fantasy points.
+      function boxScore(team) {
+        const list = gamePlayers(team);
+        const name = p => `<a href="${playerUrl(p)}">${esc(p.short || p.name)}</a>`;
+        const table = (title, heads, rows) => rows.length ? `<h4 class="box-title">${title}</h4>
+          <div class="table-wrap flat"><table class="data-table compact box-table">
+            <thead><tr><th class="l">Player</th>${heads.map(h => `<th>${h}</th>`).join("")}</tr></thead>
+            <tbody>${rows.map(([p, cells]) => `<tr><td class="l">${name(p)}</td>${cells.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody>
+          </table></div>` : "";
+        const by = (k, f) => list.filter(f).sort((x, y) => v(y.e, k) - v(x.e, k));
+        return [
+          table("Passing", ["C/Att", "Yds", "TD", "Int", "Sk"],
+            by("pass_yds", r => r.e.att).map(({ p, e }) => [p, [`${v(e, "cmp")}/${e.att}`, v(e, "pass_yds"), v(e, "pass_td"), v(e, "int"), v(e, "sk")]])),
+          table("Rushing", ["Car", "Yds", "Avg", "TD"],
+            by("rush_yds", r => r.e.car).map(({ p, e }) => [p, [e.car, v(e, "rush_yds"), fmt(Math.round(v(e, "rush_yds") / e.car * 10) / 10), v(e, "rush_td")]])),
+          table("Receiving", ["Rec", "Tgt", "Yds", "TD"],
+            by("rec_yds", r => r.e.tgt || r.e.rec).map(({ p, e }) => [p, [v(e, "rec"), v(e, "tgt"), v(e, "rec_yds"), v(e, "rec_td")]])),
+          table("Kicking", ["FG", "Long", "XP"],
+            list.filter(r => r.p.pos === "K").map(({ p, e }) => [p, [`${v(e, "fg_0_39") + v(e, "fg_40_49") + v(e, "fg_50")}/${v(e, "fg_att")}`, e.fg_long || "—", `${v(e, "xp")}/${v(e, "xp_att")}`]])),
+          table(`Fantasy points <span class="muted">(${esc(Scoring.label(sc))})</span>`, ["Pos", "FPTS"],
+            list.map(r => ({ ...r, pts: scoreGame(r.e, r.p.pos, sc) })).filter(r => r.pts !== 0).sort((x, y) => y.pts - x.pts)
+              .map(({ p, pts }) => [p, [posBadge(p.pos), `<strong>${fmt(pts)}</strong>`]])),
+        ].join("");
+      }
+      let boxTeam = g.away;
+
+      function postGame() {
+        const dvpPre = defenseVsPos(players, games, sc, g.week);
+        return `
+          <div class="wide">
+            <div class="section-head"><h2>Matchup results</h2><div class="edge-scoring"></div></div>
+            <p class="muted small">How each team's top fantasy players did. On the right: fantasy points, and how far above or below expectations they finished.
+              ${projector.hasSleeper ? `"Proj" is Sleeper's projection; "Avg" is` : `"Avg" is`} the player's fantasy points per game going into this game. Defense ranks are as of kickoff (1st = allowed the most to that position).</p>
+            <div class="two-col">${results(g.away, g.home, dvpPre)}${results(g.home, g.away, dvpPre)}</div>
+          </div>
+          <section class="card wide">
+            <div class="card-head"><h3>Box score</h3></div>
+            <div class="box-grid">
+              <div>${teamCompare()}</div>
+              <div>
+                <div class="tabs-bar box-tabs" role="tablist" aria-label="Team">
+                  ${sides.map(t => `<button class="pos-tab" role="tab" data-team="${t}" aria-selected="${t === boxTeam}"><span class="opp-cell">${teamMark(t, teams, "sm")} ${esc(teamName(t, teams, false))}</span></button>`).join("")}
+                </div>
+                <div class="box-body">${boxScore(boxTeam)}</div>
+              </div>
+            </div>
+            <p class="muted small">Offensive skill players and kickers only, from nflverse.</p>
+          </section>`;
+      }
+
       function render() {
         const dvp = defenseVsPos(players, games, sc);
         const away = teamGame(g, g.away), home = teamGame(g, g.home);
@@ -140,6 +283,8 @@
 
             ${note ? `<section class="card wide note-card"><h3>Mingus notes</h3><p>${esc(note)}</p></section>` : ""}
 
+            ${hasBox ? postGame() : ""}
+
             <section class="card wide">
               <h3>Venue</h3>
               <div class="tiles">
@@ -152,14 +297,20 @@
 
             <div class="wide two-col">${lastFive(g.away)}${lastFive(g.home)}</div>
 
-            <div class="wide">
+            ${hasBox ? "" : `<div class="wide">
+              ${final ? `<div class="notice soft">Final score is in. Matchup results and the box score show up here once nflverse publishes this game's stats, usually within a few hours.</div>` : ""}
               <div class="section-head"><h2>Matchup edges</h2><div class="edge-scoring"></div></div>
               <p class="muted small">Defense ranks: 1st = allows the most fantasy points to that position (best matchup), 32nd = allows the fewest. Season to date.
                 ${projector.hasSleeper ? `Players are picked by Sleeper's Week ${g.week} projection.` : "Players are picked by fantasy points per game."}</p>
               <div class="two-col">${edges(g.away, g.home, dvp)}${edges(g.home, g.away, dvp)}</div>
-            </div>
+            </div>`}
           </div>`;
 
+        main.querySelectorAll(".box-tabs [data-team]").forEach(b => b.onclick = () => {
+          boxTeam = b.dataset.team;
+          main.querySelectorAll(".box-tabs [data-team]").forEach(x => x.setAttribute("aria-selected", x === b));
+          main.querySelector(".box-body").innerHTML = boxScore(boxTeam);
+        });
         main.querySelector(".edge-scoring").innerHTML = scoringControls(sc, next => { sc = next; projector = makeProjector(players, games, sc, meta); render(); });
         main.querySelectorAll(".click-row").forEach(tr => tr.onclick = () => { location.href = tr.dataset.href; });
         forecastP.then(f => {

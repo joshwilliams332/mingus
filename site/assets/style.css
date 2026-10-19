@@ -643,3 +643,58 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 }
 .mv-warn, .warn { color: var(--q); font-weight: 700; }
 .mv-warn { font-size: 12px; }
+
+/* ---------- Position colors for kickers and defenses ---------- */
+:root { --k: #6b7280; --dst: #8a6d3b; }
+@media (prefers-color-scheme: dark) { :root { --k: #b8c0cc; --dst: #d9b77a; } }
+.pos-K { --pc: var(--k); } .pos-DST { --pc: var(--dst); }
+
+/* ---------- Player cells: long names wrap instead of running into the next column ---------- */
+.data-table .pcell .headshot, .data-table .pcell .inj { flex-shrink: 0; }
+.data-table .pcell a { min-width: 0; }
+@media (max-width: 600px) {
+  .data-table .pcell { gap: 8px; }
+  .data-table .pcell a { white-space: normal; line-height: 1.25; }
+}
+
+/* ---------- Header: never wider than the screen ---------- */
+@media (max-width: 420px) {
+  .header-inner { gap: 8px; }
+  .nav { overflow-x: auto; scrollbar-width: none; min-width: 0; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a { padding: 6px 5px; font-size: 13px; }
+}
+
+/* ---------- Team schedule on phones ---------- */
+.sched-when { display: inline-flex; flex-direction: column; line-height: 1.2; }
+.sched-when small { font-size: 12px; }
+@media (max-width: 600px) {
+  .team-sched .opp-name { display: none; }
+  .team-sched td, .team-sched th { padding-left: 6px; padding-right: 6px; }
+}
+
+/* ---------- Matchup page after the game ---------- */
+.notice.soft { border-left-color: var(--brand); margin-bottom: 14px; }
+.edge.result { align-items: flex-start; }
+.edge.result .headshot { margin-top: 2px; }
+.edge.result .edge-body { flex: 1; }
+.stat-line { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.small-line { font-size: 12px; }
+.res-pts { display: flex; flex-direction: column; align-items: flex-end; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.res-pts strong { font-size: 22px; line-height: 1.1; color: var(--mc, var(--text)); }
+.res-pts span { font-size: 12px; }
+.box-grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .box-grid { grid-template-columns: 1fr; } }
+.team-compare .c { text-align: center; }
+.team-compare td { font-size: 15px; }
+.team-compare td.better { font-weight: 800; color: var(--up); }
+.box-tabs { margin-bottom: 4px; }
+.box-tabs .pos-tab { font-size: 15px; padding: 8px 12px; }
+.box-title { margin: 14px 0 4px; font-size: 13px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+.box-title .muted { text-transform: none; letter-spacing: 0; font-weight: 500; }
+.box-table td:first-child { width: 40%; }
+.box-table a { font-weight: 600; text-decoration: none; }
+.box-table a:hover { text-decoration: underline; }
+
+/* Grid children may shrink below their content, so wide tables scroll inside their card instead of widening the page. */
+.two-col > *, .grid > *, .box-grid > * { min-width: 0; }
