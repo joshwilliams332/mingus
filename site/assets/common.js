@@ -267,6 +267,12 @@ function fmtKickoff(g) {
   return d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) +
     (g.time ? ` · ${d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })} ET` : "");
 }
+// Kickoff stacked on two lines ("Mon, Oct 19" over "8:15 PM ET") so it fits narrow table cells.
+function kickoffCell(g) {
+  const d = new Date(`${g.date}T${g.time || "13:00"}:00`);
+  return `<span class="sched-when muted">${esc(d.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }))}` +
+    (g.time ? `<small>${esc(d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" }))} ET</small>` : "") + `</span>`;
+}
 function posBadge(pos) {
   return `<span class="pos pos-${esc(pos)}">${esc(pos)}</span>`;
 }
