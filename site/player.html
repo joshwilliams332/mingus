@@ -39,8 +39,20 @@
       tgt_sh: "Tgt %: target share, his targets out of all his team's targets",
     };
 
+    // "This week" stat line per position: [label, key]. Projected values use the same keys (from Sleeper's line);
+    // "fgm" isn't in the game log, so it's added up from the distance buckets.
+    const WEEK_LINE = {
+      QB: [["Pass yds", "pass_yds"], ["Pass TD", "pass_td"], ["INT", "int"], ["Rush yds", "rush_yds"], ["Rush TD", "rush_td"]],
+      RB: [["Car", "car"], ["Rush yds", "rush_yds"], ["Rush TD", "rush_td"], ["Rec", "rec"], ["Rec yds", "rec_yds"]],
+      WR: [["Tgt", "tgt"], ["Rec", "rec"], ["Rec yds", "rec_yds"], ["Rec TD", "rec_td"]],
+      K: [["FGM", "fgm"], ["FGA", "fg_att"], ["XP", "xp"]],
+      DST: [["Sacks", "sacks"], ["INT", "int"], ["Fum rec", "fr"], ["TD", "td"], ["PA", "pa"]],
+    };
+    WEEK_LINE.TE = WEEK_LINE.WR;
+    const statOf = (e, k) => (k === "fgm" ? (e.fg_0_39 || 0) + (e.fg_40_49 || 0) + (e.fg_50 || 0) : e[k] || 0);
+
     Mingus.start(async (main, meta) => {
-      const [players, games, notes] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.content("notes", {})]);
+      const [players, games, teams, notes] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.load("teams"), Mingus.content("notes", {})]);
       const id = new URLSearchParams(location.search).get("id");
       const p = players.find(x => x.id === id);
       if (!p) {
@@ -79,6 +91,45 @@
           return `<span class="${a > b ? "win" : a < b ? "loss" : ""}">${a > b ? "W" : a < b ? "L" : "T"} ${a}-${b}</span>`;
         };
 
+        // This week first: opponent and kickoff (or the final), Sleeper's projection next to what he scored,
+        // the projected and actual stat line, and the game's betting lines.
+        function thisWeek() {
+          if (!next) return `<section class="card wide week-card"><div class="card-head"><h3>Week ${week}</h3></div><p class="wk-bye">On bye in Week ${week}.</p></section>`;
+          const played = p.log.find(e => e.week === week);
+          const actual = played ? scoreGame(played, p.pos, sc) : null;
+          const line = p.proj?.sleeper?.[week]?.line;
+          const cols = WEEK_LINE[p.pos];
+          const res = next.score ? (([a, b]) => `<span class="${a > b ? "win" : a < b ? "loss" : ""}">${a > b ? "W" : a < b ? "L" : "T"} ${a}-${b}</span>`)(next.score) : null;
+          const verdict = actual !== null && projNow !== null ? (actual >= projNow ? "beat" : "missed") : "";
+          const row = (label, vals, pts, cls = "") => `<tr class="${cls}"><td class="l">${label}</td><td class="hl strong ${cls === "wk-actual" ? verdict : ""}">${pts}</td>${vals.map(v => `<td>${v}</td>`).join("")}</tr>`;
+          const rows = [];
+          if (projNow !== null) rows.push(row(`Proj Wk ${week}`, cols.map(([, k]) => (line && line[k] !== undefined ? fmt(line[k]) : line ? "0" : "—")), fmt(projNow), "wk-proj"));
+          if (played) rows.push(row(`Wk ${week}`, cols.map(([, k]) => fmt(statOf(played, k))), fmt(actual), "wk-actual"));
+          if (projNow === null && s.g) rows.push(row("Season avg", cols.map(([, k]) => fmt(Math.round(p.log.reduce((a, e) => a + statOf(e, k), 0) / s.g * 10) / 10)), fmt(s.ppg), "wk-proj"));
+          return `<section class="card wide week-card">
+            <div class="wk-top">
+              <div class="wk-game">
+                <span class="wk-label">Week ${week}</span>
+                <a class="wk-opp" href="${gameUrl(next)}">${next.isHome ? "vs" : "@"} ${teamMark(next.opp, teams, "sm")} ${esc(teamName(next.opp, teams, false))}</a>
+                <span class="muted small">${res ? `Final · ${res}` : esc(fmtKickoff(next))} · <a class="small-link" href="${gameUrl(next)}">Game breakdown →</a></span>
+              </div>
+              <div class="wk-pts">
+                <div><span>Proj</span><strong>${projNow === null ? "—" : fmt(projNow)}</strong></div>
+                <div class="${played ? verdict : "pending"}"><span>${played ? "Final" : "Actual"}</span><strong>${played ? fmt(actual) : "—"}</strong></div>
+              </div>
+            </div>
+            ${rows.length ? `<div class="table-wrap flat"><table class="data-table wk-table">
+              <thead><tr><th class="l"></th><th class="hl">FPTS</th>${cols.map(([l]) => `<th>${l}</th>`).join("")}</tr></thead>
+              <tbody>${rows.join("")}</tbody></table></div>` : ""}
+            ${projNow === null ? `<p class="muted small">No Sleeper projection for this week, so his season averages are shown instead.</p>` : !line ? `<p class="muted small">Sleeper's projected stat line wasn't in this data update, only the points.</p>` : ""}
+            <div class="tiles wk-lines">
+              <div class="tile"><strong>${spreadTag(next.spread)}</strong><span>Spread</span></div>
+              <div class="tile"><strong>${fmt(next.total)}${wr.total(next)}</strong><span>Over/under</span></div>
+              <div class="tile"><strong>${fmt(next.implied)}${wr.implied(next.implied)}</strong><span>Implied team total</span></div>
+            </div>
+          </section>`;
+        }
+
         main.innerHTML = `
           ${backLink(`rankings.html?pos=${p.pos}`)}
           <section class="profile-head pos-${esc(p.pos)}">
@@ -88,7 +139,6 @@
               <div class="profile-meta">${posBadge(p.pos)} <a class="team-link" href="${teamUrl(p.team)}">${esc(p.team)}</a>${p.number != null ? `<span>#${p.number}</span>` : ""}</div>
               ${inj ? `<p class="profile-note"><strong>${esc(inj.status)}</strong>${inj.injury ? ` · ${esc(inj.injury)}` : ""} — Week ${inj.week} injury report${inj.practice ? ` (${esc(inj.practice.toLowerCase())})` : ""}.</p>` : ""}
               ${notes.players?.[p.id] ? `<p class="profile-note mingus-note">${esc(notes.players[p.id])}</p>` : ""}
-              ${next ? `<p class="profile-note">Week ${week}: <a href="${gameUrl(next)}">${esc(oppLabel(next))}</a> · ${esc(fmtKickoff(next))}</p>` : `<p class="profile-note">On bye in Week ${week}.</p>`}
             </div>
             <div class="profile-rank">
               <strong>${p.pos}${posRank || "—"}</strong>
@@ -98,6 +148,8 @@
           </section>
 
           <div class="grid">
+            ${thisWeek()}
+
             <section class="card wide">
               <div class="card-head"><h3>${meta.season} season so far</h3></div>
               <div class="tiles">
@@ -108,18 +160,6 @@
                 ${TILES[tab].map(([k, l]) => `<div class="tile"><strong>${fmt(s.tot[k] || 0)}${rk(r => r.tot[k] || 0, false, BAD_STATS.includes(k) && p.pos !== "DST")}</strong><span>${l}</span></div>`).join("")}
                 ${p.pos === "DST" ? `<div class="tile"><strong>${fmt(paG(s))}${rk(paG, true)}</strong><span>Pts allowed/G</span></div>` : ""}
               </div>
-            </section>
-
-            <section class="card">
-              <div class="card-head"><h3>Week ${week} matchup</h3>${next ? `<a class="small-link" href="${gameUrl(next)}">Game breakdown →</a>` : ""}</div>
-              ${next ? `
-                <div class="tiles">
-                  ${projNow !== null ? `<div class="tile accent"><strong>${fmt(projNow)}</strong><span>Sleeper projection</span></div>` : ""}
-                  <div class="tile"><strong>${esc(oppLabel(next))}</strong><span>${esc(fmtKickoff(next))}</span></div>
-                  <div class="tile"><strong>${spreadTag(next.spread)}</strong><span>Spread</span></div>
-                  <div class="tile"><strong>${fmt(next.total)}${wr.total(next)}</strong><span>Over/under</span></div>
-                  <div class="tile"><strong>${fmt(next.implied)}${wr.implied(next.implied)}</strong><span>Implied team total</span></div>
-                </div>` : `<p class="muted">Bye week.</p>`}
             </section>
 
             ${isPlayer ? `
