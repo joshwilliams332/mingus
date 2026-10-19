@@ -717,4 +717,34 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 @media (max-width: 600px) {
   .db-table .pcell .headshot, .db-table .pmeta { display: none; }
   .db-table td:first-child { max-width: 140px; white-space: normal; }
+/* ---------- Player page: this week ---------- */
+.week-card { display: flex; flex-direction: column; gap: 14px; }
+.wk-top { display: flex; justify-content: space-between; align-items: center; gap: 12px 20px; flex-wrap: wrap; }
+.wk-game { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.wk-label { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--brand); }
+.wk-opp { display: flex; align-items: center; gap: 8px; font-size: 22px; font-weight: 800; text-decoration: none; }
+.wk-opp:hover { text-decoration: underline; }
+.wk-pts { display: flex; gap: 8px; }
+.wk-pts > div { display: flex; flex-direction: column; align-items: flex-end; padding: 6px 14px; border-radius: 10px; background: var(--surface-2); min-width: 86px; }
+.wk-pts span { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+.wk-pts strong { font-size: 26px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.wk-pts .beat strong { color: var(--up); }
+.wk-pts .missed strong { color: var(--down); }
+.wk-pts .pending strong { color: var(--muted); }
+.wk-table td, .wk-table th { white-space: nowrap; }
+.wk-table .wk-proj td { color: var(--muted); }
+.wk-table .wk-proj td.hl { color: var(--text); }
+.wk-table td.beat { color: var(--up); }
+.wk-table td.missed { color: var(--down); }
+.wk-bye { margin: 0; font-size: 18px; font-weight: 700; }
+.wk-lines { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 480px) {
+  .wk-opp { font-size: 19px; }
+  .wk-pts { width: 100%; }
+  .wk-pts > div { flex: 1; align-items: flex-start; }
+  .wk-lines { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .wk-lines .tile { padding: 8px; }
+  .wk-table { font-size: 13px; }
+  .wk-table th, .wk-table td { padding: 7px 6px; }
+  .wk-table th { font-size: 10px; letter-spacing: 0; }
 }
