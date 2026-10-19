@@ -242,6 +242,14 @@ def build_roster(season):
 
 
 SLEEPER_TEAM_FIX = {"LAR": "LA", "JAC": "JAX", "WSH": "WAS"}
+# Sleeper projection stat -> our game-log key, for the projected stat line on player pages.
+SLEEPER_LINE = {
+    "pass_cmp": "cmp", "pass_att": "att", "pass_yd": "pass_yds", "pass_td": "pass_td", "pass_int": "int",
+    "rush_att": "car", "rush_yd": "rush_yds", "rush_td": "rush_td",
+    "rec_tgt": "tgt", "rec": "rec", "rec_yd": "rec_yds", "rec_td": "rec_td",
+    "fgm": "fgm", "fga": "fg_att", "xpm": "xp",
+    "sack": "sacks", "int": "int", "fum_rec": "fr", "def_td": "td", "pts_allow": "pa",
+}
 
 
 def fetch_json(url):
@@ -254,7 +262,8 @@ def build_sleeper(season, last_week, roster):
     """Sleeper's weekly projections for weeks 1..last_week, keyed by our player ids.
 
     Returns {player_id: {week: {"ppr", "half", "std", "ptd"}}}. Past weeks are kept so the
-    site can compare Sleeper's accuracy with Mingus projections.
+    site can compare Sleeper's accuracy with Mingus projections. The latest week also gets
+    "line": the projected stat line (yards, touchdowns, ...) in our stat keys, for player pages.
     """
     to_gsis = {r["sleeper_id"]: pid for pid, r in roster.items() if r.get("sleeper_id")}
     out = defaultdict(dict)
@@ -279,6 +288,10 @@ def build_sleeper(season, last_week, roster):
                 "std": round(st.get("pts_std") or 0, 2),
                 "ptd": st.get("pass_td") or 0,
             }
+            if week == last_week:
+                line = {ours: round(st[theirs], 1) for theirs, ours in SLEEPER_LINE.items() if st.get(theirs)}
+                if line:
+                    out[pid][week]["line"] = line
     return out
 
 
