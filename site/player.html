@@ -32,6 +32,12 @@
       DST: [["pa", "Pts Allowed"], ["sacks", "Sacks"], ["int", "INT"], ["fr", "Fum Rec"], ["td", "TD"], ["safety", "Sfty"]],
     };
     LOG.TE = LOG.WR;
+    // What the share columns mean (header tooltips, and spelled out under the game log).
+    const COL_HELP = {
+      snap_pct: "Snap %: share of his team's offensive plays he was on the field for",
+      opp_sh: "Opp %: opportunity share, his carries plus targets out of all his team's carries plus targets",
+      tgt_sh: "Tgt %: target share, his targets out of all his team's targets",
+    };
 
     Mingus.start(async (main, meta) => {
       const [players, games, notes] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.content("notes", {})]);
@@ -136,7 +142,7 @@
               <div class="table-wrap flat">
                 <table class="data-table">
                   <thead><tr><th class="l">Wk</th><th class="l">Opp</th><th class="l">Result</th>
-                    ${LOG[tab].map(([, l]) => `<th>${l}</th>`).join("")}${projector.hasSleeper ? `<th title="Sleeper's projection before the game">Proj</th>` : ""}<th class="hl">FPTS</th></tr></thead>
+                    ${LOG[tab].map(([k, l]) => `<th${COL_HELP[k] ? ` title="${esc(COL_HELP[k])}" class="has-help"` : ""}>${l}</th>`).join("")}${projector.hasSleeper ? `<th title="Sleeper's projection before the game">Proj</th>` : ""}<th class="hl">FPTS</th></tr></thead>
                   <tbody>
                     ${p.log.map((e, i) => `<tr>
                       <td class="l">${e.week}</td>
@@ -148,6 +154,7 @@
                   </tbody>
                 </table>
               </div>
+              ${LOG[tab].some(([k]) => COL_HELP[k]) ? `<p class="muted small log-help">${LOG[tab].filter(([k]) => COL_HELP[k]).map(([k]) => esc(COL_HELP[k]).replace(/^([^:]+):/, "<strong>$1</strong>:")).join("<br>")}</p>` : ""}
             </section>
           </div>`;
 

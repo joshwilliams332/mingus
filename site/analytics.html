@@ -144,8 +144,14 @@
     const mid = s => s.replace(/\b[A-Z][a-z]+\b/g, w => w.toLowerCase());
 
     // What r means, in plain words.
-    function verdict(r, xs, ys) {
+    // scope is "" for a long enough window, or e.g. "Week 6" when only a week or two is charted.
+    function verdict(r, xs, ys, scope = "") {
       const a = Math.abs(r), dir = r >= 0 ? "more" : "less";
+      if (scope && a < 0.5) {
+        return a >= 0.3
+          ? { label: "Weak", cls: "var(--q)", text: `In ${scope}, there's only a slight trend between ${xs} and ${ys}. A week or two is a small, noisy sample, so check the full season before writing ${xs} off.` }
+          : { label: "Little to none", cls: "var(--down)", text: `In ${scope}, ${xs} told you almost nothing about ${ys}. A week or two is a small, noisy sample, so check the full season before writing ${xs} off.` };
+      }
       if (a >= 0.9) return { label: "Very strong", cls: "var(--up)",
         text: `${xs[0].toUpperCase() + xs.slice(1)} and ${ys} move almost in lockstep, so they nearly measure the same thing. Expect few surprises on this chart.` };
       if (a >= 0.7) return { label: "Strong", cls: "var(--up)",
@@ -242,7 +248,7 @@
             <p>A rough guide: 0.7 or higher is strong, 0.5–0.7 moderate, 0.3–0.5 weak, and under 0.3 is little to none (the same goes for negative numbers).</p>
             <p><strong>A low r isn't a broken chart.</strong> It means the dotted trend line is a bad predictor, so ignore it and read the chart by its quadrants instead: who's high on both stats, high on one, or neither. Volume vs. efficiency charts often have an r near 0 and are some of the most interesting ones.</p>
             <p><strong>A very high r (0.9+)</strong> usually means the two stats are close to the same thing (yards and first downs, for example), so the dots sit on one line and few players stand out.</p>
-            <p><strong>Two more things to keep in mind.</strong> A strong r doesn't mean one stat causes the other; often both come from playing time. And early in the season r can swing a lot with only a few games of data, so widen the weeks or lower the minimum if only a handful of players show up.</p>
+            <p><strong>Two more things to keep in mind.</strong> A strong r doesn't mean one stat causes the other; often both come from playing time. And r can swing a lot with only a game or two of data: a single week mostly measures luck (one long touchdown, one quiet game), so for a stat's real link to fantasy points, use as many weeks as you can. When you pick just a week or two, the page shows the full-season r alongside for comparison.</p>
           </details>
         </section>`;
 
@@ -263,8 +269,8 @@
       }
 
       // Totals for a player over the chosen weeks.
-      function aggregate(p) {
-        const log = p.log.filter(e => e.week >= state.from && e.week <= state.to);
+      function aggregate(p, from = state.from, to = state.to) {
+        const log = p.log.filter(e => e.week >= from && e.week <= to);
         if (!log.length) return null;
         const t = new Proxy({}, { get: (o, k) => o[k] || 0 });
         let cpoeW = 0, cpoeAtt = 0, tsh = 0, ash = 0, fpts = 0;
@@ -299,16 +305,25 @@
         main.querySelectorAll(".cb-presets .chip-btn").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.x === state.x && b.dataset.y === state.y)));
         history.replaceState(null, "", `analytics.html?pos=${state.pos}&x=${state.x}&y=${state.y}${state.pg ? "&pg=1" : ""}`);
 
-        const pts = [];
-        for (const p of players) {
-          if (p.pos !== state.pos) continue;
-          const a = aggregate(p);
-          if (!a || (vol.fn(a) || 0) < state.min) continue;
-          const x = value(X, a), y = value(Y, a);
-          if (x === null || y === null) continue;
-          pts.push({ p, a, x, y });
-        }
+        const collect = (from, to, min) => {
+          const out = [];
+          for (const p of players) {
+            if (p.pos !== state.pos) continue;
+            const a = aggregate(p, from, to);
+            if (!a || (vol.fn(a) || 0) < min) continue;
+            const x = value(X, a), y = value(Y, a);
+            if (x === null || y === null) continue;
+            out.push({ p, a, x, y });
+          }
+          return out;
+        };
+        const pts = collect(state.from, state.to, state.min);
         const fit = pearson(pts);
+        // A week or two is noisy: compare with the full season so far (default minimum for those weeks).
+        const span = state.to - state.from + 1;
+        const short = span <= 2 && lastWeek > span;
+        const scope = short ? (span === 1 ? `Week ${state.from} alone` : `Weeks ${state.from}–${state.to} alone`) : "";
+        const seasonFit = short ? pearson(collect(1, lastWeek, Math.round(P.perWeek * Math.max(1, lastWeek - 1)))) : null;
         const sfx = st => (state.pg && st.kind === "count" ? " per game" : "");
 
         // Correlation readout
@@ -319,11 +334,15 @@
           $("cb-verdict").textContent = pts.length < 3 ? "Not enough players to chart. Lower the minimum or widen the weeks." : "One of these stats is the same for every player, so there's nothing to compare.";
           warn.hidden = true;
         } else {
-          const v = verdict(fit.r, xs + sfx(X), ys + sfx(Y));
+          const v = verdict(fit.r, xs + sfx(X), ys + sfx(Y), scope);
           $("cb-rval").textContent = (fit.r >= 0 ? "+" : "−") + Math.abs(fit.r).toFixed(2);
           $("cb-rdot").style.left = `${(fit.r + 1) * 50}%`;
           $("cb-verdict").innerHTML = `<strong style="--vc:${v.cls}">${v.label}</strong>${esc(v.text)}`;
           const notes = [];
+          if (seasonFit) {
+            const sv = verdict(seasonFit.r, xs, ys);
+            notes.push(`Over the full season so far (weeks 1–${lastWeek}), r is ${(seasonFit.r >= 0 ? "+" : "−") + Math.abs(seasonFit.r).toFixed(2)} (${sv.label.toLowerCase()}). One week can swing on a long touchdown or a quiet game, so lean on the bigger sample.`);
+          }
           if (pts.length < 15) notes.push(`Only ${pts.length} players, so this r could change a lot. Lower the minimum or widen the weeks for a steadier number.`);
           if (state.x === state.y) notes.push("Both axes are the same stat, so r is exactly 1. Pick two different stats.");
           warn.textContent = notes.join(" "); warn.hidden = !notes.length;

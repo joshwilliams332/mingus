@@ -699,3 +699,5 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 .trend-row strong span:not(.rank-tag) { font-size: inherit; }
 .trend-row strong .pos-num { color: var(--up); } .trend-row strong .neg-num { color: var(--down); }
 .rank-tag.top.bad, :is(.tile, .trend-row, .team-stats) strong .rank-tag.top.bad { color: var(--down); }
+.data-table th.has-help { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+.log-help { margin: 10px 2px 0; line-height: 1.5; }
