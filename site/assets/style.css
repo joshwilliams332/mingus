@@ -717,6 +717,7 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 @media (max-width: 600px) {
   .db-table .pcell .headshot, .db-table .pmeta { display: none; }
   .db-table td:first-child { max-width: 140px; white-space: normal; }
+}
 /* ---------- Player page: this week ---------- */
 .week-card { display: flex; flex-direction: column; gap: 14px; }
 .wk-top { display: flex; justify-content: space-between; align-items: center; gap: 12px 20px; flex-wrap: wrap; }
