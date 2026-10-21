@@ -81,7 +81,8 @@
             const r = o[k + "_rank"];
             const cls = opt.neutral ? "neutral" : matchupClass(Math.round((opt.bad ? nTeams + 1 - r : r) / nTeams * 32));
             return `<div class="split-row"><span${opt.help ? ` class="has-help" title="${esc(opt.help)}"` : ""}>${label}</span><strong>${val(k)}<small>${unit}</small></strong>
-              ${r ? `<span class="mchip ${cls}" title="${ordinal(r)} of ${nTeams}">${ordinal(r)}</span>` : "<span></span>"}</div>`;
+              ${r ? `<span class="mchip ${cls}" title="${ordinal(r)} of ${nTeams}">${ordinal(r)}</span>` : "<span></span>"}</div>
+              ${k === "pass_rate" ? `<p class="split-key">Key: 1st = passes the most, ${ordinal(nTeams)} = runs the most.</p>` : ""}`;
           }).join("")}</div>
           <p class="muted small">EPA per play: expected points added per play, the standard measure of offensive efficiency. Above 0 is good.</p>
         </section>`;
