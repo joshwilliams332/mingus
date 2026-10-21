@@ -821,3 +821,12 @@ a.pv-team:hover strong { text-decoration: underline; }
 .box-table th:first-child { background: var(--surface-2); }
 @media (max-width: 600px) { .box-table td .pos, .box-table td .inj { display: none; } }
 .split-key { margin: -2px 0 4px; font-size: 12px; color: var(--muted); text-align: right; }
+/* Teams table: plain numbers; the sorted column and the rank are colored by matchup. */
+.pb-table .pb-rk { width: 34px; font-weight: 800; color: var(--mc, var(--muted)); font-variant-numeric: tabular-nums; }
+.pb-table td.sorted { font-weight: 800; color: var(--mc, var(--text)); }
+.pb-table th:nth-child(-n+2), .pb-table td:nth-child(-n+2) { position: sticky; z-index: 1; background: var(--surface); }
+.pb-table th:nth-child(-n+2) { background: var(--surface-2); }
+.pb-table th:first-child, .pb-table td:first-child { left: 0; width: 38px; min-width: 38px; max-width: 38px; }
+.pb-table th:nth-child(2), .pb-table td:nth-child(2) { left: 38px; }
+.pb-table { font-size: 14px; }
+.pb-table th { font-size: 11px; letter-spacing: .2px; }
