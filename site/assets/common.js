@@ -543,8 +543,11 @@ function positionSplits(players, sc) {
       for (const [pos, t] of Object.entries(byPos)) {
         out[side][team][pos] = {};
         for (const [k, , o] of SPLIT_STATS[pos]) {
+          const rate = k === "ypc" || k === "ypr";
           const v = k === "ypc" ? (t.car ? t.rush_yds / t.car : null) : k === "ypr" ? (t.rec ? t.rec_yds / t.rec : null) : t[k] / g;
-          out[side][team][pos][k] = { v: v === null ? null : Math.round(v * 10) / 10 };
+          const round = x => (x === null ? null : Math.round(x * 10) / 10);
+          // v = per game; tot = season total (rates like yards per catch are the same either way).
+          out[side][team][pos][k] = { v: round(v), tot: round(rate ? v : t[k]) };
         }
       }
     }
@@ -555,6 +558,11 @@ function positionSplits(players, sc) {
         for (const t of Object.values(out[side])) {
           const c = t[pos]?.[k];
           if (c && c.v !== null) { c.rank = vals.filter(x => x > c.v).length + 1; c.of = vals.length; }
+        }
+        const tots = Object.values(out[side]).map(t => t[pos]?.[k]?.tot).filter(v => v !== null && v !== undefined);
+        for (const t of Object.values(out[side])) {
+          const c = t[pos]?.[k];
+          if (c && c.tot !== null) c.rankTot = tots.filter(x => x > c.tot).length + 1;
         }
       }
     }
