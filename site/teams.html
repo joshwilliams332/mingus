@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teams · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    Mingus.start(async (main, meta) => {
+      const [players, games, teams] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.load("teams")]);
+      const params = new URLSearchParams(location.search);
+      const state = {
+        side: params.get("side") === "off" ? "off" : "def",
+        pos: SPLIT_STATS[params.get("pos")] ? params.get("pos") : "WR",
+        sort: params.get("sort") || "fpts", dir: -1, sc: Scoring.get(),
+      };
+      const week = meta.next_week ?? meta.last_week;
+
+      main.innerHTML = `
+        <div class="page-head">
+          <div><h1>Teams</h1><p class="muted sub-head">Every team by division, and how each one stacks up against every position.</p></div>
+        </div>
+        <div class="divisions">
+          ${Object.entries(DIVISIONS).map(([div, list]) => `<section class="card div-card">
+            <h3>${div}</h3>
+            ${list.map(t => {
+              const r = teamResults(games, t), g = weekGame(games, t, week);
+              return `<a class="div-team" href="${teamUrl(t)}">${teamMark(t, teams, "md")}
+                <span class="div-name"><strong>${esc(teamName(t, teams, false))}</strong><span class="muted small">${g ? `Wk ${week}: ${esc(oppLabel(g))}` : `Wk ${week}: bye`}</span></span>
+                <span class="div-rec">${record(r, "result")}</span></a>`;
+            }).join("")}
+          </section>`).join("")}
+        </div>
+
+        <section class="section">
+          <div class="section-head"><h2>Position breakdown</h2></div>
+          <p class="muted small" id="pb-help"></p>
+          <div class="pb-controls">
+            <div class="tabs" role="group" aria-label="Defense or offense">
+              <button class="tab" type="button" data-side="def">Defense allows</button>
+              <button class="tab" type="button" data-side="off">Offense produces</button>
+            </div>
+            <div class="tabs" role="group" aria-label="Position">
+              ${Object.keys(SPLIT_STATS).map(p => `<button class="tab" type="button" data-pos="${p}">${p}</button>`).join("")}
+            </div>
+            <div class="db-scoring"></div>
+          </div>
+          <div class="table-wrap"><table class="data-table db-table pb-table"><thead></thead><tbody></tbody></table></div>
+        </section>`;
+
+      function draw() {
+        const splits = positionSplits(players, state.sc);
+        const stats = SPLIT_STATS[state.pos];
+        if (!stats.some(s => s[0] === state.sort)) state.sort = "fpts";
+        main.querySelectorAll("[data-side]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.side === state.side)));
+        main.querySelectorAll("[data-pos]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.pos === state.pos)));
+        const side = splits[state.side], pl = POS_PLURAL[state.pos];
+        document.getElementById("pb-help").textContent = state.side === "def"
+          ? `What each defense gives up to ${pl} per game this season. 1st = gives up the most. Green = an easy matchup for ${pl}, red = a tough one. Tap a column to sort, or a team to open it.`
+          : `What each team's ${pl} produce per game this season. 1st = produces the most. Green = a strength, red = a weakness. Tap a column to sort, or a team to open it.`;
+        const rows = Object.entries(side).filter(([t, v]) => teams[t] && v[state.pos])
+          .sort((a, b) => ((a[1][state.pos][state.sort]?.v ?? -1) - (b[1][state.pos][state.sort]?.v ?? -1)) * state.dir);
+        main.querySelector("thead").innerHTML = `<tr><th class="l">Team</th>${stats.map(([k, l]) =>
+          `<th class="${k === state.sort ? "sorted" : ""}"><button data-sort="${k}">${l}${k === state.sort ? (state.dir < 0 ? " ▼" : " ▲") : ""}</button></th>`).join("")}</tr>`;
+        main.querySelector("tbody").innerHTML = rows.map(([t, v]) => `<tr class="click-row" data-href="${teamUrl(t)}">
+          <td class="l"><span class="opp-cell">${teamMark(t, teams, "sm")} <a href="${teamUrl(t)}">${esc(teamName(t, teams, false))}</a></span></td>
+          ${stats.map(([k]) => {
+            const c = v[state.pos][k];
+            if (!c || c.v === null) return `<td class="muted">—</td>`;
+            return `<td class="${k === state.sort ? "sorted" : ""}">${fmt(c.v)} <span class="mchip mini ${splitMatchup(state.pos, k, c.rank, c.of)}" title="${ordinal(c.rank)} of ${c.of}">${ordinal(c.rank)}</span></td>`;
+          }).join("")}</tr>`).join("");
+        main.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
+          state.dir = state.sort === b.dataset.sort ? -state.dir : -1; state.sort = b.dataset.sort; draw();
+        });
+        main.querySelectorAll(".click-row").forEach(tr => tr.onclick = e => { if (!e.target.closest("a")) location.href = tr.dataset.href; });
+        // On phones the table scrolls sideways; keep the sorted column next to the team names.
+        const wrap = main.querySelector(".table-wrap"), th = main.querySelector("thead th.sorted"), first = main.querySelector("thead th");
+        if (th && wrap.scrollWidth > wrap.clientWidth) wrap.scrollLeft = Math.max(0, th.offsetLeft - first.offsetWidth - 8);
+        history.replaceState(null, "", `teams.html?side=${state.side}&pos=${state.pos}${state.sort !== "fpts" ? `&sort=${state.sort}` : ""}`);
+      }
+      main.querySelectorAll("[data-side]").forEach(b => b.onclick = () => { state.side = b.dataset.side; draw(); });
+      main.querySelectorAll("[data-pos]").forEach(b => b.onclick = () => { state.pos = b.dataset.pos; draw(); });
+      main.querySelector(".db-scoring").innerHTML = scoringControls(state.sc, sc => { state.sc = sc; draw(); });
+      draw();
+    });
+  </script>
+</body>
+</html>

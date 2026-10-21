@@ -125,13 +125,13 @@
 
           <div class="two-col" style="margin-top:14px">
             <section class="card split-card" data-side="def">
-              <div class="card-head"><h3>${esc(teamName(team, teams, false))} defense by position</h3></div>
+              <div class="card-head"><h3>${esc(teamName(team, teams, false))} defense by position</h3><a class="small-link" href="teams.html?side=def&pos=${tabState.def}">All teams →</a></div>
               <p class="muted small">What they give up per game${splits.def[team] ? ` (${splits.def[team].games} games)` : ""}. 1st = gives up the most. Green = an easy matchup for opponents, red = a tough one.</p>
               <div class="tabs split-tabs">${POSITIONS.map(p => `<button class="tab" type="button" data-pos="${p}" aria-pressed="${tabState.def === p}">${p}</button>`).join("")}</div>
               ${splitRows("def", tabState.def, splits)}
             </section>
             <section class="card split-card" data-side="off">
-              <div class="card-head"><h3>${esc(teamName(team, teams, false))} offense by position</h3></div>
+              <div class="card-head"><h3>${esc(teamName(team, teams, false))} offense by position</h3><a class="small-link" href="teams.html?side=off&pos=${tabState.off}">All teams →</a></div>
               <p class="muted small">What their players produce per game${splits.off[team] ? ` (${splits.off[team].games} games)` : ""}. 1st = produces the most. Green = a strength, red = a weakness.</p>
               <div class="tabs split-tabs">${POSITIONS.map(p => `<button class="tab" type="button" data-pos="${p}" aria-pressed="${tabState.off === p}">${p}</button>`).join("")}</div>
               ${splitRows("off", tabState.off, splits)}

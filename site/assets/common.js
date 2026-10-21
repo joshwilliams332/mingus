@@ -54,7 +54,8 @@ const Mingus = {
                 ${RANK_TABS.map(t => `<a href="rankings.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
               </div>
             </div>
-            <a href="games.html" ${["games.html", "game.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Schedule</span><span class="ns">Schedule</span></a>
+            <a href="games.html" ${["games.html", "game.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Schedule</span><span class="ns">Schedule</span></a>
+            <a href="teams.html" ${["teams.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Teams</span><span class="ns">Teams</span></a>
             <a href="trends.html" ${here === "trends.html" ? 'aria-current="page"' : ""}><span class="nl">Trends</span><span class="ns">Trends</span></a>
             <a href="analytics.html" ${here === "analytics.html" ? 'aria-current="page"' : ""}><span class="nl">Analytics</span><span class="ns">Analytics</span></a>
           </nav>
@@ -90,6 +91,8 @@ const Mingus = {
       meta = await this.load("meta");
     } catch (e) { /* header still renders without the week */ }
     this.renderChrome(meta);
+    const current = document.querySelector('.nav [aria-current="page"]'), nav = document.querySelector(".nav");
+    if (current && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = current.offsetLeft - nav.clientWidth / 2 + current.offsetWidth / 2;
     this.wireBackLinks();
     try {
       await fn(main, meta);

@@ -789,3 +789,26 @@ a.pv-team:hover strong { text-decoration: underline; }
   .pv-lines { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .pv-team { font-size: 17px; }
 }
+
+/* Phones: six header links don't all fit, so the links scroll sideways (the current page is scrolled into view). */
+@media (max-width: 480px) {
+  .nav { overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 1; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a { flex: none; }
+  .header-week { display: none; }
+}
+
+/* ---------- Teams page ---------- */
+.divisions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.div-card { padding: 12px 14px; }
+.div-card h3 { margin-bottom: 4px; }
+.div-team { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; border-top: 1px solid var(--border); text-decoration: none; }
+.div-team:first-of-type { border-top: 0; }
+.div-team:hover strong { text-decoration: underline; }
+.div-name { display: flex; flex-direction: column; min-width: 0; }
+.div-rec { font-weight: 800; font-variant-numeric: tabular-nums; }
+.pb-controls { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; margin: 10px 0 12px; }
+.pb-table td { white-space: nowrap; }
+.mchip.mini { min-width: 34px; padding: 1px 5px; font-size: 10.5px; margin-left: 4px; }
+@media (max-width: 1000px) { .divisions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .divisions { grid-template-columns: 1fr; } }
