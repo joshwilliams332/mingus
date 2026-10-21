@@ -12,8 +12,9 @@
   <script src="assets/common.js"></script>
   <script>
     Mingus.start(async (main, meta) => {
-      const [players, games, teams, notes] = await Promise.all([
+      const [players, games, teams, notes, teamstats] = await Promise.all([
         Mingus.load("players"), Mingus.load("games"), Mingus.load("teams"), Mingus.content("notes", {}),
+        Mingus.load("teamstats").catch(() => ({})),
       ]);
       const team = (new URLSearchParams(location.search).get("team") || "").toUpperCase();
       if (!teams[team]) {
@@ -31,7 +32,94 @@
       const pf = results.reduce((a, r) => a + r.pf, 0), pa = results.reduce((a, r) => a + r.pa, 0);
 
       const POSITIONS = ["QB", "RB", "WR", "TE"];
-      const tabState = { def: "WR", off: "WR" };
+      const tabState = { def: "WR" };
+
+      // Team offense per game, ranked across the league (1st = most). bad: more is worse (turnovers, sacks);
+      // neutral: style, not quality (pass rate, attempts, carries), so no color.
+      const OFF_STATS = [
+        ["ppg", "Points", "/g"], ["epa", "EPA per play", "", { help: "Expected points added per play: the standard efficiency stat. Above 0 is good." }],
+        ["yds", "Total yards", "/g"], ["ypp", "Yards per play"], ["plays", "Plays", "/g"],
+        ["pass_rate", "Pass rate", "", { neutral: true, pct: true }], ["att", "Pass attempts", "/g", { neutral: true }], ["car", "Carries", "/g", { neutral: true }],
+        ["pass_yds", "Pass yards", "/g"], ["ypa", "Yards per attempt"], ["rush_yds", "Rush yards", "/g"], ["ypc", "Yards per carry"],
+        ["fd", "First downs", "/g"], ["to", "Turnovers", "/g", { bad: true }], ["sk", "Sacks taken", "/g", { bad: true }],
+      ];
+      const offense = (() => {
+        const avgPts = teamAverages(games), out = {};
+        for (const [t, log] of Object.entries(teamstats)) {
+          if (!log.length) continue;
+          const sum = k => log.reduce((a, e) => a + (e[k] || 0), 0), g = log.length;
+          const plays = sum("att") + sum("sk") + sum("car"), yds = sum("pass_yds") + sum("rush_yds");
+          out[t] = {
+            g, ppg: avgPts[t]?.pf ?? null, plays: plays / g, pass_rate: plays ? (sum("att") + sum("sk")) / plays : null,
+            att: sum("att") / g, car: sum("car") / g, yds: yds / g, ypp: plays ? yds / plays : null,
+            pass_yds: sum("pass_yds") / g, rush_yds: sum("rush_yds") / g, ypa: sum("att") ? sum("pass_yds") / sum("att") : null,
+            ypc: sum("car") ? sum("rush_yds") / sum("car") : null, epa: plays ? (sum("pass_epa") + sum("rush_epa")) / plays : null,
+            fd: sum("fd") / g, to: (sum("int") + sum("fl")) / g, sk: sum("sk") / g,
+          };
+        }
+        for (const [k] of OFF_STATS) {
+          const vals = Object.values(out).map(o => o[k]).filter(v => v !== null);
+          for (const o of Object.values(out)) if (o[k] !== null) o[k + "_rank"] = vals.filter(v => v > o[k]).length + 1;
+        }
+        return out;
+      })();
+      const nTeams = Object.keys(offense).length;
+
+      function offenseCard() {
+        const o = offense[team];
+        if (!o) return `<section class="card"><h3>Offense</h3><p class="muted">No games yet.</p></section>`;
+        const val = (k, o2) => {
+          const v = o[k];
+          if (v === null) return "—";
+          if (k === "pass_rate") return `${Math.round(v * 100)}% pass · ${Math.round((1 - v) * 100)}% run`;
+          return fmt(Math.round(v * (k === "epa" ? 100 : 10)) / (k === "epa" ? 100 : 10));
+        };
+        return `<section class="card">
+          <div class="card-head"><h3>${esc(teamName(team, teams, false))} offense</h3></div>
+          <p class="muted small">Per game over ${o.g} games, ranked among all ${nTeams} teams (1st = most). Green = a strength, red = a weakness; style stats (pass rate, attempts, carries) aren't colored.</p>
+          <div class="split-rows">${OFF_STATS.map(([k, label, unit = "", opt = {}]) => {
+            const r = o[k + "_rank"];
+            const cls = opt.neutral ? "neutral" : matchupClass(Math.round((opt.bad ? nTeams + 1 - r : r) / nTeams * 32));
+            return `<div class="split-row"><span${opt.help ? ` class="has-help" title="${esc(opt.help)}"` : ""}>${label}</span><strong>${val(k)}<small>${unit}</small></strong>
+              ${r ? `<span class="mchip ${cls}" title="${ordinal(r)} of ${nTeams}">${ordinal(r)}</span>` : "<span></span>"}</div>`;
+          }).join("")}</div>
+          <p class="muted small">EPA per play: expected points added per play, the standard measure of offensive efficiency. Above 0 is good.</p>
+        </section>`;
+      }
+
+      // Season box score: this team's games only (a traded player's games elsewhere don't count), football order.
+      function boxScore() {
+        const rows = players.filter(p => p.pos !== "DST").map(p => {
+          const log = p.log.filter(e => e.team === team);
+          if (!log.length) return null;
+          const t = {};
+          for (const e of log) for (const [k, v] of Object.entries(e)) if (typeof v === "number" && k !== "week") t[k] = (t[k] || 0) + v;
+          const fpts = log.reduce((a, e) => a + scoreGame(e, p.pos, sc), 0);
+          return { p, t, g: log.length, fppg: Math.round(fpts / log.length * 10) / 10 };
+        }).filter(Boolean);
+        const r1 = (a, b) => (b ? fmt(Math.round(a / b * 10) / 10) : "—");
+        const name = r => `<td class="l"><a href="${playerUrl(r.p)}">${esc(r.p.short)}</a> ${posBadge(r.p.pos)} ${injuryTag(r.p.injury)}</td>`;
+        const table = (title, list, cols) => list.length ? `
+          <h4 class="box-head">${title}</h4>
+          <div class="table-wrap flat"><table class="data-table compact box-table">
+            <thead><tr><th class="l">Player</th><th class="hl">FPTS/G</th>${cols.map(c => `<th>${c[0]}</th>`).join("")}<th>G</th></tr></thead>
+            <tbody>${list.map(r => `<tr>${name(r)}<td class="hl strong">${fmt(r.fppg)}</td>${cols.map(c => `<td>${c[1](r.t)}</td>`).join("")}<td>${r.g}</td></tr>`).join("")}</tbody>
+          </table></div>` : "";
+        const by = k => (a, b) => (b.t[k] || 0) - (a.t[k] || 0);
+        return `<section class="card" style="margin-top:14px">
+          <div class="card-head"><h3>Season box score</h3><div class="team-scoring"></div></div>
+          <p class="muted small">Season totals in ${esc(teamName(team, teams, false))} games. FPTS/G counts all of a player's stats.</p>
+          ${table("Passing", rows.filter(r => r.t.att).sort(by("att")), [
+            ["Cmp/Att", t => `${t.cmp || 0}/${t.att || 0}`], ["Yds", t => fmt(t.pass_yds || 0)], ["TD", t => t.pass_td || 0],
+            ["INT", t => t.int || 0], ["Y/A", t => r1(t.pass_yds || 0, t.att)], ["Rush yds", t => fmt(t.rush_yds || 0)]])}
+          ${table("Rushing", rows.filter(r => r.t.car).sort(by("car")).slice(0, 6), [
+            ["Car", t => t.car], ["Yds", t => fmt(t.rush_yds || 0)], ["Y/C", t => r1(t.rush_yds || 0, t.car)], ["TD", t => t.rush_td || 0]])}
+          ${table("Receiving", rows.filter(r => r.t.tgt).sort(by("tgt")).slice(0, 10), [
+            ["Tgt", t => t.tgt], ["Rec", t => t.rec || 0], ["Yds", t => fmt(t.rec_yds || 0)], ["Y/R", t => r1(t.rec_yds || 0, t.rec)], ["TD", t => t.rec_td || 0]])}
+          ${table("Kicking", rows.filter(r => r.p.pos === "K"), [
+            ["FG", t => `${(t.fg_0_39 || 0) + (t.fg_40_49 || 0) + (t.fg_50 || 0)}/${t.fg_att || 0}`], ["50+", t => t.fg_50 || 0], ["XP", t => `${t.xp || 0}/${t.xp_att || 0}`]])}
+        </section>`;
+      }
 
       // One position's stats for one side, as rows: label, per game, rank chip (colored by who it's good for).
       function splitRows(side, pos, splits) {
@@ -73,7 +161,6 @@
 
       function render() {
         const splits = positionSplits(players, sc);
-        const roster = rankList(players.filter(p => p.team === team && p.pos !== "DST"), sc, meta);
         // A team's top players at a position (by points per game), for "who it helps".
         const DEPTH = { QB: 1, RB: 2, WR: 3, TE: 1 };
         const rosterOf = (t, pos) => rankList(players.filter(p => p.team === t && p.pos === pos), sc, meta)
@@ -104,7 +191,6 @@
             <p class="muted small">Ranks are per game across all 32 teams, this season so far. Soft spot = bottom 5 (gives up among the most), tough = top 5. Early in the season these move a lot from week to week.</p>
           </section>`;
         }
-        const dst = players.find(p => p.id === `DST-${team}`);
         main.innerHTML = `
           ${backLink(`games.html`)}
           <section class="team-head" style="--tc:${teams[team].color}">
@@ -130,13 +216,10 @@
               <div class="tabs split-tabs">${POSITIONS.map(p => `<button class="tab" type="button" data-pos="${p}" aria-pressed="${tabState.def === p}">${p}</button>`).join("")}</div>
               ${splitRows("def", tabState.def, splits)}
             </section>
-            <section class="card split-card" data-side="off">
-              <div class="card-head"><h3>${esc(teamName(team, teams, false))} offense by position</h3><a class="small-link" href="teams.html?side=off&pos=${tabState.off}">All teams →</a></div>
-              <p class="muted small">What their players produce per game${splits.off[team] ? ` (${splits.off[team].games} games)` : ""}. 1st = produces the most. Green = a strength, red = a weakness.</p>
-              <div class="tabs split-tabs">${POSITIONS.map(p => `<button class="tab" type="button" data-pos="${p}" aria-pressed="${tabState.off === p}">${p}</button>`).join("")}</div>
-              ${splitRows("off", tabState.off, splits)}
-            </section>
+            ${offenseCard()}
           </div>
+
+          ${boxScore()}
 
           <section class="card" style="margin-top:14px">
             <h3>Schedule and results</h3>
@@ -161,20 +244,7 @@
             </div>
           </section>
 
-          <div class="two-col" style="margin-top:14px">
-            <section class="card">
-              <div class="card-head"><h3>Fantasy players</h3><div class="team-scoring"></div></div>
-              <div class="table-wrap flat">
-                <table class="data-table compact">
-                  <thead><tr><th class="l">Player</th><th class="l">Pos</th><th>G</th><th class="hl">FPTS/G</th></tr></thead>
-                  <tbody>${[...roster.filter(r => r.s.g >= 1).slice(0, 14), ...(dst ? [{ p: dst, s: summarize(dst, sc) }] : [])].map(({ p, s }) => `<tr>
-                    <td class="l"><div class="pcell">${headshot(p, "sm")}<a href="${playerUrl(p)}">${esc(p.name)}</a> ${injuryTag(p.injury)}</div></td>
-                    <td class="l">${posBadge(p.pos)}</td><td>${s.g}</td><td class="hl strong">${fmt(s.ppg)}</td></tr>`).join("")}</tbody>
-                </table>
-              </div>
-            </section>
-          </div>
-          </div>`;
+`;
         main.querySelector(".team-scoring").innerHTML = scoringControls(sc, n => { sc = n; render(); });
         main.querySelectorAll(".split-card").forEach(card => card.querySelectorAll(".split-tabs .tab").forEach(b => b.onclick = () => {
           tabState[card.dataset.side] = b.dataset.pos; render();

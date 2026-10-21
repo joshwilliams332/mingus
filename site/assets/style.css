@@ -812,3 +812,11 @@ a.pv-team:hover strong { text-decoration: underline; }
 .mchip.mini { min-width: 34px; padding: 1px 5px; font-size: 10.5px; margin-left: 4px; }
 @media (max-width: 1000px) { .divisions { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 520px) { .divisions { grid-template-columns: 1fr; } }
+.mchip.neutral { --mc: var(--muted); }
+.has-help { text-decoration: underline dotted; text-underline-offset: 3px; cursor: help; }
+.box-head { margin: 14px 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+.box-table td .pos { margin-left: 4px; }
+.box-table td.l { white-space: nowrap; }
+.box-table th:first-child, .box-table td:first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); }
+.box-table th:first-child { background: var(--surface-2); }
+@media (max-width: 600px) { .box-table td .pos, .box-table td .inj { display: none; } }

@@ -31,6 +31,10 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   `SPLIT_STATS` lists the stats; INT and sacks are `bad` (more = worse for the offense), so `splitMatchup()`
   flips their colors. Green always means good for the offense attacking that defense (or a strength, for an offense).
   Team pages open with a Week N preview: soft spots = a defense's bottom 5, tough = top 5, as sentences (`splitPhrase`).
+  Below it: Defense by position, an Offense box (team stats from `data/teamstats.json`, ranked; pass rate /
+  attempts / carries are uncolored style stats, turnovers and sacks taken are flipped), then a season box score
+  (this team's games only; FPTS/G next to the name; name column sticky on phones), then the schedule.
+  Josh found the "offense by position" view hard to read, so team pages don't show it (teams.html still can).
 - **Charts (`analytics.html`)**: a one- or two-week window is a noisy sample. Weak verdicts are worded about that
   window ("In Week 6 alone...") and the full-season r is shown alongside, so a stat isn't written off from one week.
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.

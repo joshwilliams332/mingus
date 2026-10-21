@@ -9,7 +9,7 @@ Fantasy football rankings, NFL stats and Vegas lines, built from [nflverse](http
 - **NFL Games** (`games.html?week=N`): any week's slate with lines, scores, covers and over/unders. Every game card opens its matchup page.
 - **Matchup** (`game.html?id=…`): head-to-head with lines and moneylines, venue and weather, each team's last five games against the spread, over/under and implied points, and matchup edges (which positions each defense gives up the most to, with the players who benefit).
 - **Teams** (`teams.html`): all 32 teams by division with records and this week's opponent, plus a Position breakdown table: what every defense gives up (or every offense produces) to QBs, RBs, WRs and TEs per game (fantasy points, targets, catches, yards, TDs, carries, yards per catch/carry, sacks, INTs), ranked and sortable.
-- **Team** (`team.html?team=SEA`): record, a preview of this week's game (lines, and where each offense can attack the other defense: soft and tough spots by position, plus the players they help), defense and offense by position with league ranks, full schedule with results and lines, and fantasy players.
+- **Team** (`team.html?team=SEA`): record, a preview of this week's game (lines, and where each offense can attack the other defense: soft and tough spots by position, plus the players they help), defense by position with league ranks, an Offense box (points, EPA per play, yards, plays, pass/run split, attempts, carries, turnovers... per game, ranked), a season box score for the team's players (passing, rushing, receiving, kicking with fantasy points per game), and the full schedule with results and lines.
 - **Player** (`player.html?id=…`): season so far, this week's matchup, injury note, bio, weekly points and game log.
 - **Usage Trends** (`trends.html?pos=WR|TE|RB`): whose role is growing or shrinking. Biggest risers and fallers by target share (WR/TE) or opportunity share (RB: carries plus targets out of the team's), then a table of snap share by week, target/opportunity/carry share and red-zone looks over each player's last 3 games, with the change from his earlier games.
 - **Analytics** (`analytics.html?pos=WR&x=tgt&y=rec_yds`): a chart builder. Pick a position and any two stats (volume, efficiency, air yards, YAC, EPA, target share, WOPR, CPOE, fantasy points and more) and it plots every qualifying player, with the correlation (r) explained in plain words, the trend line, quadrants and the players furthest above and below the trend. Choose the weeks, a minimum volume, and season totals or per game; the URL keeps the chosen axes so a chart can be shared.
@@ -40,7 +40,7 @@ Players are ranked by points per game; anyone who has played fewer than half the
 | File | Used for |
 | --- | --- |
 | `stats_player/stats_player_week_<season>.csv` | weekly game logs for QB/RB/WR/TE/K |
-| `stats_team/stats_team_week_<season>.csv` | weekly team defense stats for D/ST |
+| `stats_team/stats_team_week_<season>.csv` | weekly team defense stats for D/ST, and team offense (`teamstats.json`) for team pages |
 | `snap_counts/snap_counts_<season>.csv` | offensive snap share per game (Usage Trends, player game logs) |
 | `pbp/play_by_play_<season>.csv.gz` | red-zone targets and carries (Usage Trends) |
 | `rosters/roster_<season>.csv` | team, number, bio |
