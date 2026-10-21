@@ -12,7 +12,8 @@ Output (in site/data/):
     meta.json     season, latest completed week, next week, build time
     players.json  QB/RB/WR/TE/K and team defenses, each with a weekly game log
     games.json    the full season schedule with Vegas lines and scores
-    teams.json    abbreviation -> city, nickname and color
+    teams.json    abbreviation -> city, nickname, color and logo
+    teamstats.json  each team's offense game by game (plays, pass/rush, EPA, turnovers) for team pages
 
 Sleeper projections (api.sleeper.app) are added to each player as "proj" when
 Sleeper can be reached; if it can't, the site falls back to Mingus projections.
@@ -396,7 +397,30 @@ def build_players(season, games, roster, injuries, today, usage):
     return list(people.values())
 
 
-def build_defenses(season, games):
+# Team offense per game (stats_team_week), for the team pages' Offense box: our key -> nflverse columns summed.
+TEAM_OFFENSE = {
+    "cmp": ["completions"], "att": ["attempts"], "pass_yds": ["passing_yards"], "pass_td": ["passing_tds"],
+    "int": ["passing_interceptions"], "sk": ["sacks_suffered"], "car": ["carries"], "rush_yds": ["rushing_yards"],
+    "rush_td": ["rushing_tds"], "fd": ["passing_first_downs", "rushing_first_downs"], "fl": ["fumbles_lost_total"],
+    "pass_epa": ["passing_epa"], "rush_epa": ["rushing_epa"], "pen": ["penalties"], "pen_yds": ["penalty_yards"],
+}
+
+
+def build_team_offense(rows):
+    """{team: [{week, opp, att, car, pass_yds, ...}]}: each team's offense, game by game."""
+    out = defaultdict(list)
+    for r in rows:
+        if r["season_type"] != "REG":
+            continue
+        entry = {"week": int(r["week"]), "opp": r["opponent_team"]}
+        entry.update(pick(r, TEAM_OFFENSE))
+        out[r["team"]].append(entry)
+    for log in out.values():
+        log.sort(key=lambda e: e["week"])
+    return dict(out)
+
+
+def build_defenses(season, games, rows):
     """One D/ST entry per team, with points allowed taken from the schedule."""
     allowed = {}
     for g in games:
@@ -407,7 +431,7 @@ def build_defenses(season, games):
     home_of.update({(g["week"], g["away"]): False for g in games})
 
     teams = {}
-    for r in fetch_csv(f"stats_team/stats_team_week_{season}.csv"):
+    for r in rows:
         if r["season_type"] != "REG":
             continue
         team, week = r["team"], int(r["week"])
@@ -440,7 +464,9 @@ def main():
     roster = build_roster(season)
     injuries, injury_week = build_injuries(season)
     usage = build_usage(season, roster)
-    players = build_players(season, games, roster, injuries, today, usage) + build_defenses(season, games)
+    team_rows = fetch_csv(f"stats_team/stats_team_week_{season}.csv")
+    players = build_players(season, games, roster, injuries, today, usage) + build_defenses(season, games, team_rows)
+    team_offense = build_team_offense(team_rows)
 
     played = [g["week"] for g in games if g["type"] == "REG" and g["home_score"] is not None]
     upcoming = [g["week"] for g in games if g["home_score"] is None]
@@ -469,7 +495,7 @@ def main():
              for abbr, (c, n, col, _, _) in TEAMS.items()}
 
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    for name, data in (("meta", meta), ("players", players), ("games", games), ("teams", teams)):
+    for name, data in (("meta", meta), ("players", players), ("games", games), ("teams", teams), ("teamstats", team_offense)):
         path = OUT_DIR / f"{name}.json"
         path.write_text(json.dumps(data, separators=(",", ":")))
         print(f"  wrote {path.relative_to(OUT_DIR.parent.parent)} ({path.stat().st_size // 1024} KB)")
