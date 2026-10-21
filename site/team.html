@@ -30,9 +30,80 @@
       const avg = teamAverages(games);
       const pf = results.reduce((a, r) => a + r.pf, 0), pa = results.reduce((a, r) => a + r.pa, 0);
 
+      const POSITIONS = ["QB", "RB", "WR", "TE"];
+      const tabState = { def: "WR", off: "WR" };
+
+      // One position's stats for one side, as rows: label, per game, rank chip (colored by who it's good for).
+      function splitRows(side, pos, splits) {
+        const t = splits[side][team]?.[pos];
+        if (!t) return `<p class="muted">No games yet.</p>`;
+        return `<div class="split-rows">${SPLIT_STATS[pos].map(([k, label, o = {}]) => {
+          const c = t[k];
+          if (!c || c.v === null) return "";
+          return `<div class="split-row"><span>${label}</span><strong>${fmt(c.v)}<small>${o.rate ? "" : "/g"}</small></strong>
+            <span class="mchip ${splitMatchup(pos, k, c.rank, c.of)}" title="${ordinal(c.rank)} of ${c.of} teams">${ordinal(c.rank)}</span></div>`;
+        }).join("")}</div>`;
+      }
+
+      // Where an offense can attack a defense: the defense's soft and tough spots, strongest first.
+      function attackPlan(offTeam, defTeam, splits, rosterOf) {
+        const d = splits.def[defTeam];
+        if (!d) return `<p class="muted">Not enough games yet.</p>`;
+        const spots = [];
+        for (const pos of POSITIONS) {
+          for (const [k] of SPLIT_STATS[pos]) {
+            const c = d[pos]?.[k];
+            if (!c || c.v === null) continue;
+            const bad = SPLIT_STATS[pos].find(x => x[0] === k)[2]?.bad;
+            const r = bad ? c.of + 1 - c.rank : c.rank;  // 1 = best for the offense
+            spots.push({ pos, k, c, r });
+          }
+        }
+        const soft = spots.filter(x => x.r <= 5).sort((a, b) => a.r - b.r).slice(0, 6);
+        const tough = spots.filter(x => x.r >= 28).sort((a, b) => b.r - a.r).slice(0, 4);
+        const helped = [...new Set(soft.map(x => x.pos))].flatMap(pos => rosterOf(offTeam, pos));
+        const li = x => `<li>${posBadge(x.pos)} ${splitPhrase(x.pos, x.k, x.c)}</li>`;
+        return `
+          <h4 class="plan-head ok">Soft spots in the ${esc(teamName(defTeam, teams, false))} defense</h4>
+          ${soft.length ? `<ul class="plan">${soft.map(li).join("")}</ul>` : `<p class="muted small">No clear weak spots (nothing in the bottom 5).</p>`}
+          <h4 class="plan-head bad">Tough spots</h4>
+          ${tough.length ? `<ul class="plan">${tough.map(li).join("")}</ul>` : `<p class="muted small">Nothing in the top 5.</p>`}
+          ${helped.length ? `<h4 class="plan-head">Who it helps</h4><div class="helped">${helped.map(p => `<a class="helped-chip" href="${playerUrl(p)}">${posBadge(p.pos)} ${esc(p.short)}</a>`).join("")}</div>` : ""}`;
+      }
+
       function render() {
-        const dvp = defenseVsPos(players, games, sc);
+        const splits = positionSplits(players, sc);
         const roster = rankList(players.filter(p => p.team === team && p.pos !== "DST"), sc, meta);
+        // A team's top players at a position (by points per game), for "who it helps".
+        const DEPTH = { QB: 1, RB: 2, WR: 3, TE: 1 };
+        const rosterOf = (t, pos) => rankList(players.filter(p => p.team === t && p.pos === pos), sc, meta)
+          .filter(r => r.s.g >= 1).slice(0, DEPTH[pos]).map(r => r.p);
+
+        // This week's game: lines, and where each offense can attack the other defense.
+        function preview() {
+          if (!next) return "";
+          const tg = teamGame(next, team), opp = tg.opp, otg = teamGame(next, opp), wr = weekLineRanks(games, next.week);
+          return `<section class="card preview-card" style="margin-top:14px">
+            <div class="card-head"><h3>Week ${next.week} preview</h3><a class="small-link" href="${gameUrl(next)}">Game breakdown →</a></div>
+            <div class="pv-matchup">
+              <span class="pv-team">${teamMark(team, teams, "md")}<strong>${esc(teamName(team, teams, false))}</strong></span>
+              <span class="pv-at">${tg.isHome ? "vs" : "@"}</span>
+              <a class="pv-team" href="${teamUrl(opp)}">${teamMark(opp, teams, "md")}<strong>${esc(teamName(opp, teams, false))}</strong></a>
+            </div>
+            <p class="muted small pv-when">${esc(fmtKickoff(next))}${next.stadium ? ` · ${esc(next.stadium)}` : ""}</p>
+            <div class="tiles pv-lines">
+              <div class="tile"><strong>${spreadTag(tg.spread)}</strong><span>${esc(team)} spread</span></div>
+              <div class="tile"><strong>${fmt(next.total)}${wr.total(next)}</strong><span>Over/under</span></div>
+              <div class="tile"><strong>${fmt(tg.implied)}${wr.implied(tg.implied)}</strong><span>${esc(team)} implied</span></div>
+              <div class="tile"><strong>${fmt(otg.implied)}${wr.implied(otg.implied)}</strong><span>${esc(opp)} implied</span></div>
+            </div>
+            <div class="two-col pv-plans">
+              <div><h3 class="pv-side">${esc(teamName(team, teams, false))} offense vs ${esc(teamName(opp, teams, false))} defense</h3>${attackPlan(team, opp, splits, rosterOf)}</div>
+              <div><h3 class="pv-side">${esc(teamName(opp, teams, false))} offense vs ${esc(teamName(team, teams, false))} defense</h3>${attackPlan(opp, team, splits, rosterOf)}</div>
+            </div>
+            <p class="muted small">Ranks are per game across all 32 teams, this season so far. Soft spot = bottom 5 (gives up among the most), tough = top 5. Early in the season these move a lot from week to week.</p>
+          </section>`;
+        }
         const dst = players.find(p => p.id === `DST-${team}`);
         main.innerHTML = `
           ${backLink(`games.html`)}
@@ -41,7 +112,6 @@
             <div>
               <h1>${esc(teamName(team, teams))}</h1>
               <p class="muted">${record(results, "result")} · ATS ${record(results, "ats")} · O/U ${record(results, "ou", "O", "U")}${byeWeek ? ` · Bye: Week ${byeWeek}` : ""}</p>
-              ${next ? `<p class="profile-note">Next: <a href="${gameUrl(next)}">Week ${next.week} ${next.home === team ? "vs." : "@"} ${esc(next.home === team ? next.away : next.home)}</a> · ${esc(fmtKickoff(next))}</p>` : ""}
             </div>
             <div class="team-stats">
               <div><strong>${results.length ? fmt(Math.round(pf / results.length * 10) / 10) : "—"}${rankOf(avg, team, "pf")}</strong><span>Pts/game</span></div>
@@ -50,6 +120,23 @@
           </section>
 
           ${notes.teams?.[team] ? `<section class="card note-card" style="margin-top:14px"><h3>Mingus notes</h3><p>${esc(notes.teams[team])}</p></section>` : ""}
+
+          ${preview()}
+
+          <div class="two-col" style="margin-top:14px">
+            <section class="card split-card" data-side="def">
+              <div class="card-head"><h3>${esc(teamName(team, teams, false))} defense by position</h3></div>
+              <p class="muted small">What they give up per game${splits.def[team] ? ` (${splits.def[team].games} games)` : ""}. 1st = gives up the most. Green = an easy matchup for opponents, red = a tough one.</p>
+              <div class="tabs split-tabs">${POSITIONS.map(p => `<button class="tab" type="button" data-pos="${p}" aria-pressed="${tabState.def === p}">${p}</button>`).join("")}</div>
+              ${splitRows("def", tabState.def, splits)}
+            </section>
+            <section class="card split-card" data-side="off">
+              <div class="card-head"><h3>${esc(teamName(team, teams, false))} offense by position</h3></div>
+              <p class="muted small">What their players produce per game${splits.off[team] ? ` (${splits.off[team].games} games)` : ""}. 1st = produces the most. Green = a strength, red = a weakness.</p>
+              <div class="tabs split-tabs">${POSITIONS.map(p => `<button class="tab" type="button" data-pos="${p}" aria-pressed="${tabState.off === p}">${p}</button>`).join("")}</div>
+              ${splitRows("off", tabState.off, splits)}
+            </section>
+          </div>
 
           <section class="card" style="margin-top:14px">
             <h3>Schedule and results</h3>
@@ -86,18 +173,12 @@
                 </table>
               </div>
             </section>
-            <section class="card">
-              <h3>Defense vs position</h3>
-              <p class="muted small">Fantasy points ${esc(teamName(team, teams, false))} allow per game, ranked (1st = most allowed).</p>
-              <div class="dvp-row stacked">
-                ${["QB", "RB", "WR", "TE", "K"].map(pos => {
-                  const d = dvp[team]?.[pos];
-                  return d ? `<div class="dvp ${matchupClass(d.rank)}"><span class="dvp-pos">${pos}</span><strong>${ordinal(d.rank)}</strong><span>${d.ppg}/g allowed</span></div>` : "";
-                }).join("")}
-              </div>
-            </section>
+          </div>
           </div>`;
         main.querySelector(".team-scoring").innerHTML = scoringControls(sc, n => { sc = n; render(); });
+        main.querySelectorAll(".split-card").forEach(card => card.querySelectorAll(".split-tabs .tab").forEach(b => b.onclick = () => {
+          tabState[card.dataset.side] = b.dataset.pos; render();
+        }));
         main.querySelectorAll(".click-row").forEach(tr => tr.onclick = () => { location.href = tr.dataset.href; });
       }
       render();

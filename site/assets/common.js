@@ -493,3 +493,92 @@ function makeProjector(players, games, sc, meta) {
 
   return { get, accuracy, hasSleeper: !!meta.projections?.sleeper };
 }
+
+// ---------- Team splits by position ----------
+// What each defense gives up and each offense produces, per position, per game, ranked across the league.
+
+const DIVISIONS = {
+  "AFC East": ["BUF", "MIA", "NE", "NYJ"], "AFC North": ["BAL", "CIN", "CLE", "PIT"],
+  "AFC South": ["HOU", "IND", "JAX", "TEN"], "AFC West": ["DEN", "KC", "LAC", "LV"],
+  "NFC East": ["DAL", "NYG", "PHI", "WAS"], "NFC North": ["CHI", "DET", "GB", "MIN"],
+  "NFC South": ["ATL", "CAR", "NO", "TB"], "NFC West": ["ARI", "LA", "SF", "SEA"],
+};
+const POS_PLURAL = { QB: "QBs", RB: "RBs", WR: "WRs", TE: "TEs" };
+
+// [key, label, options]. rate: computed from totals (yards per catch/carry), not per game.
+// bad: more is bad for the offense (INTs, sacks), so for a defense a high rank is a tough matchup.
+const SPLIT_STATS = {
+  QB: [["fpts", "Fantasy pts"], ["pass_yds", "Pass yds"], ["pass_td", "Pass TD"], ["rush_yds", "Rush yds"],
+       ["int", "INT", { bad: true }], ["sk", "Sacks", { bad: true }]],
+  RB: [["fpts", "Fantasy pts"], ["car", "Carries"], ["rush_yds", "Rush yds"], ["ypc", "Yds/carry", { rate: true }], ["rush_td", "Rush TD"],
+       ["tgt", "Targets"], ["rec", "Catches"], ["rec_yds", "Rec yds"], ["rec_td", "Rec TD"]],
+  WR: [["fpts", "Fantasy pts"], ["tgt", "Targets"], ["rec", "Catches"], ["rec_yds", "Rec yds"], ["ypr", "Yds/catch", { rate: true }], ["rec_td", "Rec TD"]],
+};
+SPLIT_STATS.TE = SPLIT_STATS.WR;
+
+// splits.def[team][pos][stat] = { v, rank } (rank 1 = most allowed); splits.off likewise (1 = most produced).
+// Games are counted per team from the stats themselves, so a final whose stats aren't published yet doesn't count.
+function positionSplits(players, sc) {
+  const tot = { def: {}, off: {} }, gameWeeks = { def: {}, off: {} };
+  const keys = ["pass_yds", "pass_td", "rush_yds", "int", "sk", "car", "rush_td", "tgt", "rec", "rec_yds", "rec_td"];
+  for (const p of players) {
+    if (!POS_PLURAL[p.pos]) continue;
+    for (const e of p.log) {
+      for (const [side, team] of [["def", e.opp], ["off", e.team]]) {
+        const t = ((tot[side][team] ||= {})[p.pos] ||= { fpts: 0 });
+        for (const k of keys) t[k] = (t[k] || 0) + (e[k] || 0);
+        t.fpts += scoreGame(e, p.pos, sc);
+        (gameWeeks[side][team] ||= new Set()).add(e.week);
+      }
+    }
+  }
+  const out = { def: {}, off: {} };
+  for (const side of ["def", "off"]) {
+    for (const [team, byPos] of Object.entries(tot[side])) {
+      const g = gameWeeks[side][team].size;
+      out[side][team] = { games: g };
+      for (const [pos, t] of Object.entries(byPos)) {
+        out[side][team][pos] = {};
+        for (const [k, , o] of SPLIT_STATS[pos]) {
+          const v = k === "ypc" ? (t.car ? t.rush_yds / t.car : null) : k === "ypr" ? (t.rec ? t.rec_yds / t.rec : null) : t[k] / g;
+          out[side][team][pos][k] = { v: v === null ? null : Math.round(v * 10) / 10 };
+        }
+      }
+    }
+    // Rank every stat across teams (1 = highest); ties share the better rank.
+    for (const pos of Object.keys(SPLIT_STATS)) {
+      for (const [k] of SPLIT_STATS[pos]) {
+        const vals = Object.values(out[side]).map(t => t[pos]?.[k]?.v).filter(v => v !== null && v !== undefined);
+        for (const t of Object.values(out[side])) {
+          const c = t[pos]?.[k];
+          if (c && c.v !== null) { c.rank = vals.filter(x => x > c.v).length + 1; c.of = vals.length; }
+        }
+      }
+    }
+  }
+  return out;
+}
+
+const SPLIT_NAMES = {
+  fpts: "fantasy points", pass_yds: "passing yards", pass_td: "passing TDs", rush_yds: "rushing yards", int: "INTs", sk: "sacks",
+  car: "carries", ypc: "yards per carry", rush_td: "rushing TDs", tgt: "targets", rec: "catches", rec_yds: "receiving yards",
+  ypr: "yards per catch", rec_td: "receiving TDs",
+};
+
+// For a defense: is this stat a soft spot (good for the offense) or a tough one? Flips for INTs and sacks.
+function splitMatchup(pos, key, rank, of = 32) {
+  const bad = SPLIT_STATS[pos].find(s => s[0] === key)?.[2]?.bad;
+  const r = bad ? of + 1 - rank : rank;  // r = 1 means the best matchup for the offense
+  return matchupClass(Math.round(r / of * 32));
+}
+
+// "Gives up the 2nd-most catches to RBs (6.8/g)" / "Forces the 3rd-most INTs from QBs (1.4/g)".
+function splitPhrase(pos, key, cell) {
+  const [, label, o = {}] = SPLIT_STATS[pos].find(st => st[0] === key);
+  const most = cell.rank <= cell.of / 2, k = most ? cell.rank : cell.of + 1 - cell.rank;
+  const word = o.rate ? (most ? "highest" : "lowest") : (most ? "most" : "fewest");
+  const what = SPLIT_NAMES[key] || label.toLowerCase();
+  const verb = key === "int" ? "Forces" : key === "sk" ? "Gets" : "Gives up";
+  const prep = key === "int" ? "from" : key === "sk" ? "against" : "to";
+  return `${verb} the ${k === 1 ? "" : `${ordinal(k)}-`}${word} ${what} ${prep} ${POS_PLURAL[pos]} <span class="muted">(${fmt(cell.v)}${o.rate ? "" : "/g"})</span>`;
+}
