@@ -254,7 +254,14 @@
 
             ${hasBox ? postGame() : `<div class="wide">
               ${final ? `<div class="notice soft">Final score is in. The box score shows up here once nflverse publishes this game's stats, usually within a few hours.</div>` : ""}
-              <div class="section-head"><h2>Matchup edges</h2><div class="edge-scoring"></div></div>
+              ${!final ? (() => {
+                const splits = positionSplits(players, sc), ctx = { players, teams, sc, meta };
+                const side = (o, d) => `<section class="card"><h3>${esc(teamName(o, teams, false))} offense vs ${esc(teamName(d, teams, false))} defense</h3>${attackPlan(o, d, splits, ctx)}</section>`;
+                return `<div class="section-head"><h2>Where each offense can attack</h2></div>
+                  <p class="muted small">Each defense's soft spots (bottom 5 in the league per game, by position and stat) and tough spots (top 5), this season so far. Early in the season these move a lot from week to week.</p>
+                  <div class="two-col">${side(g.away, g.home)}${side(g.home, g.away)}</div>`;
+              })() : ""}
+              <div class="section-head" style="margin-top:22px"><h2>Matchup edges</h2><div class="edge-scoring"></div></div>
               <p class="muted small">Defense ranks: 1st = allows the most fantasy points to that position (best matchup), 32nd = allows the fewest. Season to date.
                 ${projector.hasSleeper ? `Players are picked by Sleeper's Week ${g.week} projection.` : "Players are picked by fantasy points per game."}</p>
               <div class="two-col">${edges(g.away, g.home, dvp)}${edges(g.home, g.away, dvp)}</div>

@@ -134,45 +134,15 @@
         }).join("")}</div>`;
       }
 
-      // Where an offense can attack a defense: the defense's soft and tough spots, strongest first.
-      function attackPlan(offTeam, defTeam, splits, rosterOf) {
-        const d = splits.def[defTeam];
-        if (!d) return `<p class="muted">Not enough games yet.</p>`;
-        const spots = [];
-        for (const pos of POSITIONS) {
-          for (const [k] of SPLIT_STATS[pos]) {
-            const c = d[pos]?.[k];
-            if (!c || c.v === null) continue;
-            const bad = SPLIT_STATS[pos].find(x => x[0] === k)[2]?.bad;
-            const r = bad ? c.of + 1 - c.rank : c.rank;  // 1 = best for the offense
-            spots.push({ pos, k, c, r });
-          }
-        }
-        const soft = spots.filter(x => x.r <= 5).sort((a, b) => a.r - b.r).slice(0, 6);
-        const tough = spots.filter(x => x.r >= 28).sort((a, b) => b.r - a.r).slice(0, 4);
-        const helped = [...new Set(soft.map(x => x.pos))].flatMap(pos => rosterOf(offTeam, pos));
-        const li = x => `<li>${posBadge(x.pos)} ${splitPhrase(x.pos, x.k, x.c)}</li>`;
-        return `
-          <h4 class="plan-head ok">Soft spots in the ${esc(teamName(defTeam, teams, false))} defense</h4>
-          ${soft.length ? `<ul class="plan">${soft.map(li).join("")}</ul>` : `<p class="muted small">No clear weak spots (nothing in the bottom 5).</p>`}
-          <h4 class="plan-head bad">Tough spots</h4>
-          ${tough.length ? `<ul class="plan">${tough.map(li).join("")}</ul>` : `<p class="muted small">Nothing in the top 5.</p>`}
-          ${helped.length ? `<h4 class="plan-head">Who it helps</h4><div class="helped">${helped.map(p => `<a class="helped-chip" href="${playerUrl(p)}">${posBadge(p.pos)} ${esc(p.short)}</a>`).join("")}</div>` : ""}`;
-      }
-
       function render() {
         const splits = positionSplits(players, sc);
-        // A team's top players at a position (by points per game), for "who it helps".
-        const DEPTH = { QB: 1, RB: 2, WR: 3, TE: 1 };
-        const rosterOf = (t, pos) => rankList(players.filter(p => p.team === t && p.pos === pos), sc, meta)
-          .filter(r => r.s.g >= 1).slice(0, DEPTH[pos]).map(r => r.p);
 
-        // This week's game: lines, and where each offense can attack the other defense.
+        // Next game: opponent, kickoff and lines; the full preview lives on the matchup page.
         function preview() {
           if (!next) return "";
           const tg = teamGame(next, team), opp = tg.opp, otg = teamGame(next, opp), wr = weekLineRanks(games, next.week);
           return `<section class="card preview-card" style="margin-top:14px">
-            <div class="card-head"><h3>Week ${next.week} preview</h3><a class="small-link" href="${gameUrl(next)}">Game breakdown →</a></div>
+            <div class="card-head"><h3>Next game · Week ${next.week}</h3></div>
             <div class="pv-matchup">
               <span class="pv-team">${teamMark(team, teams, "md")}<strong>${esc(teamName(team, teams, false))}</strong></span>
               <span class="pv-at">${tg.isHome ? "vs" : "@"}</span>
@@ -185,11 +155,7 @@
               <div class="tile"><strong>${fmt(tg.implied)}${wr.implied(tg.implied)}</strong><span>${esc(team)} implied</span></div>
               <div class="tile"><strong>${fmt(otg.implied)}${wr.implied(otg.implied)}</strong><span>${esc(opp)} implied</span></div>
             </div>
-            <div class="two-col pv-plans">
-              <div><h3 class="pv-side">${esc(teamName(team, teams, false))} offense vs ${esc(teamName(opp, teams, false))} defense</h3>${attackPlan(team, opp, splits, rosterOf)}</div>
-              <div><h3 class="pv-side">${esc(teamName(opp, teams, false))} offense vs ${esc(teamName(team, teams, false))} defense</h3>${attackPlan(opp, team, splits, rosterOf)}</div>
-            </div>
-            <p class="muted small">Ranks are per game across all 32 teams, this season so far. Soft spot = bottom 5 (gives up among the most), tough = top 5. Early in the season these move a lot from week to week.</p>
+            <a class="btn pv-cta" href="${gameUrl(next)}">Full matchup preview →</a>
           </section>`;
         }
         main.innerHTML = `

@@ -830,3 +830,4 @@ a.pv-team:hover strong { text-decoration: underline; }
 .pb-table th:nth-child(2), .pb-table td:nth-child(2) { left: 38px; }
 .pb-table { font-size: 14px; }
 .pb-table th { font-size: 11px; letter-spacing: .2px; }
+.pv-cta { display: block; text-align: center; margin-top: 12px; }
