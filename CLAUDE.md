@@ -22,7 +22,7 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   - Over/unders and implied team totals rank within their week and show "of N", e.g. `39.5 (12th of 14)` (`weekLineRanks`).
 - **Matchup page (`game.html`)**, top to bottom: score, lines (and results once final), venue, notes, each team's
   last games ("going in" once played), then:
-  - before the game: Matchup edges (offense vs defense cards);
+  - before the game: Where each offense can attack (`attackPlan`), then Matchup edges (offense vs defense cards);
   - after the game: Box score only (team stat comparison + passing / rushing / receiving / kicking / fantasy points,
     with a Proj column (Sleeper) or Avg (pre-game points per game) before actual FPTS, green = beat it, red = short).
   - If the score is final but nflverse hasn't published player stats yet, the edges stay up with a note.
@@ -30,7 +30,9 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   opponent (defense allowed) and by team (offense produced) per position, per game, ranked 1-32 (1 = most).
   `SPLIT_STATS` lists the stats; INT and sacks are `bad` (more = worse for the offense), so `splitMatchup()`
   flips their colors. Green always means good for the offense attacking that defense (or a strength, for an offense).
-  Team pages open with a Week N preview: soft spots = a defense's bottom 5, tough = top 5, as sentences (`splitPhrase`).
+  "Where each offense can attack" (`attackPlan` in common.js: soft spots = a defense's bottom 5, tough = top 5, as
+  sentences via `splitPhrase`, plus who it helps) lives on the matchup page before kickoff. Team pages only show a
+  compact Next game card (lines + link to the matchup); Josh wanted the preview on the matchup, not the team page.
   Below it: Defense by position, an Offense box (team stats from `data/teamstats.json`, ranked; pass rate /
   attempts / carries are uncolored style stats, turnovers and sacks taken are flipped), then a season box score
   (this team's games only; FPTS/G next to the name; name column sticky on phones), then the schedule.

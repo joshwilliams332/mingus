@@ -593,3 +593,30 @@ function splitPhrase(pos, key, cell) {
   const prep = key === "int" ? "from" : key === "sk" ? "against" : "to";
   return `${verb} the ${k === 1 ? "" : `${ordinal(k)}-`}${word} ${what} ${prep} ${POS_PLURAL[pos]} <span class="muted">(${fmt(cell.v)}${o.rate ? "" : "/g"})</span>`;
 }
+
+// Where an offense can attack a defense: the defense's soft spots (bottom 5 per game, i.e. gives up among the most)
+// and tough spots (top 5), as sentences, plus the offense's top players at the soft positions.
+const PLAN_DEPTH = { QB: 1, RB: 2, WR: 3, TE: 1 };
+function attackPlan(offTeam, defTeam, splits, { players, teams, sc, meta }) {
+  const d = splits.def[defTeam];
+  if (!d) return `<p class="muted">Not enough games yet.</p>`;
+  const spots = [];
+  for (const pos of Object.keys(SPLIT_STATS)) {
+    for (const [k, , o = {}] of SPLIT_STATS[pos]) {
+      const c = d[pos]?.[k];
+      if (!c || c.v === null) continue;
+      spots.push({ pos, k, c, r: o.bad ? c.of + 1 - c.rank : c.rank });  // r = 1 is best for the offense
+    }
+  }
+  const soft = spots.filter(x => x.r <= 5).sort((a, b) => a.r - b.r).slice(0, 6);
+  const tough = spots.filter(x => x.r >= 28).sort((a, b) => b.r - a.r).slice(0, 4);
+  const helped = [...new Set(soft.map(x => x.pos))].flatMap(pos =>
+    rankList(players.filter(p => p.team === offTeam && p.pos === pos), sc, meta).filter(r => r.s.g >= 1).slice(0, PLAN_DEPTH[pos]).map(r => r.p));
+  const li = x => `<li>${posBadge(x.pos)} ${splitPhrase(x.pos, x.k, x.c)}</li>`;
+  return `
+    <h4 class="plan-head ok">Soft spots in the ${esc(teamName(defTeam, teams, false))} defense</h4>
+    ${soft.length ? `<ul class="plan">${soft.map(li).join("")}</ul>` : `<p class="muted small">No clear weak spots (nothing in the bottom 5).</p>`}
+    <h4 class="plan-head bad">Tough spots</h4>
+    ${tough.length ? `<ul class="plan">${tough.map(li).join("")}</ul>` : `<p class="muted small">Nothing in the top 5.</p>`}
+    ${helped.length ? `<h4 class="plan-head">Who it helps</h4><div class="helped">${helped.map(p => `<a class="helped-chip" href="${playerUrl(p)}">${posBadge(p.pos)} ${esc(p.short)}</a>`).join("")}</div>` : ""}`;
+}
