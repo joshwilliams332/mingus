@@ -43,6 +43,10 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   Players whose game is final this week show actual points and are excluded from the verdict.
 - **Charts (`analytics.html`)**: a one- or two-week window is a noisy sample. Weak verdicts are worded about that
   window ("In Week 6 alone...") and the full-season r is shown alongside, so a stat isn't written off from one week.
+- **Next Gen Stats** on player pages (`ngsCard` in player.html, `build_ngs` in build_data.py; nflverse `ngs_*.csv.gz`,
+  week 0 = season totals): QB passing+rushing, RB rushing+receiving, WR/TE receiving. Ranked among same-position players
+  who qualify (NGS has play minimums); stats with a clear good direction are colored, style stats (aggressiveness,
+  time to throw, depth, cushion, stacked boxes) get grey chips. Non-qualifiers get a one-line note.
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
 - Phones: player names wrap instead of overlapping tags; grid children have `min-width: 0` so wide tables scroll
   inside their card; team schedule hides O/U, Total and Pts vs implied on small screens.
