@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Start/Sit · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    const MAX = 4;
+    const SKILL = ["QB", "RB", "WR", "TE", "K", "DST"];
+
+    Mingus.start(async (main, meta) => {
+      const [players, games, teams] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.load("teams")]);
+      const week = meta.next_week ?? meta.last_week;
+      const byId = Object.fromEntries(players.map(p => [p.id, p]));
+      let sc = Scoring.get();
+      const fromUrl = (new URLSearchParams(location.search).get("p") || "").split(",").filter(id => byId[id]).slice(0, MAX);
+      const state = { ids: fromUrl, example: false, q: "" };
+
+      // Every number on this page for one player this week.
+      function evaluate(p, ctx) {
+        const s = summarize(p, sc), game = weekGame(games, p.team, week), last5 = s.pts.slice(-5);
+        const recent = p.log.slice(-3);
+        const avgOf = k => (recent.some(e => e[k] !== undefined) ? recent.reduce((a, e) => a + (e[k] || 0), 0) / recent.length : null);
+        const out = {
+          p, s, game, inj: p.injury,
+          out: !game || p.injury?.status === "Out",
+          floor: last5.length ? Math.min(...last5) : null, ceiling: last5.length ? Math.max(...last5) : null,
+          snap: ["DST", "K"].includes(p.pos) ? null : avgOf("snap_pct"),
+          share: ["WR", "TE"].includes(p.pos) ? avgOf("tgt_sh") : p.pos === "RB" ? avgOf("opp_sh") : null,
+          implied: game?.implied ?? null, oppImplied: game ? teamGame(game, game.opp).implied : null,
+          matchup: game && p.pos !== "DST" ? ctx.dvp[game.opp]?.[p.pos] : null,
+        };
+        // Projection: Sleeper's when we have it; otherwise our estimate from recent scoring, the defense and the Vegas total.
+        const sleeper = ctx.projector.get(p, week);
+        // Already played this week (e.g. Thursday night): there's nothing to decide, so show what he scored.
+        const played = game && game.home_score !== null ? p.log.find(e => e.week === week) : null;
+        out.locked = !!(game && game.home_score !== null);
+        if (out.locked) { out.proj = played ? scoreGame(played, p.pos, sc) : 0; out.projSrc = "Final (already played)"; }
+        else if (!game || out.out) { out.proj = 0; out.projSrc = !game ? "Bye" : "Out"; }
+        else if (sleeper !== null) { out.proj = sleeper; out.projSrc = "Sleeper"; }
+        else {
+          const base = s.g ? (s.ppg + s.last3) / 2 : 0;
+          const clamp = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+          const mf = out.matchup ? clamp(out.matchup.ppg / ctx.lgPos[p.pos], 0.8, 1.2) : 1;
+          const vf = p.pos === "DST" ? clamp(ctx.lgImplied / (out.oppImplied || ctx.lgImplied), 0.85, 1.15)
+            : clamp((out.implied || ctx.lgImplied) / ctx.lgImplied, 0.9, 1.1);
+          out.proj = Math.round(base * mf * vf * 10) / 10; out.projSrc = "Mingus est.";
+        }
+        // Plain-English reasons.
+        const why = [];
+        if (!game) why.push(["bad", `On bye in Week ${week}`]);
+        if (p.injury) why.push([p.injury.status === "Out" ? "bad" : "warn", `${p.injury.status}${p.injury.injury ? ` (${p.injury.injury})` : ""}`]);
+        if (out.matchup) {
+          const r = out.matchup.rank;
+          if (r <= 8) why.push(["good", `Soft matchup: ${game.opp} allows the ${ordinal(r)}-most points to ${p.pos}s`]);
+          else if (r >= 25) why.push(["bad", `Tough matchup: ${game.opp} allows the ${ordinal(33 - r)}-fewest points to ${p.pos}s`]);
+        }
+        if (p.pos === "DST" && out.oppImplied !== null) {
+          if (out.oppImplied <= 20) why.push(["good", `${game.opp} is only expected to score ${fmt(out.oppImplied)}`]);
+          else if (out.oppImplied >= 25) why.push(["bad", `${game.opp} is expected to score ${fmt(out.oppImplied)}`]);
+        } else if (out.implied !== null) {
+          if (out.implied >= 26) why.push(["good", `High-scoring spot: ${p.team} implied for ${fmt(out.implied)}`]);
+          else if (out.implied <= 19) why.push(["bad", `Low team total: ${p.team} implied for ${fmt(out.implied)}`]);
+        }
+        if (s.g >= 4 && s.ppg > 0) {
+          const d = (s.last3 - s.ppg) / s.ppg;
+          if (d >= 0.25) why.push(["good", `Trending up: ${fmt(s.last3)} pts/g over his last 3 vs ${fmt(s.ppg)} for the season`]);
+          else if (d <= -0.25) why.push(["bad", `Trending down: ${fmt(s.last3)} pts/g over his last 3 vs ${fmt(s.ppg)} for the season`]);
+        }
+        out.why = why;
+        return out;
+      }
+
+      function context() {
+        const dvp = defenseVsPos(players, games, sc);
+        const lgPos = {};
+        for (const pos of ["QB", "RB", "WR", "TE", "K"]) {
+          const v = Object.values(dvp).map(t => t[pos]?.ppg).filter(x => x != null);
+          lgPos[pos] = v.length ? v.reduce((a, b) => a + b, 0) / v.length : 1;
+        }
+        const imp = games.filter(g => g.week === week).flatMap(g => [g.home_implied, g.away_implied]).filter(x => x != null);
+        return { dvp, lgPos, lgImplied: imp.length ? imp.reduce((a, b) => a + b, 0) / imp.length : 22, projector: makeProjector(players, games, sc, meta) };
+      }
+
+      // First visit: a realistic example (two receivers ranked next to each other), clearly marked.
+      if (!state.ids.length) {
+        const ranked = rankList(players.filter(p => p.pos === "WR" && weekGame(games, p.team, week) && !p.injury), sc, meta);
+        state.ids = ranked.slice(10, 12).map(r => r.p.id);
+        state.example = true;
+      }
+
+      main.innerHTML = `
+        <div class="page-head">
+          <div><h1>Start/Sit</h1><p class="muted sub-head">Week ${week} · compare up to ${MAX} players and see who to start</p></div>
+          <div class="ss-scoring"></div>
+        </div>
+        <section class="card ss-pick">
+          <label class="ss-label" for="ss-find">Add a player</label>
+          <div class="ss-search">
+            <input class="search" id="ss-find" type="search" placeholder="Search players or teams" autocomplete="off">
+            <div class="ss-results" id="ss-results" hidden></div>
+          </div>
+          <div class="ss-chips" id="ss-chips"></div>
+          <p class="muted small" id="ss-example" hidden>Example comparison. Search above to compare your own players.</p>
+        </section>
+        <div id="ss-body"></div>`;
+
+      const $ = id => document.getElementById(id);
+
+      function setIds(ids) {
+        state.ids = ids.slice(0, MAX); state.example = false;
+        history.replaceState(null, "", state.ids.length ? `startsit.html?p=${state.ids.join(",")}` : "startsit.html");
+        draw();
+      }
+
+      function draw() {
+        const ctx = context();
+        const rows = state.ids.map(id => evaluate(byId[id], ctx));
+        $("ss-example").hidden = !state.example;
+        $("ss-chips").innerHTML = rows.map(r => `<span class="ss-chip">${posBadge(r.p.pos)} ${esc(r.p.name)}
+          <button type="button" data-remove="${r.p.id}" aria-label="Remove ${esc(r.p.name)}">×</button></span>`).join("")
+          + (rows.length < MAX ? `<span class="muted small">${rows.length < 2 ? "Add at least 2 players" : `Up to ${MAX - rows.length} more`}</span>` : "");
+        $("ss-chips").querySelectorAll("[data-remove]").forEach(b => b.onclick = () => setIds(state.ids.filter(id => id !== b.dataset.remove)));
+        $("ss-body").innerHTML = rows.length >= 2 ? verdict(rows) + table(rows) + reasons(rows) + method()
+          : `<section class="card"><p class="muted">Add two or more players to compare them.</p></section>`;
+      }
+
+      // Who to start, and how sure: by projected points.
+      function verdict(rows) {
+        const locked = rows.filter(r => r.locked);
+        const lockedNote = locked.length ? `<p class="muted small">${locked.map(r => `${esc(r.p.short)} already played this week (${fmt(r.proj)} pts), so he's left out of the call.`).join(" ")}</p>` : "";
+        rows = rows.filter(r => !r.locked);
+        if (rows.length < 2) return `<section class="card ss-verdict toss"><div><span class="ss-v-label">Nothing to decide yet</span>${lockedNote}<p>Add at least two players who haven't played yet this week.</p></div></section>`;
+        const order = [...rows].sort((a, b) => b.proj - a.proj);
+        const [top, second] = order;
+        const gap = top.proj - second.proj, rel = second.proj > 0 ? gap / second.proj : 1;
+        const [label, cls, sub] = rel >= 0.15 ? ["Start", "clear", "Clear call"] : rel >= 0.05 ? ["Lean", "lean", "Slight edge"] : ["Toss-up", "toss", "Too close to call"];
+        const tie = cls === "toss" ? ` Tiebreaker: <strong>${esc((top.ceiling ?? 0) >= (second.ceiling ?? 0) ? top.p.short : second.p.short)}</strong> has the higher ceiling, <strong>${esc((top.floor ?? 0) >= (second.floor ?? 0) ? top.p.short : second.p.short)}</strong> the safer floor.` : "";
+        return `<section class="card ss-verdict ${cls}">
+          ${headshot(top.p, "md")}
+          <div>
+            <span class="ss-v-label">${label}</span>
+            <h2>${esc(top.p.name)}</h2>
+            <p>${sub}: projected <strong>${fmt(top.proj)}</strong> vs ${fmt(second.proj)} for ${esc(second.p.short)} (${top.projSrc === "Sleeper" ? "Sleeper projection" : "Mingus estimate"}, ${esc(Scoring.label(sc))}).${tie}</p>
+            ${order.length > 2 ? `<p class="muted small">Order: ${order.map((r, i) => `${i + 1}. ${esc(r.p.short)} (${fmt(r.proj)})`).join(" · ")}</p>` : ""}
+            ${lockedNote}
+          </div>
+        </section>`;
+      }
+
+      // Side by side; the best player in each row gets a check.
+      function table(rows) {
+        const cats = [
+          ["Projected pts", r => (r.locked ? null : r.proj), r => `${fmt(r.proj)}<small>${esc(r.projSrc)}</small>`],
+          ["Matchup", r => (r.matchup ? -r.matchup.rank : null), r => (r.matchup ? `<span class="mchip ${matchupClass(r.matchup.rank)}">${ordinal(r.matchup.rank)}</span><small>${esc(r.game.opp)} allows ${fmt(r.matchup.ppg)}/g</small>` : r.p.pos === "DST" && r.oppImplied != null ? `<small>Opp. implied ${fmt(r.oppImplied)}</small>` : "—"), "1st = allows the most points to the position (best matchup)"],
+          ["Team implied total", r => (r.p.pos === "DST" ? (r.oppImplied != null ? -r.oppImplied : null) : r.implied), r => (r.implied == null ? "—" : `${fmt(r.implied)}${r.p.pos === "DST" ? `<small>opp. ${fmt(r.oppImplied)}</small>` : ""}`), "Points Vegas expects his team to score (for a D/ST, lower opponent total is better)"],
+          ["FPTS per game", r => r.s.ppg, r => fmt(r.s.ppg)],
+          ["Last 3 games", r => r.s.last3, r => fmt(r.s.last3)],
+          ["Floor", r => r.floor, r => fmt(r.floor), "His lowest score in his last 5 games"],
+          ["Ceiling", r => r.ceiling, r => fmt(r.ceiling), "His highest score in his last 5 games"],
+          ["Snap %", r => r.snap, r => (r.snap == null ? "—" : `${Math.round(r.snap * 100)}%`), "Share of his team's offensive snaps, last 3 games"],
+          ["Target / opp. share", r => r.share, r => (r.share == null ? "—" : `${Math.round(r.share * 100)}%`), "WR/TE: share of team targets. RB: share of team carries + targets. Last 3 games"],
+        ];
+        const wins = rows.map(() => 0);
+        const body = cats.map(([label, val, show, help]) => {
+          const vals = rows.map(r => val(r));
+          const best = Math.max(...vals.filter(v => v !== null && v !== undefined && !Number.isNaN(v)));
+          const lead = vals.filter(v => v === best).length === 1 ? vals.indexOf(best) : -1;
+          if (lead >= 0) wins[lead]++;
+          return `<tr><th class="l"${help ? ` title="${esc(help)}"` : ""}>${label}${help ? ` <span class="has-help" aria-hidden="true">?</span>` : ""}</th>
+            ${rows.map((r, i) => `<td class="${i === lead ? "ss-win" : ""}">${show(r)}${i === lead ? `<span class="ss-check" aria-label="Best">✓</span>` : ""}</td>`).join("")}</tr>`;
+        }).join("");
+        const head = rows.map((r, i) => `<th class="ss-col">
+          <a href="${playerUrl(r.p)}">${headshot(r.p, "md")}<strong>${esc(r.p.short)}</strong></a>
+          <span>${posBadge(r.p.pos)} ${esc(r.p.team)} ${injuryTag(r.p.injury)}</span>
+          <span class="muted small">${r.game ? `${esc(oppLabel(r.game))} · ${esc(fmtKickoff(r.game).replace(/ ·.*$/, ""))}` : "BYE"}</span>
+          <span class="ss-wins">${wins[i]} of ${cats.length} categories</span></th>`).join("");
+        return `<div class="table-wrap ss-wrap"><table class="data-table ss-table"><thead><tr><th class="l"></th>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+      }
+
+      function reasons(rows) {
+        return `<div class="ss-reasons">${rows.map(r => `<section class="card"><h3>${esc(r.p.short)}</h3>
+          ${r.why.length ? `<ul class="ss-why">${r.why.map(([c, t]) => `<li class="${c}">${esc(t)}</li>`).join("")}</ul>` : `<p class="muted small">Nothing unusual: an average matchup and normal recent form.</p>`}
+          <a class="small-link" href="${playerUrl(r.p)}">Player page →</a>${r.game ? ` · <a class="small-link" href="${gameUrl(r.game)}">Matchup →</a>` : ""}</section>`).join("")}</div>`;
+      }
+
+      function method() {
+        return `<p class="muted small ss-method">How it works: players are ordered by projected points (Sleeper's projection when the data has it; otherwise a Mingus estimate from his season and last-3 averages, adjusted for how many points the defense allows to his position and his team's Vegas total). A gap of 15%+ is a clear call, 5–15% a lean, under 5% a toss-up. Floor and ceiling are his lowest and highest scores in his last 5 games. Check late injury news before kickoff.</p>`;
+      }
+
+      // Search: players at any fantasy position, by name or team.
+      const find = $("ss-find"), results = $("ss-results");
+      find.oninput = () => {
+        const q = find.value.trim().toLowerCase();
+        if (q.length < 2) { results.hidden = true; return; }
+        const hits = rankList(players.filter(p => SKILL.includes(p.pos) && !state.ids.includes(p.id) &&
+          (p.name.toLowerCase().includes(q) || teamMatches(p.team, q, teams))), sc, meta).slice(0, 8);
+        results.innerHTML = hits.length ? hits.map(({ p, s }) => `<button type="button" class="ss-hit" data-add="${p.id}">
+          ${posBadge(p.pos)} <strong>${esc(p.name)}</strong> <span class="muted">${esc(p.team)} · ${fmt(s.ppg)} pts/g</span></button>`).join("")
+          : `<p class="muted small">No players match.</p>`;
+        results.hidden = false;
+        results.querySelectorAll("[data-add]").forEach(b => b.onclick = () => {
+          find.value = ""; results.hidden = true;
+          setIds(state.example ? [b.dataset.add] : [...state.ids, b.dataset.add]);
+        });
+      };
+      document.addEventListener("click", e => { if (!e.target.closest(".ss-search")) results.hidden = true; });
+      main.querySelector(".ss-scoring").innerHTML = scoringControls(sc, n => { sc = n; draw(); });
+      draw();
+    });
+  </script>
+</body>
+</html>

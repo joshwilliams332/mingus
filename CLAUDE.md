@@ -37,6 +37,10 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   attempts / carries are uncolored style stats, turnovers and sacks taken are flipped), then a season box score
   (this team's games only; FPTS/G next to the name; name column sticky on phones), then the schedule.
   Josh found the "offense by position" view hard to read, so team pages don't show it (teams.html still can).
+- **Start/Sit (`startsit.html`)**: 2-4 players via search, `?p=id,id` in the URL. Ordered by projected points
+  (Sleeper, else base = avg of FPTS/G and last 3, × defense-vs-position factor 0.8-1.2, × implied-total factor 0.9-1.1;
+  D/ST uses the opponent's implied total). Gap 15%+ = Start, 5-15% = Lean, <5% = Toss-up (tiebreak by ceiling/floor).
+  Players whose game is final this week show actual points and are excluded from the verdict.
 - **Charts (`analytics.html`)**: a one- or two-week window is a noisy sample. Weak verdicts are worded about that
   window ("In Week 6 alone...") and the full-season r is shown alongside, so a stat isn't written off from one week.
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
