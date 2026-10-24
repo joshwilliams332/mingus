@@ -302,6 +302,41 @@ def short_name(full):
     return f"{parts[0][0]}. {parts[1]}" if len(parts) == 2 else full
 
 
+# NFL Next Gen Stats (season to date, players who meet the NGS minimums): our key -> NGS column.
+NGS_FIELDS = {
+    "passing": {"ttt": "avg_time_to_throw", "aggr": "aggressiveness", "iay": "avg_intended_air_yards",
+                "cay": "avg_completed_air_yards", "cpoe": "completion_percentage_above_expectation",
+                "xcmp": "expected_completion_percentage", "sticks": "avg_air_yards_to_sticks"},
+    "receiving": {"sep": "avg_separation", "cush": "avg_cushion", "iay": "avg_intended_air_yards",
+                  "ays": "percent_share_of_intended_air_yards", "yacoe": "avg_yac_above_expectation",
+                  "catch": "catch_percentage"},
+    "rushing": {"ryoe": "rush_yards_over_expected_per_att", "ryoe_tot": "rush_yards_over_expected",
+                "roe_pct": "rush_pct_over_expected", "eff": "efficiency", "box8": "percent_attempts_gte_eight_defenders",
+                "ttl": "avg_time_to_los"},
+}
+
+
+def build_ngs(season):
+    """{player_id: {"passing": {...}, "receiving": {...}, "rushing": {...}}} from NFL Next Gen Stats (week 0 = season)."""
+    out = defaultdict(dict)
+    for kind, fields in NGS_FIELDS.items():
+        try:
+            url = f"{BASE}/nextgen_stats/ngs_{kind}.csv.gz"
+            print(f"  downloading {url}")
+            req = urllib.request.Request(url, headers={"User-Agent": "mingus-build"})
+            with urllib.request.urlopen(req, timeout=180) as resp:
+                rows = csv.DictReader(io.TextIOWrapper(gzip.GzipFile(fileobj=io.BytesIO(resp.read())), encoding="utf-8"))
+                for r in rows:
+                    if r["season"] != str(season) or r["season_type"] != "REG" or r["week"] != "0":
+                        continue
+                    vals = {ours: round(v, 2) for ours, col in fields.items() if (v := num(r.get(col))) is not None}
+                    if vals:
+                        out[r["player_gsis_id"]][kind] = vals
+        except Exception as e:
+            print(f"  WARNING: couldn't load Next Gen Stats {kind} ({e}); continuing without them")
+    return out
+
+
 def build_usage(season, roster):
     """Per player and week: offensive snaps (snap counts file) and red-zone looks (play-by-play).
 
@@ -464,9 +499,13 @@ def main():
     roster = build_roster(season)
     injuries, injury_week = build_injuries(season)
     usage = build_usage(season, roster)
+    ngs = build_ngs(season)
     team_rows = fetch_csv(f"stats_team/stats_team_week_{season}.csv")
     players = build_players(season, games, roster, injuries, today, usage) + build_defenses(season, games, team_rows)
     team_offense = build_team_offense(team_rows)
+    for p in players:
+        if p["id"] in ngs:
+            p["ngs"] = ngs[p["id"]]
 
     played = [g["week"] for g in games if g["type"] == "REG" and g["home_score"] is not None]
     upcoming = [g["week"] for g in games if g["home_score"] is None]

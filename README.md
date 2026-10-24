@@ -5,6 +5,7 @@ Fantasy football rankings, NFL stats and Vegas lines, built from [nflverse](http
 ## Pages
 - **Home** (`index.html`): Game of the Week banner, injury report, your articles, this week's games, a Top 5 by position and the week's best matchups.
 - **Player Database** (`players.html?pos=…`): full season stat lines (passing, rushing, receiving, kicking, defense) plus total and per-game fantasy points, filterable by position and team.
+- **Player page** (`player.html?id=…`): this week (projection, opponent, lines), season stats ranked within the position, NFL Next Gen Stats (QB passing, RB rushing, WR/TE receiving; ranked among qualifying players), bio, fantasy points by week and the game log.
 - **Start/Sit** (`startsit.html?p=<id>,<id>`): compare 2-4 players for this week. A verdict at the top (Start / Lean / Toss-up by projected points: Sleeper's projection, or a Mingus estimate from recent scoring, the defense vs the position and the Vegas team total), then a side-by-side table with a check on the best player in each category (projection, matchup, implied total, FPTS/G, last 3, floor, ceiling, snap %, target/opportunity share) and plain-English reasons. Players whose game is already final show their score and are left out of the call. Player pages link to it.
 - **Weekly Rankings** (`rankings.html?pos=QB|RB|WR|TE|FLX|K|DST`): fantasy-only view: this week's opponent, the opponent's rank against the position, Sleeper projection, fantasy points per game, season total and last-3 average.
 - **NFL Games** (`games.html?week=N`): any week's slate with lines, scores, covers and over/unders. Every game card opens its matchup page.
@@ -44,6 +45,7 @@ Players are ranked by points per game; anyone who has played fewer than half the
 | `stats_team/stats_team_week_<season>.csv` | weekly team defense stats for D/ST, and team offense (`teamstats.json`) for team pages |
 | `snap_counts/snap_counts_<season>.csv` | offensive snap share per game (Usage Trends, player game logs) |
 | `pbp/play_by_play_<season>.csv.gz` | red-zone targets and carries (Usage Trends) |
+| `nextgen_stats/ngs_{passing,receiving,rushing}.csv.gz` | NFL Next Gen Stats season numbers (player pages) |
 | `rosters/roster_<season>.csv` | team, number, bio |
 | `injuries/injuries_<season>.csv` | injury tags (game status, or practice status midweek) |
 | `schedules/games.csv` | schedule, scores, spreads, totals, moneylines, roof and surface |
