@@ -831,3 +831,47 @@ a.pv-team:hover strong { text-decoration: underline; }
 .pb-table { font-size: 14px; }
 .pb-table th { font-size: 11px; letter-spacing: .2px; }
 .pv-cta { display: block; text-align: center; margin-top: 12px; }
+
+/* ---------- Start/Sit ---------- */
+.ss-pick { display: flex; flex-direction: column; gap: 8px; }
+.ss-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+.ss-search { position: relative; }
+.ss-search .search { width: 100%; }
+.ss-results { position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 5; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 8px 24px rgb(0 0 0 / .14); padding: 4px; }
+.ss-hit { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; border: 0; background: none; color: var(--text); font: inherit; padding: 9px 10px; border-radius: 8px; cursor: pointer; }
+.ss-hit:hover, .ss-hit:focus-visible { background: var(--surface-2); }
+.ss-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.ss-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; border: 1px solid var(--border); border-radius: 999px; font-weight: 600; font-size: 14px; }
+.ss-chip button { border: 0; background: var(--surface-2); color: var(--muted); width: 22px; height: 22px; border-radius: 50%; cursor: pointer; font-size: 15px; line-height: 1; }
+.ss-chip button:hover { color: var(--down); }
+.ss-verdict { display: flex; gap: 16px; align-items: center; margin-top: 14px; border-left: 6px solid var(--vc); }
+.ss-verdict.clear { --vc: var(--up); } .ss-verdict.lean { --vc: #7cc46a; } .ss-verdict.toss { --vc: var(--q); }
+.ss-verdict h2 { margin: 0 0 4px; font-size: 26px; }
+.ss-verdict p { margin: 0 0 4px; }
+.ss-v-label { font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: .6px; color: var(--vc); }
+.ss-wrap { margin-top: 14px; }
+.ss-table th.l { white-space: nowrap; font-size: 12px; position: sticky; left: 0; z-index: 1; background: var(--surface-2); }
+.ss-table tbody th.l { background: var(--surface); color: var(--text); text-transform: none; letter-spacing: 0; font-size: 14px; font-weight: 600; }
+.ss-table td { text-align: center; position: relative; min-width: 120px; }
+.ss-table td small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
+.ss-table td.ss-win { background: color-mix(in srgb, var(--up) 10%, transparent); font-weight: 800; }
+.ss-check { position: absolute; top: 4px; right: 6px; color: var(--up); font-size: 12px; font-weight: 900; }
+.ss-table th.ss-col { text-align: center; text-transform: none; letter-spacing: 0; vertical-align: top; padding: 10px 8px; }
+.ss-col a { display: flex; flex-direction: column; align-items: center; gap: 4px; text-decoration: none; color: var(--text); font-size: 15px; }
+.ss-col > span { display: block; margin-top: 3px; font-weight: 600; }
+.ss-wins { font-size: 11px; color: var(--up); font-weight: 800; }
+.ss-reasons { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 14px; }
+.ss-why { margin: 0 0 8px; padding: 0; list-style: none; }
+.ss-why li { padding: 5px 0 5px 18px; position: relative; font-size: 14px; border-top: 1px solid var(--border); }
+.ss-why li:first-child { border-top: 0; }
+.ss-why li::before { content: ""; position: absolute; left: 2px; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.ss-why li.good::before { background: var(--up); } .ss-why li.bad::before { background: var(--down); } .ss-why li.warn::before { background: var(--q); }
+.ss-method { margin-top: 14px; max-width: 75ch; }
+@media (max-width: 600px) {
+  .ss-verdict { align-items: flex-start; }
+  .ss-verdict h2 { font-size: 21px; }
+  .ss-table td { min-width: 0; padding-left: 4px; padding-right: 4px; font-size: 14px; }
+  .ss-table tbody th.l { font-size: 12px; white-space: normal; width: 84px; min-width: 84px; padding-left: 6px; padding-right: 4px; }
+  .ss-table th.ss-col { min-width: 118px; padding: 8px 4px; }
+  .ss-check { right: 3px; }
+}

@@ -54,6 +54,7 @@ const Mingus = {
                 ${RANK_TABS.map(t => `<a href="rankings.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
               </div>
             </div>
+            <a href="startsit.html" ${here === "startsit.html" ? 'aria-current="page"' : ""}><span class="nl">Start/Sit</span><span class="ns">Start/Sit</span></a>
             <a href="games.html" ${["games.html", "game.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Schedule</span><span class="ns">Schedule</span></a>
             <a href="teams.html" ${["teams.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Teams</span><span class="ns">Teams</span></a>
             <a href="trends.html" ${here === "trends.html" ? 'aria-current="page"' : ""}><span class="nl">Trends</span><span class="ns">Trends</span></a>

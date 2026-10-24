@@ -120,7 +120,7 @@
               <div class="wk-game">
                 <span class="wk-label">Week ${week}</span>
                 <a class="wk-opp" href="${gameUrl(next)}">${next.isHome ? "vs" : "@"} ${teamMark(next.opp, teams, "sm")} ${esc(teamName(next.opp, teams, false))}</a>
-                <span class="muted small">${res ? `Final · ${res}` : esc(fmtKickoff(next))} · <a class="small-link" href="${gameUrl(next)}">Game breakdown →</a></span>
+                <span class="muted small">${res ? `Final · ${res}` : esc(fmtKickoff(next))} · <a class="small-link" href="${gameUrl(next)}">Game breakdown →</a> · <a class="small-link" href="startsit.html?p=${encodeURIComponent(p.id)}">Compare in Start/Sit →</a></span>
               </div>
               <div class="wk-pts">
                 <div><span>Proj</span><strong>${projNow === null ? "—" : fmt(projNow)}</strong></div>
