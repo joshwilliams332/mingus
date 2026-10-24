@@ -49,7 +49,7 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   add the same `.gitignore` lines to `main` before merging).
 - Player props: possible via The Odds API (free key, ~1 props pull/week on the free tier). Waiting on Josh to decide /
   get an API key, which would go in a GitHub Actions secret.
-- Offered but not done: extra deploy runs right after game windows (Sun ~5:30 pm, ~8:30 pm, Mon/Tue/Fri ~1:30 am ET)
-  so stats land sooner than the daily evening run.
+- Deploy schedule: daily 23:17 UTC plus post-game runs (Sun 22:47, Mon 01:47, Mon/Tue/Fri 05:47 UTC). GitHub often
+  starts scheduled runs an hour or two late; "Run workflow" in Actions updates immediately.
 - Josh's laptop copy (`C:\Users\joshw\OneDrive\Desktop\mingus`) was last on `analytics-chart-builder` with
   regenerated data files; to catch up: `git restore site/data`, `git switch main`, `git pull`.

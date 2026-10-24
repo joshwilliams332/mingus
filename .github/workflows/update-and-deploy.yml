@@ -3,6 +3,13 @@ name: Update data and deploy
 on:
   schedule:
     - cron: "17 23 * * *"   # Daily 23:17 UTC (evening in the US), after the day's injury and practice reports
+    # Extra runs after each game window so finals and stats land the same night (times in UTC; GitHub
+    # often starts scheduled runs late, and nflverse publishes stats a little after the games end).
+    - cron: "47 22 * * 0"   # Sun 22:47 UTC: after the 1:00 PM ET games
+    - cron: "47 1 * * 1"    # Mon 01:47 UTC (Sun evening ET): after the 4:05/4:25 PM ET games
+    - cron: "47 5 * * 1"    # Mon 05:47 UTC (Sun night ET): after Sunday Night Football
+    - cron: "47 5 * * 2"    # Tue 05:47 UTC (Mon night ET): after Monday Night Football
+    - cron: "47 5 * * 5"    # Fri 05:47 UTC (Thu night ET): after Thursday Night Football
   workflow_dispatch:        # "Run workflow" button in the Actions tab
   push:
     branches: [main]
