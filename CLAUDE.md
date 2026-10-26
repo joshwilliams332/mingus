@@ -50,6 +50,9 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   Definitions (`NGS`, `NGS_ORDER`, `NGS_POS`, `ngsRank`, `ngsShow`, `ngsUrl`) live in common.js. Leaderboards are on
   `ngs.html` (Analytics is a dropdown: Chart builder / Next Gen Stats); each stat label and rank chip on a player page
   links to its leaderboard with `hl=` highlighting that player.
+  Raw separation is inflated by short targets (Deebo on screens topped it), so `ngsDerive` adds "Separation vs. depth"
+  (separation minus a league-wide straight-line fit on target depth). Leaderboard shows volume per game (att / tgt / car)
+  and a "Regulars" filter (`NGS_VOL`); on phones it is a one-stat ranked list with a Rank by dropdown instead of the wide table.
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
 - Phones: player names wrap instead of overlapping tags; grid children have `min-width: 0` so wide tables scroll
   inside their card; team schedule hides O/U, Total and Pts vs implied on small screens.

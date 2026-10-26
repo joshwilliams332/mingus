@@ -142,6 +142,7 @@
 
         // Next Gen Stats, ranked among players at his position who qualify (NGS has play minimums).
         function ngsCard() {
+          ngsDerive(players);
           const kinds = (NGS_ORDER[p.pos] || []).filter(k => p.ngs?.[k]);
           if (!NGS_ORDER[p.pos]) return "";
           if (!kinds.length) return `<section class="card wide"><h3>Next Gen Stats</h3><p class="muted small">He hasn't had enough plays this season to qualify for NFL Next Gen Stats yet.</p></section>`;

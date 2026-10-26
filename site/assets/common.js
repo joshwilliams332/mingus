@@ -461,7 +461,8 @@ const NGS = {
     ["sticks", "Air yards to the sticks", " yds", null, "How far past (+) or short (−) of the first-down marker he throws on average"],
   ]],
   receiving: ["Receiving", [
-    ["sep", "Separation", " yds", "high", "Distance from the nearest defender when the ball arrives"],
+    ["sep", "Separation", " yds", "high", "Distance from the nearest defender when the ball arrives. Short targets (screens, flats) are naturally more open"],
+    ["sep_oe", "Separation vs. depth", " yds", "high", "How much more open he is than receivers targeted at the same depth (separation with the short-target boost taken out)"],
     ["yacoe", "YAC over expected", " yds", "high", "Yards after the catch beyond what's expected, per catch"],
     ["ays", "Share of team air yards", "%", "high", "His share of all the air yards his team throws at"],
     ["catch", "Catch rate", "%", "high", "Catches per target"],
@@ -478,6 +479,22 @@ const NGS = {
   ]],
 };
 const NGS_ORDER = { QB: ["passing", "rushing"], RB: ["rushing", "receiving"], WR: ["receiving"], TE: ["receiving"] };
+// Separation depends a lot on depth (a screen is open by design), so add separation compared with what's typical
+// for a target that deep: a straight-line fit of separation on target depth across every qualifying pass catcher.
+function ngsDerive(players) {
+  const rec = players.map(p => p.ngs?.receiving).filter(r => r && r.sep !== undefined && r.iay !== undefined);
+  if (rec.length < 10 || rec[0].sep_oe !== undefined) return;
+  const mx = rec.reduce((s, r) => s + r.iay, 0) / rec.length, my = rec.reduce((s, r) => s + r.sep, 0) / rec.length;
+  const slope = rec.reduce((s, r) => s + (r.iay - mx) * (r.sep - my), 0) / rec.reduce((s, r) => s + (r.iay - mx) ** 2, 0);
+  for (const r of rec) r.sep_oe = Math.round((r.sep - (my + slope * (r.iay - mx))) * 100) / 100;
+}
+// The volume behind each kind (per game, from the game log), and what counts as a "regular" for the leaderboard filter.
+const NGS_VOL = { passing: ["att", "att/g", 20], receiving: ["tgt", "tgt/g", { WR: 5, TE: 4, RB: 2 }], rushing: ["car", "car/g", { RB: 10, QB: 3 }] };
+function ngsVolume(p, kind) {
+  const games = p.log.length;
+  return games ? p.log.reduce((s, g) => s + (g[NGS_VOL[kind][0]] || 0), 0) / games : 0;
+}
+function ngsRegularMin(kind, pos) { const m = NGS_VOL[kind][2]; return typeof m === "number" ? m : m[pos]; }
 // Which positions each NGS kind is listed for on the leaderboard (the first is the default).
 const NGS_POS = { passing: ["QB"], receiving: ["WR", "TE", "RB"], rushing: ["RB", "QB"] };
 // Rank v among vals (1 = best; for style stats 1 = most). Ties share a rank.
@@ -486,7 +503,7 @@ function ngsRank(vals, v, better) { return vals.filter(x => (better === "low" ? 
 function ngsShow(k, v) {
   if (v === null || v === undefined) return "—";
   const n = (k === "roe_pct" ? Math.round(v * 100) : k === "ryoe_tot" ? Math.round(v) : Math.round(v * 10) / 10) || 0;
-  return `${n > 0 && ["sticks", "ryoe", "ryoe_tot", "yacoe", "cpoe"].includes(k) ? "+" : ""}${fmt(n)}`;
+  return `${n > 0 && ["sticks", "ryoe", "ryoe_tot", "yacoe", "cpoe", "sep_oe"].includes(k) ? "+" : ""}${fmt(n)}`;
 }
 function ngsUrl(kind, key, pos, hl) {
   return `ngs.html?stat=${kind}.${key}${pos ? `&pos=${pos}` : ""}${hl ? `&hl=${encodeURIComponent(hl)}` : ""}`;
