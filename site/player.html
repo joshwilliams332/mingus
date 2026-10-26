@@ -54,35 +54,6 @@
     WEEK_LINE.TE = WEEK_LINE.WR;
     const statOf = (e, k) => (k === "fgm" ? (e.fg_0_39 || 0) + (e.fg_40_49 || 0) + (e.fg_50 || 0) : e[k] || 0);
 
-    // NFL Next Gen Stats: [key, label, unit, better ("high" / "low" / null = style, not good or bad), what it means].
-    const NGS = {
-      passing: ["Passing", [
-        ["cpoe", "Completion % over expected", "%", "high", "How much more often he completes passes than expected, given how hard each throw was"],
-        ["xcmp", "Expected completion %", "%", null, "How completable his throws are on average; lower means harder throws"],
-        ["aggr", "Aggressiveness", "%", null, "Share of throws into tight windows (a defender within a yard)"],
-        ["ttt", "Time to throw", "s", null, "Average time from the snap to the throw"],
-        ["iay", "Intended air yards", " yds", null, "How far downfield his throws travel on average"],
-        ["cay", "Completed air yards", " yds", "high", "How far downfield his completions travel on average"],
-        ["sticks", "Air yards to the sticks", " yds", null, "How far past (+) or short (−) of the first-down marker he throws on average"],
-      ]],
-      receiving: ["Receiving", [
-        ["sep", "Separation", " yds", "high", "Distance from the nearest defender when the ball arrives"],
-        ["yacoe", "YAC over expected", " yds", "high", "Yards after the catch beyond what's expected, per catch"],
-        ["ays", "Share of team air yards", "%", "high", "His share of all the air yards his team throws at"],
-        ["catch", "Catch rate", "%", "high", "Catches per target"],
-        ["iay", "Average target depth", " yds", null, "How far downfield he's targeted on average"],
-        ["cush", "Cushion", " yds", null, "Distance from the nearest defender at the snap"],
-      ]],
-      rushing: ["Rushing", [
-        ["ryoe", "Rush yds over expected / carry", " yds", "high", "Yards per carry beyond what the blocking and defenders' positions suggest"],
-        ["ryoe_tot", "Rush yds over expected", " yds", "high", "Season total of the above"],
-        ["roe_pct", "Runs beating expected", "%", "high", "Share of his carries that gained more than expected"],
-        ["eff", "Efficiency", "", "low", "Distance run per yard gained; lower means more north-south running"],
-        ["box8", "Stacked boxes", "%", null, "Share of his carries against 8+ defenders in the box"],
-        ["ttl", "Time to line of scrimmage", "s", null, "Average time from the handoff to crossing the line"],
-      ]],
-    };
-    const NGS_ORDER = { QB: ["passing", "rushing"], RB: ["rushing", "receiving"], WR: ["receiving"], TE: ["receiving"] };
 
     Mingus.start(async (main, meta) => {
       const [players, games, teams, notes] = await Promise.all([Mingus.load("players"), Mingus.load("games"), Mingus.load("teams"), Mingus.content("notes", {})]);
@@ -171,27 +142,26 @@
 
         // Next Gen Stats, ranked among players at his position who qualify (NGS has play minimums).
         function ngsCard() {
+          ngsDerive(players);
           const kinds = (NGS_ORDER[p.pos] || []).filter(k => p.ngs?.[k]);
           if (!NGS_ORDER[p.pos]) return "";
           if (!kinds.length) return `<section class="card wide"><h3>Next Gen Stats</h3><p class="muted small">He hasn't had enough plays this season to qualify for NFL Next Gen Stats yet.</p></section>`;
           const peers = players.filter(x => x.pos === p.pos && x.ngs);
           return `<section class="card wide ngs-card">
             <div class="card-head"><h3>Next Gen Stats</h3><span class="muted small">NFL tracking data, ${meta.season} season</span></div>
-            <p class="muted small">Ranked among ${TAB_LABELS[p.pos].toLowerCase()} who've had enough plays to qualify. Green = good for him, red = not; grey ranks are style stats (1st = most).</p>
+            <p class="muted small">Ranked among ${TAB_LABELS[p.pos].toLowerCase()} who've had enough plays to qualify. Green = good for him, red = not; grey ranks are style stats (1st = most). Tap a stat to see the full leaderboard.</p>
             <div class="ngs-groups">${kinds.map(kind => {
               const [title, defs] = NGS[kind];
               return `<div><h4 class="box-head">${title}</h4><div class="split-rows">${defs.map(([k, label, unit, better, help]) => {
                 const v = p.ngs[kind][k];
                 if (v === undefined) return "";
                 const vals = peers.map(x => x.ngs[kind]?.[k]).filter(x => x !== undefined);
-                const r = vals.filter(x => (better === "low" ? x < v : x > v)).length + 1;
+                const r = ngsRank(vals, v, better);
                 const cls = better ? matchupClass(Math.round(r / vals.length * 32)) : "neutral";
-                const shown = (k === "roe_pct" ? Math.round(v * 100) : k === "ryoe_tot" ? Math.round(v) : Math.round(v * 10) / 10) || 0;
                 const lgAvg = vals.reduce((a, b) => a + b, 0) / vals.length;
-                const avgShown = (k === "roe_pct" ? Math.round(lgAvg * 100) : Math.round(lgAvg * 10) / 10) || 0;
-                return `<div class="split-row ngs-row"><span>${label}<small>${esc(help)} · avg ${fmt(avgShown)}${unit}</small></span>
-                  <strong>${shown > 0 && k === "sticks" ? "+" : ""}${fmt(shown)}<small>${unit}</small></strong>
-                  <span class="mchip ${cls}" title="${ordinal(r)} of ${vals.length}">${ordinal(r)}</span></div>`;
+                return `<div class="split-row ngs-row"><span><a href="${ngsUrl(kind, k, p.pos, p.id)}" title="See the ${esc(label.toLowerCase())} leaderboard">${label}</a><small>${esc(help)} · avg ${ngsShow(k, lgAvg)}${unit}</small></span>
+                  <strong>${ngsShow(k, v)}<small>${unit}</small></strong>
+                  <a class="mchip ${cls}" href="${ngsUrl(kind, k, p.pos, p.id)}" title="${ordinal(r)} of ${vals.length}">${ordinal(r)}</a></div>`;
               }).join("")}</div></div>`;
             }).join("")}</div>
           </section>`;
