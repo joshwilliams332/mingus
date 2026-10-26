@@ -58,7 +58,13 @@ const Mingus = {
             <a href="games.html" ${["games.html", "game.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Schedule</span><span class="ns">Schedule</span></a>
             <a href="teams.html" ${["teams.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Teams</span><span class="ns">Teams</span></a>
             <a href="trends.html" ${here === "trends.html" ? 'aria-current="page"' : ""}><span class="nl">Trends</span><span class="ns">Trends</span></a>
-            <a href="analytics.html" ${here === "analytics.html" ? 'aria-current="page"' : ""}><span class="nl">Analytics</span><span class="ns">Analytics</span></a>
+            <div class="nav-drop">
+              <a href="analytics.html" ${["analytics.html", "ngs.html"].includes(here) ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Analytics</span><span class="ns">Analytics</span> <span class="caret" aria-hidden="true">▾</span></a>
+              <div class="nav-menu wide right">
+                <a href="analytics.html"><strong>Chart builder</strong><span>Any two stats, plotted</span></a>
+                <a href="ngs.html"><strong>Next Gen Stats</strong><span>NFL tracking leaderboards</span></a>
+              </div>
+            </div>
           </nav>
           <span class="header-week">${esc(week)}</span>
         </div>
@@ -442,6 +448,49 @@ function defenseVsPos(players, games, sc, beforeWeek = Infinity) {
 function matchupClass(rank) { return rank <= 8 ? "great" : rank <= 16 ? "good" : rank <= 24 ? "meh" : "tough"; }
 function matchupLabel(rank) { return { great: "Great matchup", good: "Good matchup", meh: "Below average", tough: "Tough matchup" }[matchupClass(rank)]; }
 function ordinal(n) { const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+
+// NFL Next Gen Stats: [key, label, unit, better ("high" / "low" / null = style, not good or bad), what it means].
+const NGS = {
+  passing: ["Passing", [
+    ["cpoe", "Completion % over expected", "%", "high", "How much more often he completes passes than expected, given how hard each throw was"],
+    ["xcmp", "Expected completion %", "%", null, "How completable his throws are on average; lower means harder throws"],
+    ["aggr", "Aggressiveness", "%", null, "Share of throws into tight windows (a defender within a yard)"],
+    ["ttt", "Time to throw", "s", null, "Average time from the snap to the throw"],
+    ["iay", "Intended air yards", " yds", null, "How far downfield his throws travel on average"],
+    ["cay", "Completed air yards", " yds", "high", "How far downfield his completions travel on average"],
+    ["sticks", "Air yards to the sticks", " yds", null, "How far past (+) or short (−) of the first-down marker he throws on average"],
+  ]],
+  receiving: ["Receiving", [
+    ["sep", "Separation", " yds", "high", "Distance from the nearest defender when the ball arrives"],
+    ["yacoe", "YAC over expected", " yds", "high", "Yards after the catch beyond what's expected, per catch"],
+    ["ays", "Share of team air yards", "%", "high", "His share of all the air yards his team throws at"],
+    ["catch", "Catch rate", "%", "high", "Catches per target"],
+    ["iay", "Average target depth", " yds", null, "How far downfield he's targeted on average"],
+    ["cush", "Cushion", " yds", null, "Distance from the nearest defender at the snap"],
+  ]],
+  rushing: ["Rushing", [
+    ["ryoe", "Rush yds over expected / carry", " yds", "high", "Yards per carry beyond what the blocking and defenders' positions suggest"],
+    ["ryoe_tot", "Rush yds over expected", " yds", "high", "Season total of the above"],
+    ["roe_pct", "Runs beating expected", "%", "high", "Share of his carries that gained more than expected"],
+    ["eff", "Efficiency", "", "low", "Distance run per yard gained; lower means more north-south running"],
+    ["box8", "Stacked boxes", "%", null, "Share of his carries against 8+ defenders in the box"],
+    ["ttl", "Time to line of scrimmage", "s", null, "Average time from the handoff to crossing the line"],
+  ]],
+};
+const NGS_ORDER = { QB: ["passing", "rushing"], RB: ["rushing", "receiving"], WR: ["receiving"], TE: ["receiving"] };
+// Which positions each NGS kind is listed for on the leaderboard (the first is the default).
+const NGS_POS = { passing: ["QB"], receiving: ["WR", "TE", "RB"], rushing: ["RB", "QB"] };
+// Rank v among vals (1 = best; for style stats 1 = most). Ties share a rank.
+function ngsRank(vals, v, better) { return vals.filter(x => (better === "low" ? x < v : x > v)).length + 1; }
+// How an NGS value is shown: rush % as a whole percent, season RYOE whole yards, the rest to one decimal.
+function ngsShow(k, v) {
+  if (v === null || v === undefined) return "—";
+  const n = (k === "roe_pct" ? Math.round(v * 100) : k === "ryoe_tot" ? Math.round(v) : Math.round(v * 10) / 10) || 0;
+  return `${n > 0 && ["sticks", "ryoe", "ryoe_tot", "yacoe", "cpoe"].includes(k) ? "+" : ""}${fmt(n)}`;
+}
+function ngsUrl(kind, key, pos, hl) {
+  return `ngs.html?stat=${kind}.${key}${pos ? `&pos=${pos}` : ""}${hl ? `&hl=${encodeURIComponent(hl)}` : ""}`;
+}
 
 function roofLabel(roof) {
   return { dome: "Indoors (dome)", closed: "Retractable roof (closed)", open: "Retractable roof (open)", outdoors: "Outdoors" }[roof] || "—";

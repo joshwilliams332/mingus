@@ -47,6 +47,9 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   week 0 = season totals): QB passing+rushing, RB rushing+receiving, WR/TE receiving. Ranked among same-position players
   who qualify (NGS has play minimums); stats with a clear good direction are colored, style stats (aggressiveness,
   time to throw, depth, cushion, stacked boxes) get grey chips. Non-qualifiers get a one-line note.
+  Definitions (`NGS`, `NGS_ORDER`, `NGS_POS`, `ngsRank`, `ngsShow`, `ngsUrl`) live in common.js. Leaderboards are on
+  `ngs.html` (Analytics is a dropdown: Chart builder / Next Gen Stats); each stat label and rank chip on a player page
+  links to its leaderboard with `hl=` highlighting that player.
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
 - Phones: player names wrap instead of overlapping tags; grid children have `min-width: 0` so wide tables scroll
   inside their card; team schedule hides O/U, Total and Pts vs implied on small screens.

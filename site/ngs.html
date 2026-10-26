@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Next Gen Stats · Mingus Sports</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Crect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%232fbf8a%22/%3E%3Ctext x=%2216%22 y=%2223%22 font-family=%22Arial%22 font-weight=%22900%22 font-size=%2220%22 text-anchor=%22middle%22 fill=%22%2306150f%22%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <main><p class="loading">Loading…</p></main>
+  <script src="assets/common.js"></script>
+  <script>
+    Mingus.start(async (main, meta) => {
+      const [players, teams] = await Promise.all([Mingus.load("players"), Mingus.load("teams")]);
+      const params = new URLSearchParams(location.search);
+      const [kind0, key0] = (params.get("stat") || "").split(".");
+      const state = { kind: NGS[kind0] ? kind0 : "passing", key: key0, pos: params.get("pos"), hl: params.get("hl"), dir: null };
+      const fix = () => {
+        const defs = NGS[state.kind][1];
+        if (!defs.some(d => d[0] === state.key)) state.key = defs[0][0];
+        if (!NGS_POS[state.kind].includes(state.pos)) state.pos = NGS_POS[state.kind][0];
+        // Best first by default: low-is-better stats sort ascending.
+        if (state.dir === null) state.dir = defs.find(d => d[0] === state.key)[3] === "low" ? 1 : -1;
+      };
+      fix();
+      state.dir = params.get("dir") === "asc" ? 1 : params.get("dir") === "desc" ? -1 : state.dir;
+      const hlPlayer = players.find(x => x.id === state.hl);
+
+      main.innerHTML = `
+        <div class="page-head">
+          <div><h1>Next Gen Stats</h1><p class="muted sub-head">NFL player-tracking stats for ${meta.season}, ranked. Only players with enough plays to qualify (the NFL's minimums) are listed.</p></div>
+          <a class="btn-plain" href="analytics.html">Chart builder →</a>
+        </div>
+        <section class="card">
+          <div class="pb-controls">
+            <div class="tabs" role="group" aria-label="Category">
+              ${Object.entries(NGS).map(([k, [title]]) => `<button class="tab" type="button" data-kind="${k}">${title}</button>`).join("")}
+            </div>
+            <div class="tabs" role="group" aria-label="Position" id="ngs-pos"></div>
+          </div>
+          <div id="ngs-about"></div>
+          <div class="table-wrap"><table class="data-table pb-table ngs-table"><thead></thead><tbody></tbody></table></div>
+          <p class="muted small" id="ngs-key"></p>
+        </section>`;
+
+      let scrolled = false;
+      function draw() {
+        fix();
+        const [title, defs] = NGS[state.kind];
+        const def = defs.find(d => d[0] === state.key), [, label, unit, better, help] = def;
+        main.querySelectorAll("[data-kind]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.kind === state.kind)));
+        const posBox = document.getElementById("ngs-pos");
+        posBox.hidden = NGS_POS[state.kind].length < 2;
+        posBox.innerHTML = NGS_POS[state.kind].map(p => `<button class="tab" type="button" data-pos="${p}" aria-pressed="${p === state.pos}">${p}</button>`).join("");
+        posBox.querySelectorAll("[data-pos]").forEach(b => b.onclick = () => { state.pos = b.dataset.pos; draw(); });
+
+        const rows = players.filter(p => p.pos === state.pos && p.ngs?.[state.kind]);
+        const vals = rows.map(p => p.ngs[state.kind][state.key]).filter(v => v !== undefined);
+        const avg = vals.reduce((a, b) => a + b, 0) / (vals.length || 1);
+        const rankOfV = v => ngsRank(vals, v, better);
+        rows.sort((a, b) => ((a.ngs[state.kind][state.key] ?? (state.dir < 0 ? -1e9 : 1e9)) - (b.ngs[state.kind][state.key] ?? (state.dir < 0 ? -1e9 : 1e9))) * state.dir);
+        const plural = TAB_LABELS[state.pos].toLowerCase();
+        const mine = hlPlayer?.pos === state.pos ? hlPlayer.ngs?.[state.kind]?.[state.key] : undefined;
+        document.getElementById("ngs-about").innerHTML = `<div class="ngs-about">
+            <h2>${esc(label)}</h2>
+            <p>${esc(help)}.${better ? ` ${better === "low" ? "Lower" : "Higher"} is better, so 1st = best.` : " This is a style stat, not good or bad, so 1st = most."}</p>
+            <p class="muted small">League average among ${vals.length} qualifying ${plural}: <strong>${ngsShow(state.key, avg)}${unit}</strong>
+              ${mine !== undefined ? ` · <a href="#hl" id="ngs-jump">${esc(hlPlayer.name)}: ${ngsShow(state.key, mine)}${unit}, ${ordinal(rankOfV(mine))} of ${vals.length}</a>` : ""}</p>
+          </div>`;
+
+        main.querySelector("thead").innerHTML = `<tr><th class="l">Rk</th><th class="l">Player</th>${defs.map(([k, l, , b]) =>
+          `<th class="${k === state.key ? "sorted" : ""}"><button data-sort="${k}" title="${esc(l)}">${esc(l)}${k === state.key ? (state.dir < 0 ? " ▼" : " ▲") : ""}</button></th>`).join("")}</tr>`;
+        main.querySelector("tbody").innerHTML = rows.map(p => {
+          const n = p.ngs[state.kind], v = n[state.key];
+          const r = v === undefined ? null : rankOfV(v);
+          const cls = r && better ? matchupClass(Math.round(r / vals.length * 32)) : "";
+          return `<tr class="click-row${p.id === state.hl ? " hl-row" : ""}" ${p.id === state.hl ? 'id="hl"' : ""} data-href="${playerUrl(p)}">
+            <td class="l pb-rk ${cls}">${r ?? "—"}</td>
+            <td class="l"><span class="opp-cell">${teamMark(p.team, teams, "sm")} <a href="${playerUrl(p)}">${esc(p.name)}</a></span></td>
+            ${defs.map(([k]) => `<td class="${k === state.key ? `sorted ${cls}` : ""}">${n[k] === undefined ? "—" : ngsShow(k, n[k])}</td>`).join("")}</tr>`;
+        }).join("") || `<tr><td colspan="${defs.length + 2}" class="muted">No qualifying ${plural} yet.</td></tr>`;
+        document.getElementById("ngs-key").textContent = `Rk = rank in ${label.toLowerCase()}${better ? " (1st = best)" : " (1st = most)"}. ` +
+          `${better ? "Green = among the best, red = among the worst. " : ""}Units: ${defs.map(([, l, u]) => `${l} ${u.trim() || "(ratio)"}`).join(" · ")}. Tap a column to rank by it, or a player to open his page.`;
+
+        main.querySelectorAll("[data-sort]").forEach(b => b.onclick = () => {
+          const d = defs.find(x => x[0] === b.dataset.sort);
+          state.dir = state.key === b.dataset.sort ? -state.dir : d[3] === "low" ? 1 : -1;
+          state.key = b.dataset.sort; draw();
+        });
+        main.querySelectorAll(".click-row").forEach(tr => tr.onclick = e => { if (!e.target.closest("a")) location.href = tr.dataset.href; });
+        // Phones: keep the sorted column next to the names.
+        const wrap = main.querySelector(".table-wrap"), th = main.querySelector("thead th.sorted"), name = main.querySelector("thead th:nth-child(2)");
+        // (next frame: a click on a header that's being replaced resets the scroll otherwise)
+        if (th && wrap.scrollWidth > wrap.clientWidth) requestAnimationFrame(() => { wrap.scrollLeft = Math.max(0, th.offsetLeft - (name.offsetLeft + name.offsetWidth) - 4); });
+        const hlRow = document.getElementById("hl");
+        if (hlRow && !scrolled) { scrolled = true; hlRow.scrollIntoView({ block: "center" }); }
+        document.getElementById("ngs-jump")?.addEventListener("click", e => { e.preventDefault(); document.getElementById("hl")?.scrollIntoView({ block: "center", behavior: "smooth" }); });
+        history.replaceState(null, "", `ngs.html?stat=${state.kind}.${state.key}&pos=${state.pos}${state.hl ? `&hl=${encodeURIComponent(state.hl)}` : ""}&dir=${state.dir < 0 ? "desc" : "asc"}`);
+      }
+      main.querySelectorAll("[data-kind]").forEach(b => b.onclick = () => { state.kind = b.dataset.kind; state.key = null; state.dir = null; draw(); });
+      draw();
+    });
+  </script>
+</body>
+</html>
