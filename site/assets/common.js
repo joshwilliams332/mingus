@@ -1,4 +1,4 @@
-// Shared by every Mingus Sports page: header/footer, data loading, fantasy scoring and formatting helpers.
+// Shared by every Mingus Football page: header/footer, data loading, fantasy scoring and formatting helpers.
 
 const RANK_TABS = ["QB", "RB", "WR", "TE", "FLX", "K", "DST"];
 const FLEX = ["RB", "WR", "TE"];
@@ -36,9 +36,9 @@ const Mingus = {
     document.body.insertAdjacentHTML("afterbegin", `
       <header class="site-header">
         <div class="header-inner">
-          <a class="brand" href="index.html" aria-label="Mingus Sports home">
+          <a class="brand" href="index.html" aria-label="Mingus Football home">
             <span class="brand-mark" aria-hidden="true">M</span>
-            <span class="brand-name">Mingus Sports</span>
+            <span class="brand-name">Mingus Football</span>
           </a>
           <nav class="nav" aria-label="Main">
             <div class="nav-drop">
@@ -72,7 +72,7 @@ const Mingus = {
     document.body.insertAdjacentHTML("beforeend", `
       <footer class="site-footer">
         Data from <a href="https://github.com/nflverse/nflverse-data">nflverse</a>${meta ? ` · updated ${esc(fmtDateTime(meta.built_at))}` : ""}
-        <br>Mingus Sports is a fan site and isn't affiliated with the NFL.
+        <br>Mingus Football is a fan site and isn't affiliated with the NFL.
       </footer>`);
   },
 
