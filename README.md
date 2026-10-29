@@ -1,4 +1,4 @@
-# Mingus Sports
+# Mingus FF
 
 Fantasy football rankings, NFL stats and Vegas lines, built from [nflverse](https://github.com/nflverse/nflverse-data) data.
 

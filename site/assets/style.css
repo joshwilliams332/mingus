@@ -502,7 +502,13 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
   .nav .nl { display: none; }
   .nav .ns { display: inline; }
 }
-@media (max-width: 420px) { .brand-name { display: none; } }
+/* "Mingus FF" is short enough to keep on phones; the nav scrolls sideways after it. */
+@media (max-width: 420px) {
+  .header-inner { gap: 12px; }
+  .brand { gap: 7px; }
+  .brand-mark { width: 30px; height: 30px; font-size: 17px; }
+  .brand-name { font-size: 16px; }
+}
 @media (max-width: 600px) {
   .tile strong { font-size: 17px; }
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }

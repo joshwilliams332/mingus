@@ -1,6 +1,8 @@
-# Mingus Sports: notes for Claude
+# Mingus FF: notes for Claude
 
 Fantasy football site for Josh (joshwilliams332). Live at https://joshwilliams332.github.io/mingus/.
+Name: **Mingus FF** (chosen Oct 29, 2026; was "Mingus Sports", which is now the umbrella brand over Mingus FF and
+the basketball site, Hoop Lab). The URL stays `/mingus/`. The `Mingus` JS object and `mingus-*` storage keys keep their names.
 Static pages in `site/`, data built by `scripts/build_data.py` from nflverse (plus Sleeper projections when reachable).
 Josh mostly checks the site on his phone, so every change gets checked at ~390px wide as well as desktop.
 
