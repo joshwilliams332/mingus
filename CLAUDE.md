@@ -70,7 +70,7 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   Grading reads nflverse `stats_player_week` (void if the game's stats exist but he has no row). `week-NN-recap.json`
   is written once a week's night games are all graded; `record.json` holds the season record. Week 8 is a test run
   (`RECORD_START_WEEK = 9`): emailed, graded, marked TEST, not counted. Every post carries the 21+ line.
-  Delivery: scheduled Claude tasks email Josh (joshwilliams332@comcast.net) at 6:15 PM ET Thu/Sat/Sun/Mon (picks) and
+  Delivery: scheduled Claude tasks email Josh (joshwilliams332@comcast.net) at 6:00 PM ET Thu/Sat/Sun/Mon (picks) and
   Tue 1:41 PM ET (weekly recap); they only fetch `picks/` from the `data` branch and send it as written. No model
   backtest exists yet (no historical lines); the public record is the test.
 

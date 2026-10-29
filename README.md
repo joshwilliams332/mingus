@@ -36,7 +36,7 @@ Weather forecasts for upcoming outdoor games come from [Open-Meteo](https://open
 2. **Save.** Picks, the props snapshot they came from, and a ready-to-post email go to the `data` branch (`picks/`, `odds/`). Locked picks are never rewritten.
 3. **Grade.** After the game, picks are graded from nflverse box scores (a player who didn't play is a void, like at the sportsbooks). Each week's recap and the season record are written once the week's night games are graded.
 
-Scheduled Claude tasks email the picks to Josh at 6:15 PM ET on game nights and the recap on Tuesday; Josh posts them himself. It needs the `ODDS_API_KEY` repository secret.
+Scheduled Claude tasks email the picks to Josh at 6:00 PM ET on game nights and the recap on Tuesday; Josh posts them himself. It needs the `ODDS_API_KEY` repository secret.
 
 ```sh
 python3 -m unittest discover -s tests                       # tests
