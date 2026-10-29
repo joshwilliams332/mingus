@@ -29,6 +29,20 @@ Edit the files in `site/content/` (the data script never touches them):
 
 Weather forecasts for upcoming outdoor games come from [Open-Meteo](https://open-meteo.com) in the visitor's browser, about two weeks out.
 
+## Night-game best bets
+`scripts/nfl_picks.py` (run by `.github/workflows/nfl-picks.yml`, separate from the site deploy) picks player props for night games (Thursday, Sunday and Monday night, plus late-season Saturdays):
+
+1. **Lock.** On the first run within 4 hours of kickoff, it pulls player props from [The Odds API](https://the-odds-api.com) for that game (passing, rushing and receiving yards, and receptions: 4 credits per game), compares each line with our projection (Sleeper's when available, otherwise a Mingus estimate from recent games and the defense), and locks up to 2 picks per game. A pick's chance blends our projection (30%) with the books' no-vig price (70%); it needs at least a 54% chance and a 3% edge at the best posted price. Players on the injury report are skipped.
+2. **Save.** Picks, the props snapshot they came from, and a ready-to-post email go to the `data` branch (`picks/`, `odds/`). Locked picks are never rewritten.
+3. **Grade.** After the game, picks are graded from nflverse box scores (a player who didn't play is a void, like at the sportsbooks). Each week's recap and the season record are written once the week's night games are graded.
+
+Scheduled Claude tasks email the picks to Josh at 6:00 PM ET on game nights and the recap on Tuesday; Josh posts them himself. It needs the `ODDS_API_KEY` repository secret.
+
+```sh
+python3 -m unittest discover -s tests                       # tests
+python3 scripts/nfl_picks.py --data site/data --store store --no-odds   # local run without spending credits
+```
+
 ## Scoring
 Pick **PPR**, **Half PPR** or **Standard**, and **4 or 6 points per passing TD**. The choice is saved in the browser and shared by every page.
 - Offense: 1 pt per 25 pass yds, 4/6 per pass TD, -2 per INT, 1 per 10 rush/rec yds, 6 per rush/rec TD, 0/0.5/1 per catch, -2 per fumble lost, 2 per two-point conversion.
