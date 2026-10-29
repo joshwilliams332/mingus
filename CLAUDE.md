@@ -56,13 +56,31 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
 - Phones: player names wrap instead of overlapping tags; grid children have `min-width: 0` so wide tables scroll
   inside their card; team schedule hides O/U, Total and Pts vs implied on small screens.
+- **Night-game best bets** (`scripts/nfl_picks.py`, tested in `tests/test_nfl_picks.py`, run by
+  `.github/workflows/nfl-picks.yml`, separate from the deploy; it downloads the live site's data JSON instead of
+  rebuilding). Night games only (kickoff 7 PM ET+: TNF, SNF, MNF, late-season Saturdays), Josh's choice so football
+  uses little of the Odds API key it shares with Hoop Lab. Props pulled once per night game (4 markets: pass / rush /
+  rec yds, receptions; 4 credits; event list free; never pulls below `CREDIT_RESERVE`), on the first run within 4 h of
+  kickoff, into `data` branch `odds/props/<game id>.json`. Picks lock once into `picks/YYYY-MM-DD.json` (never
+  rewritten). Same rules as Hoop Lab: chance = 30% projection + 70% books' no-vig consensus at the most-posted line,
+  skip if they differ by 20+ points, >= 54% and >= 3% edge at the best price, prices -200 to +180, one per player, up to
+  2 per game, skip anyone Questionable / Doubtful / Out / DNP. Projection = Sleeper's stat line for the week when
+  players.json has it, else the Mingus estimate ((season + last-3 avg) x defense vs position at half strength, capped
+  0.85-1.15); spread = his game-to-game spread blended with a typical one (`PRIOR_CV`, 4 games' weight); normal curve.
+  Grading reads nflverse `stats_player_week` (void if the game's stats exist but he has no row). `week-NN-recap.json`
+  is written once a week's night games are all graded; `record.json` holds the season record. Week 8 is a test run
+  (`RECORD_START_WEEK = 9`): emailed, graded, marked TEST, not counted. Every post carries the 21+ line.
+  Delivery: scheduled Claude tasks email Josh (joshwilliams332@comcast.net) at 6:15 PM ET Thu/Sat/Sun/Mon (picks) and
+  Tue 1:41 PM ET (weekly recap); they only fetch `picks/` from the `data` branch and send it as written. No model
+  backtest exists yet (no historical lines); the public record is the test.
 
 ## Open threads
 - `espn-sync` branch: My League page + `scripts/espn_sync.py` (ESPN leagues). Not merged into `main` yet.
   `scripts/espn_config.json` holds Josh's ESPN cookies and must never be committed (it's ignored on that branch;
   add the same `.gitignore` lines to `main` before merging).
-- Player props: possible via The Odds API (free key, ~1 props pull/week on the free tier). Waiting on Josh to decide /
-  get an API key, which would go in a GitHub Actions secret.
+- Odds API key: `ODDS_API_KEY` repo secret, the same free key Hoop Lab uses (500 credits/month shared). Night games
+  only ≈ 50-60 credits/month. Hoop Lab's budget spends whatever is left, so it should hold back ~60/month for football.
+  If Josh upgrades ($30/month = 20,000 credits), all slates and a pre-kickoff closing-line pull become affordable.
 - Deploy schedule: daily 23:17 UTC plus post-game runs (Sun 22:47, Mon 01:47, Mon/Tue/Fri 05:47 UTC). GitHub often
   starts scheduled runs an hour or two late; "Run workflow" in Actions updates immediately.
 - Josh's laptop copy (`C:\Users\joshw\OneDrive\Desktop\mingus`) was last on `analytics-chart-builder` with

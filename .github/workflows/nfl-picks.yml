@@ -1,0 +1,59 @@
+name: NFL night picks
+
+# Locks Mingus Football's night-game best bets (TNF, SNF, MNF, late-season Saturdays) before kickoff, grades them after,
+# and writes the weekly recap. Output goes to the `data` branch (picks/, odds/); scheduled Claude tasks email it to Josh.
+# Separate from the site deploy: it reads the live site's data files instead of rebuilding them.
+# Every scheduled run is cheap: listing events is free, and props are pulled once per night game (4 credits).
+
+on:
+  schedule:
+    # Lock window, every 30 min on Thu/Sat/Sun/Mon afternoons: 3:15-7:45 PM EDT / 2:15-6:45 PM EST. Picks lock on the
+    # first run within 4 hours of kickoff; the extra runs cover GitHub starting scheduled runs late.
+    - cron: "15,45 20-23 * * 0,1,4,6"
+    # Grading, the morning and midday after night games (Fri, Sun, Mon, Tue), once nflverse has the box scores.
+    - cron: "30 9,13,17 * * 0,1,2,5"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nfl-picks
+  cancel-in-progress: false
+
+jobs:
+  picks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check out the data branch (created on the first run)
+        env:
+          REPO: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          if git ls-remote --exit-code --heads "$REPO" data >/dev/null; then
+            git clone -q --depth 1 --branch data "$REPO" store
+          else
+            mkdir store && git -C store init -q -b data && git -C store remote add origin "$REPO"
+          fi
+      - name: Download the live site's data
+        run: |
+          mkdir -p livedata
+          for f in meta players games teams; do
+            curl -fsSL "https://joshwilliams332.github.io/mingus/data/$f.json" -o "livedata/$f.json"
+          done
+      - name: Lock, grade and recap
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: python3 scripts/nfl_picks.py --data livedata --store store | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save to the data branch
+        run: |
+          cd store
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "Nothing new"; exit 0; fi
+          git commit -q -m "Picks update $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -q origin data
