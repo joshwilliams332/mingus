@@ -23,20 +23,22 @@ def make_data(folder, sleeper=None, injury=None):
     teams = {"PHI": {"city": "Philadelphia", "nickname": "Eagles"}, "WAS": {"city": "Washington", "nickname": "Commanders"},
              "DAL": {"city": "Dallas", "nickname": "Cowboys"}, "NYG": {"city": "New York", "nickname": "Giants"}}
     games = [
-        {"id": "2026_09_PHI_WAS", "week": 9, "date": "2026-11-08", "time": "20:20", "away": "PHI", "home": "WAS"},
-        {"id": "2026_09_DAL_NYG", "week": 9, "date": "2026-11-08", "time": "13:00", "away": "DAL", "home": "NYG"},
+        {"id": "2026_09_PHI_WAS", "week": 9, "date": "2026-11-08", "time": "20:20", "away": "PHI", "home": "WAS",
+         "home_spread": -3, "home_implied": 24.0, "away_implied": 21.0},
+        {"id": "2026_09_DAL_NYG", "week": 9, "date": "2026-11-08", "time": "13:00", "away": "DAL", "home": "NYG",
+         "home_spread": 1, "home_implied": 22.0, "away_implied": 23.0},
     ]
     weeks = list(range(1, 9))
     te = {"id": "TE1", "name": "Dallas Goedert", "pos": "TE", "team": "PHI", "injury": injury,
-          "log": log(weeks, "NYG", rec_yds=[40, 55, 30, 62, 48, 51, 44, 58], rec=[4, 5, 3, 6, 4, 5, 4, 5])}
+          "log": log(weeks, "NYG", rec_yds=[40, 55, 30, 62, 48, 51, 44, 58], rec=[4, 5, 3, 6, 4, 5, 4, 5], tgt=[5, 6, 4, 7, 5, 6, 5, 6])}
     if sleeper is not None:
         te["proj"] = {"sleeper": {"9": {"line": {"rec_yds": sleeper}}}}
     qb = {"id": "QB1", "name": "Jayden Daniels", "pos": "QB", "team": "WAS", "injury": None,
-          "log": log(weeks, "DAL", pass_yds=[230, 250, 210, 270, 240, 220, 260, 245], rush_yds=[30, 40, 20, 35, 25, 45, 30, 38])}
+          "log": log(weeks, "DAL", pass_yds=[230, 250, 210, 270, 240, 220, 260, 245], rush_yds=[30, 40, 20, 35, 25, 45, 30, 38], att=32, car=6)}
     # Defenses: WAS gives up a lot to TEs (the DvP sample).
     opp_te = [{"id": f"X{i}", "name": f"Other TE {i}", "pos": "TE", "team": "NYG", "injury": None,
-               "log": log([i], "WAS", rec_yds=90, rec=8)} for i in range(1, 9)]
-    other = [{"id": "Y1", "name": "Some TE", "pos": "TE", "team": "DAL", "injury": None, "log": log(weeks, "PHI", rec_yds=30, rec=3)}]
+               "log": log([i], "WAS", rec_yds=90, rec=8, tgt=10)} for i in range(1, 9)]
+    other = [{"id": "Y1", "name": "Some TE", "pos": "TE", "team": "DAL", "injury": None, "log": log(weeks, "PHI", rec_yds=30, rec=3, tgt=4)}]
     players = [te, qb, *opp_te, *other]
     meta = {"season": 2026}
     for name, v in (("teams", teams), ("games", games), ("players", players), ("meta", meta)):
@@ -127,21 +129,37 @@ class Props(unittest.TestCase):
 
 
 class Projection(unittest.TestCase):
-    def test_mingus_estimate_uses_defense_at_half_strength_capped(self):
+    def test_model_is_volume_times_efficiency_with_matchup(self):
         with tempfile.TemporaryDirectory() as d:
             data = make_data(d)
             p = N.projection(data, data.by_id["TE1"], "rec_yds", data.game["2026_09_PHI_WAS"], 9)
-            base = (sum([40, 55, 30, 62, 48, 51, 44, 58]) / 8 + (51 + 44 + 58) / 3) / 2
-            self.assertEqual(p["source"], "Mingus estimate")
-            self.assertGreater(p["mean"], base)                        # WAS allows a lot to TEs
-            self.assertLessEqual(p["mean"], round(base * 1.15, 1) + 0.05)
+            x = p["parts"]
+            self.assertEqual(p["source"], "Mingus model")
+            self.assertAlmostEqual(p["mean"], x["vol"] * x["eff"], delta=0.2)
+            self.assertGreater(x["f_def_vol"], 1)                 # WAS gives TEs lots of targets...
+            self.assertLessEqual(x["f_def_vol"], 1.15)            # ...capped
+            self.assertLess(x["f_imp"], 1)                        # PHI's 21 implied is below the week's average
+            self.assertGreater(x["f_script"], 1)                  # 3-point underdogs throw a bit more
             self.assertEqual(p["opp_rank"]["rank"], 1)
 
-    def test_sleeper_used_when_present(self):
+    def test_injury_opening_boosts_volume(self):
+        with tempfile.TemporaryDirectory() as d:
+            data = make_data(d)
+            mate = {"id": "WR9", "name": "Out Receiver", "pos": "WR", "team": "PHI", "injury": {"status": "Out"},
+                    "log": log(range(1, 9), "NYG", tgt=8, rec=5, rec_yds=60)}
+            data.players.append(mate)
+            data.by_id["WR9"] = mate
+            boost, names = N.openings(data, data.by_id["TE1"], data.game["2026_09_PHI_WAS"], "tgt")
+            self.assertGreater(boost, 1)
+            self.assertLessEqual(boost, 1.25)
+            self.assertEqual(names, ["Out Receiver"])
+
+    def test_sleeper_blended_when_present(self):
         with tempfile.TemporaryDirectory() as d:
             data = make_data(d, sleeper=61.0)
             p = N.projection(data, data.by_id["TE1"], "rec_yds", data.game["2026_09_PHI_WAS"], 9)
-            self.assertEqual((p["mean"], p["source"]), (61.0, "Sleeper"))
+            self.assertEqual(p["source"], "Sleeper + Mingus model")
+            self.assertAlmostEqual(p["mean"], (61.0 + p["parts"]["mingus"]) / 2, delta=0.1)
 
     def test_not_enough_games(self):
         with tempfile.TemporaryDirectory() as d:
@@ -180,6 +198,9 @@ class LockAndGrade(unittest.TestCase):
         self.assertIn("1-800-GAMBLER", doc["post"]["main"])
         self.assertLessEqual(N.post_length(doc["post"]["main"]), 280)
         self.assertTrue(doc["email"]["subject"].startswith("🏈 SNF post"))
+        if doc["picks"]:
+            self.assertIn("Deep dive", doc["email"]["html"])
+            self.assertTrue(all(len(f"{N.short(p)}: {p['why']}") <= 280 for p in doc["picks"]))
         before = list(api.calls)
         again = N.lock(self.data, self.store, self.at("17:30"), api)
         self.assertEqual(again["why"], "already locked")

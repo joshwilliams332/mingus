@@ -64,9 +64,16 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   kickoff, into `data` branch `odds/props/<game id>.json`. Picks lock once into `picks/YYYY-MM-DD.json` (never
   rewritten). Same rules as Hoop Lab: chance = 30% projection + 70% books' no-vig consensus at the most-posted line,
   skip if they differ by 20+ points, >= 54% and >= 3% edge at the best price, prices -200 to +180, one per player, up to
-  2 per game, skip anyone Questionable / Doubtful / Out / DNP. Projection = Sleeper's stat line for the week when
-  players.json has it, else the Mingus estimate ((season + last-3 avg) x defense vs position at half strength, capped
-  0.85-1.15); spread = his game-to-game spread blended with a typical one (`PRIOR_CV`, 4 games' weight); normal curve.
+  2 per game, skip anyone Questionable / Doubtful / Out / DNP, regulars only (20 att / 8 car / 3.5 tgt a game), line
+  quoted by 2+ books. Projection (Josh asked for the matchup-report approach, Oct 29) = opportunities x efficiency:
+  att / car / tgt per game (half season, half last 3) x defense allowed to the position (half strength, 0.85-1.15) x
+  team implied vs week average (half strength, 0.9-1.1) x game script (favorites +1% carries / -1% throws per point,
+  max 6%) x injury openings (60% of Out/Doubtful teammates' recent volume, by share, max +25%); efficiency = his rate
+  steadied toward the position's league rate (40 opportunities) x defense allowed per opportunity (half strength).
+  Averaged 50/50 with Sleeper's stat line when players.json has it. Spread = his game-to-game spread blended with a
+  typical one (`PRIOR_CV`, 4 games' weight); normal curve. Each pick's "why" (one post reply) leads with projection vs
+  line, then the strongest of matchup rank, injury openings, target share / carries, team total, last-5 hits and a
+  top-5 Next Gen Stat; the email adds a not-for-posting "Deep dive" with every factor.
   Grading reads nflverse `stats_player_week` (void if the game's stats exist but he has no row). `week-NN-recap.json`
   is written once a week's night games are all graded; `record.json` holds the season record. Week 8 is a test run
   (`RECORD_START_WEEK = 9`): emailed, graded, marked TEST, not counted. Every post carries the 21+ line.

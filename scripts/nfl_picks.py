@@ -54,6 +54,10 @@ MARKETS = {
     "player_receptions": ("rec", "Receptions", "catches", {"RB", "WR", "TE"}),
 }
 STAT = {k: (lab, short) for k, lab, short, _ in MARKETS.values()}
+# Each stat = an opportunity (attempts, carries, targets) x what he does with it.
+OPP_OF = {"pass_yds": "att", "rush_yds": "car", "rec_yds": "tgt", "rec": "tgt"}
+OPP_WORD = {"att": "pass attempts", "car": "carries", "tgt": "targets"}
+DVP_KEYS = list(STAT) + ["att", "car", "tgt"]
 CREDIT_RESERVE = 10        # never pull if fewer than this would be left
 NIGHT_HOUR = 19            # kickoff at 7 PM ET or later = a night game
 LOCK_BEFORE_MIN = 240      # picks lock on the first run within 4 hours of kickoff
@@ -70,6 +74,8 @@ PICK = {
     "min_games": 4,        # games played this season
     "price_range": (-200, 180),
     "skip_status": ("Out", "Doubtful", "Questionable", "DNP"),  # injury report (game status, or practice midweek)
+    "min_volume": {"att": 20, "car": 8, "tgt": 3.5},  # regulars only: per game, by the stat's opportunity
+    "min_books": 2,        # a consensus line needs at least two books quoting both sides
 }
 DEF_STRENGTH = 0.5         # the defense adjustment is applied at half strength...
 DEF_CAP = (0.85, 1.15)     # ...and capped, since 8 games of defense allowed is a small sample
@@ -185,17 +191,17 @@ class Data:
                 continue
             for e in p["log"]:
                 t = tot.setdefault(e["opp"], {}).setdefault(p["pos"], {})
-                for k in STAT:
+                for k in DVP_KEYS:
                     t[k] = t.get(k, 0) + (e.get(k) or 0)
                 weeks.setdefault(e["opp"], set()).add(e["week"])
         per = {team: {pos: {k: v / len(weeks[team]) for k, v in st.items()} for pos, st in byp.items()}
                for team, byp in tot.items()}
         league = {}
         for pos in ("QB", "RB", "WR", "TE"):
-            league[pos] = {k: statistics.mean(per[t].get(pos, {}).get(k, 0) for t in per) for k in STAT} if per else {}
+            league[pos] = {k: statistics.mean(per[t].get(pos, {}).get(k, 0) for t in per) for k in DVP_KEYS} if per else {}
         ranks = {}
         for pos in ("QB", "RB", "WR", "TE"):
-            for k in STAT:
+            for k in DVP_KEYS:
                 vals = sorted((per[t].get(pos, {}).get(k, 0) for t in per), reverse=True)
                 for t in per:
                     v = per[t].get(pos, {}).get(k, 0)
@@ -287,36 +293,97 @@ def parse_props(event_odds, data, game):
 
 # ---------------------------------------------------------------- our projection
 
+def team_context(data, team, game):
+    """This game's implied points for the team vs the week's average, and how many points it's favored by."""
+    wk = [g for g in data.games if g["week"] == game["week"] and g.get("home_implied") is not None]
+    imps = [g[k] for g in wk for k in ("home_implied", "away_implied")]
+    home = game["home"] == team
+    imp = game.get("home_implied" if home else "away_implied")
+    spread = game.get("home_spread")
+    fav_by = (-spread if home else spread) if spread is not None else 0
+    rank = 1 + sum(1 for x in imps if imp is not None and x > imp) if imp is not None else None
+    return {"implied": imp, "avg": statistics.mean(imps) if imps else None, "rank": rank, "of": len(imps), "fav_by": fav_by}
+
+
+def openings(data, player, game, opp_key):
+    """Volume freed up by teammates ruled out (Out / Doubtful) who've been getting the same kind of work.
+    Returns (boost factor, [names]). Only 60% of their volume is assumed to move, spread over who's left by share."""
+    if opp_key == "att":
+        return 1.0, []
+    mates = [p for p in data.players if p["team"] == player["team"] and p["id"] != player["id"] and p["pos"] in ("RB", "WR", "TE", "QB")]
+    def recent(p):
+        log = [e for e in p["log"] if e["week"] < game["week"] and (e.get("team") or p["team"]) == p["team"]][-3:]
+        return statistics.mean(e.get(opp_key) or 0 for e in log) if log else 0
+    out = [p for p in mates if (p.get("injury") or {}).get("status") in ("Out", "Doubtful") and recent(p) >= (4 if opp_key == "tgt" else 6)]
+    if not out:
+        return 1.0, []
+    missing = sum(recent(p) for p in out)
+    active = recent(player) + sum(recent(p) for p in mates if p not in out)
+    return (min(1.25, 1 + 0.6 * missing / active) if active else 1.0), [p["name"] for p in out]
+
+
 def projection(data, player, stat, game, week):
     """Our expected value and spread for a player's stat in this game, or None without enough history.
 
-    Mean: Sleeper's projection for the week when the site has it (it accounts for news and roles), otherwise the
-    Mingus estimate: the average of his season per-game and last-3 numbers, times how much this defense allows to his
-    position vs the league (at half strength, capped 0.85-1.15). Spread: his own game-to-game spread, steadied with a
-    typical spread for the stat (counted as PRIOR_WEIGHT games), since 6-8 games is a small sample.
-    """
+    The Mingus model, built like the matchup report: opportunities x efficiency.
+      Opportunities (his pass attempts, carries or targets): half season per game, half last 3, then
+        x the defense: how many of those it allows to his position vs the league (half strength, 0.85-1.15)
+        x the game: the team's implied points vs the week's average (half strength, 0.9-1.1); and favorites run more,
+          underdogs throw more (1% per point of spread, up to 6%)
+        x injury openings: a share of the work teammates ruled out leave behind (see openings()).
+      Efficiency (yards per attempt / carry / target, or catch rate): his season rate steadied toward the position's
+        league rate (counted as 40 opportunities), x what this defense allows per opportunity to his position vs the
+        league (half strength, 0.85-1.15).
+    When the site has Sleeper's projection for the stat, the mean is half Sleeper, half ours (Sleeper sees news and
+    depth charts; ours sees the matchup). Spread: his game-to-game spread steadied with a typical one (PRIOR_CV)."""
     log = [e for e in player["log"] if e["week"] < week]
     if len(log) < PICK["min_games"]:
         return None
+    pos, ok = player["pos"], OPP_OF[stat]
     vals = [e.get(stat) or 0 for e in log]
-    season, last3 = statistics.mean(vals), statistics.mean(vals[-3:])
+    opps = [e.get(ok) or 0 for e in log]
     opp = game["home"] if player["team"] == game["away"] else game["away"]
     per, league, ranks = data.dvp()
-    allowed = per.get(opp, {}).get(player["pos"], {}).get(stat)
-    lg = league.get(player["pos"], {}).get(stat)
-    factor = 1.0
-    if allowed is not None and lg:
-        factor = min(DEF_CAP[1], max(DEF_CAP[0], 1 + DEF_STRENGTH * (allowed / lg - 1)))
-    mingus = (season + last3) / 2 * factor
+    half = lambda x, lo, hi: min(hi, max(lo, 1 + DEF_STRENGTH * (x - 1)))
+
+    vol_base = (statistics.mean(opps) + statistics.mean(opps[-3:])) / 2
+    d_al, d_lg = per.get(opp, {}).get(pos, {}), league.get(pos, {})
+    f_def_vol = half(d_al.get(ok, 0) / d_lg[ok], *DEF_CAP) if d_lg.get(ok) else 1.0
+    ctx = team_context(data, player["team"], game)
+    f_imp = half(ctx["implied"] / ctx["avg"], 0.9, 1.1) if ctx["implied"] and ctx["avg"] else 1.0
+    lean = max(-0.06, min(0.06, 0.01 * ctx["fav_by"]))
+    f_script = 1 + lean if ok == "car" else 1 - lean if ok in ("att", "tgt") else 1.0
+    f_inj, out_names = openings(data, player, game, ok)
+    vol = vol_base * f_def_vol * f_imp * f_script * f_inj
+
+    tot_opp, tot_val = sum(opps), sum(vals)
+    lg_rate = (d_lg.get(stat, 0) / d_lg[ok]) if d_lg.get(ok) else (tot_val / tot_opp if tot_opp else 0)
+    rate = (tot_val + 40 * lg_rate) / (tot_opp + 40) if (tot_opp + 40) else lg_rate
+    def_rate = (d_al.get(stat, 0) / d_al[ok]) if d_al.get(ok) else lg_rate
+    f_def_eff = half(def_rate / lg_rate, *DEF_CAP) if lg_rate else 1.0
+    eff = rate * f_def_eff
+    mingus = vol * eff
+
     sleeper = (((player.get("proj") or {}).get("sleeper") or {}).get(str(week)) or {}).get("line", {}).get(stat)
-    mean = sleeper if sleeper is not None else mingus
+    mean = (sleeper + mingus) / 2 if sleeper is not None else mingus
     sd_obs = statistics.pstdev(vals) if len(vals) > 1 else 0
     prior = PRIOR_CV[stat] * max(mean, 1)
     sd = math.sqrt((len(vals) * sd_obs ** 2 + PRIOR_WEIGHT * prior ** 2) / (len(vals) + PRIOR_WEIGHT))
-    rank = ranks.get((opp, player["pos"], stat))
-    return {"mean": round(mean, 1), "sd": round(max(sd, 0.5), 1), "source": "Sleeper" if sleeper is not None else "Mingus estimate",
-            "season": round(season, 1), "last3": round(last3, 1), "vals": vals, "opp": opp, "factor": round(factor, 3),
-            "opp_rank": {"rank": rank[0], "of": rank[1]} if rank else None}
+    rank = ranks.get((opp, pos, stat))
+    vol_rank = ranks.get((opp, pos, ok))
+    shares = [e.get("tgt_sh") if ok == "tgt" else e.get("car_sh") for e in log[-3:]]
+    shares = [x for x in shares if x is not None]
+    return {"mean": round(mean, 1), "sd": round(max(sd, 0.5), 1),
+            "source": "Sleeper + Mingus model" if sleeper is not None else "Mingus model",
+            "season": round(statistics.mean(vals), 1), "last3": round(statistics.mean(vals[-3:]), 1), "vals": vals, "opp": opp,
+            "opp_rank": {"rank": rank[0], "of": rank[1]} if rank else None,
+            "vol_rank": {"rank": vol_rank[0], "of": vol_rank[1]} if vol_rank else None,
+            "parts": {"opp_key": ok, "vol_base": round(vol_base, 1), "vol": round(vol, 1), "eff": round(eff, 3 if stat == "rec" else 2),
+                      "rate": round(rate, 3 if stat == "rec" else 2), "f_def_vol": round(f_def_vol, 3), "f_imp": round(f_imp, 3),
+                      "f_script": round(f_script, 3), "f_inj": round(f_inj, 3), "f_def_eff": round(f_def_eff, 3),
+                      "mingus": round(mingus, 1), "sleeper": sleeper, "out": out_names,
+                      "share3": round(statistics.mean(shares), 3) if shares else None},
+            "ctx": ctx}
 
 
 def chance_over(proj, line):
@@ -338,8 +405,10 @@ def candidates(data, game, rows):
         pos_ok = next((pos for _, (k, _, _, pos) in MARKETS.items() if k == r["stat"]), set())
         if not p or p["pos"] not in pos_ok or injured(p):
             continue
+        if r["books"] < PICK["min_books"]:
+            continue
         proj = projection(data, p, r["stat"], game, game["week"])
-        if not proj:
+        if not proj or proj["parts"]["vol_base"] < PICK["min_volume"][proj["parts"]["opp_key"]]:
             continue
         for side in ("o", "u"):
             price = r["over"] if side == "o" else r["under"]
@@ -366,26 +435,90 @@ def choose(cands):
     return chosen
 
 
-def why_line(c):
-    """One sentence of why: projection vs the line, recent games vs the line, and the matchup when it helps."""
-    r, proj, short = c["row"], c["proj"], STAT[c["row"]["stat"]][1]
-    last5 = proj["vals"][-5:]
-    hits = sum(1 for v in last5 if (v > r["line"] if c["side"] == "o" else v < r["line"]))
-    parts = [f"projected {proj['mean']:g} ({proj['source']}) vs the {r['line']:g} line",
-             f"{'cleared' if c['side'] == 'o' else 'stayed under'} it in {hits} of his last {len(last5)}"]
+NGS_KEY = {"rush_yds": ("rushing", "ryoe", "rush yds over expected per carry"), "rec_yds": ("receiving", "yacoe", "YAC over expected"),
+           "rec": ("receiving", "catch", "catch rate"), "pass_yds": ("passing", "cpoe", "completion % over expected")}
+
+
+def ngs_note(data, player, stat):
+    """A top-5 Next Gen Stat that backs the pick, e.g. 'NGS: 3rd of 42 in rush yds over expected per carry'."""
+    kind, key, label = NGS_KEY[stat]
+    mine = ((player.get("ngs") or {}).get(kind) or {}).get(key)
+    if mine is None:
+        return None
+    pool = [((p.get("ngs") or {}).get(kind) or {}).get(key) for p in data.players if p["pos"] == player["pos"]]
+    pool = [x for x in pool if x is not None]
+    rank = 1 + sum(1 for x in pool if x > mine)
+    return f"NGS: {ordinal(rank)} of {len(pool)} {player['pos']}s in {label}" if rank <= 5 else None
+
+
+def why_line(c, data=None):
+    """The why, like the matchup report: projection vs line, then the strongest of matchup, volume, injury openings,
+    team total, recent games and Next Gen Stats. Kept short enough for one post reply."""
+    r, proj, p = c["row"], c["proj"], c["player"]
+    short, over, parts = STAT[r["stat"]][1], c["side"] == "o", proj.get("parts") or {}
+    pos = p["pos"] + "s"
+    first = f"Our model projects {proj['mean']:g} vs the {r['line']:g} line"
+    extra = []
     rk = proj.get("opp_rank")
-    if rk:
-        pos = c["player"]["pos"] + "s"
-        if c["side"] == "o" and rk["rank"] <= 8:
-            parts.append(f"{proj['opp']} allows the {'' if rk['rank'] == 1 else ordinal(rk['rank']) + ' '}most {short} to {pos}")
-        if c["side"] == "u" and rk["rank"] > rk["of"] - 8:
-            n = rk["of"] - rk["rank"] + 1
-            parts.append(f"{proj['opp']} allows the {'' if n == 1 else ordinal(n) + ' '}fewest {short} to {pos}")
-    s = ", ".join(parts)
-    return s[0].upper() + s[1:] + "."
+    if rk and over and rk["rank"] <= 8:
+        extra.append(f"{proj['opp']} allows the {'' if rk['rank'] == 1 else ordinal(rk['rank']) + ' '}most {short} to {pos}")
+    if rk and not over and rk["rank"] > rk["of"] - 8:
+        n = rk["of"] - rk["rank"] + 1
+        extra.append(f"{proj['opp']} allows the {'' if n == 1 else ordinal(n) + ' '}fewest {short} to {pos}")
+    if parts.get("out") and over:
+        extra.append(f"with {' and '.join(parts['out'])} out, more {OPP_WORD[parts['opp_key']]} open up")
+    if over and parts.get("share3") and parts["opp_key"] == "tgt" and parts["share3"] >= 0.2:
+        extra.append(f"he's drawn {parts['share3']:.0%} of targets over his last 3")
+    elif over and parts.get("vol_base") and parts["opp_key"] == "car" and parts["vol_base"] >= 12:
+        extra.append(f"{parts['vol_base']:g} carries a game")
+    ctx = proj.get("ctx") or {}
+    if ctx.get("rank") and over and ctx["rank"] <= 6:
+        extra.append(f"{p['team']} is implied for {ctx['implied']:g} ({ordinal(ctx['rank'])}-most of {ctx['of']})")
+    if ctx.get("rank") and not over and ctx["rank"] > ctx["of"] - 6:
+        extra.append(f"{p['team']} is implied for just {ctx['implied']:g}")
+    last5 = proj["vals"][-5:]
+    hits = sum(1 for v in last5 if (v > r["line"] if over else v < r["line"]))
+    if hits >= 3:
+        extra.append(f"{'cleared' if over else 'stayed under'} {r['line']:g} in {hits} of his last {len(last5)}")
+    if data is not None and over:
+        n = ngs_note(data, p, r["stat"])
+        if n:
+            extra.append(n)
+    text = first
+    for e in extra:
+        if len(text) + len(e) + 2 > 215:
+            break
+        text += ", " + e if text == first else "; " + e
+    return text + "."
 
 
-def to_pick(c, game):
+def deep_dive(c):
+    """The projection, piece by piece, for Josh (the email's not-for-posting section)."""
+    r, proj, p = c["row"], c["proj"], c["player"]
+    x, ctx = proj["parts"], proj["ctx"]
+    word = OPP_WORD[x["opp_key"]]
+    rate_word = {"pass_yds": "yds/attempt", "rush_yds": "yds/carry", "rec_yds": "yds/target", "rec": "catch rate"}[r["stat"]]
+    fmt_rate = (lambda v: f"{v:.0%}") if r["stat"] == "rec" else (lambda v: f"{v:.1f}")
+    adj = [f"{proj['opp']} defense ×{x['f_def_vol']:.2f}", f"{p['team']} implied {ctx['implied']:g} ×{x['f_imp']:.2f}" if ctx.get("implied") else None,
+           f"game script ({'favored' if ctx['fav_by'] > 0 else 'underdog' if ctx['fav_by'] < 0 else 'pick-em'} {abs(ctx['fav_by']):g}) ×{x['f_script']:.2f}",
+           f"{' + '.join(x['out'])} out ×{x['f_inj']:.2f}" if x["out"] else None]
+    lines = [
+        f"{short_pick(c)} · {price_txt(c['price'])} (best price: {r['book_o'] if c['side'] == 'o' else r['book_u']}; line from {r['books']} books)",
+        f"Projection {proj['mean']:g}" + (f" = half Sleeper ({x['sleeper']:g}), half our model ({x['mingus']:g})" if x["sleeper"] is not None else f" (our model)") +
+        f"; season {proj['season']:g}, last 3 {proj['last3']:g} per game.",
+        f"Volume: {x['vol_base']:g} {word}/game → {x['vol']:g} after " + ", ".join(a for a in adj if a) + ".",
+        f"Efficiency: {fmt_rate(x['rate'])} {rate_word} (steadied toward the league) × {proj['opp']} allows ×{x['f_def_eff']:.2f} → {fmt_rate(x['eff'])}.",
+        f"Chance: ours {c['model']:.0%}, books' no-vig {c['market']:.0%}, blended {c['prob']:.0%}; edge {c['edge']:+.0%} at this price.",
+    ]
+    return lines
+
+
+def short_pick(c):
+    r = c["row"]
+    return f"{r['name']} {'O' if c['side'] == 'o' else 'U'} {r['line']:g} {STAT[r['stat']][1]}"
+
+
+def to_pick(c, game, data=None):
     r = c["row"]
     return {
         "id": f"{game['id']}-{r['pid']}-{r['stat']}", "gid": game["id"], "week": game["week"], "pid": r["pid"],
@@ -394,7 +527,7 @@ def to_pick(c, game):
         "book": r["book_o"] if c["side"] == "o" else r["book_u"], "books": r["books"],
         "proj": c["proj"]["mean"], "source": c["proj"]["source"],
         "prob": round(c["prob"], 3), "model": round(c["model"], 3), "market": round(c["market"], 3), "edge": round(c["edge"], 3),
-        "kickoff": kickoff(game).isoformat(), "why": why_line(c),
+        "kickoff": kickoff(game).isoformat(), "why": why_line(c, data), "deep": deep_dive(c),
     }
 
 
@@ -480,7 +613,7 @@ def slate_post(games, picks, season, test):
     return {"main": main, "replies": [f"{short(p)}: {p['why']}"[:280] for p in picks]}
 
 
-def email_html(title, post, notes, test):
+def email_html(title, post, notes, test, deep=None):
     box = lambda t: (f'<pre style="white-space:pre-wrap;font:15px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;background:#f4f5f7;'
                      f'border:1px solid #dde0e5;border-radius:10px;padding:12px 14px;margin:0 0 12px">{escape(t)}</pre>')
     banner = ('<p style="background:#fff4d6;border:1px solid #f0d58a;border-radius:8px;padding:8px 12px;margin:0 0 14px">'
@@ -491,14 +624,24 @@ def email_html(title, post, notes, test):
     return (f'<div style="font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;color:#111;max-width:620px">'
             f'<h2 style="margin:0 0 4px">{escape(title)}</h2>{banner}'
             f'<p style="color:#555;margin:0 0 16px">Copy, paste, post. Long-press a box to copy it.</p>'
-            f'<h3 style="margin:0 0 6px">Post</h3>{box(post["main"])}{replies}{note_html}'
+            f'<h3 style="margin:0 0 6px">Post</h3>{box(post["main"])}{replies}{deep_html(deep)}{note_html}'
             f'<p style="color:#888;font-size:13px;margin-top:18px">From {BRAND}\'s picks job. '
             f'<a href="{SITE}/games.html">This week\'s games</a></p></div>')
 
 
-def email_text(post, notes, test):
+def deep_html(deep):
+    if not deep:
+        return ""
+    cards = "".join('<div style="border:1px solid #dde0e5;border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:14px">'
+                    f'<b>{escape(d[0])}</b>' + "".join(f'<div style="margin-top:4px;color:#333">{escape(x)}</div>' for x in d[1:]) + "</div>"
+                    for d in deep)
+    return f'<h3 style="margin:16px 0 6px">Deep dive (for you, not for posting)</h3>{cards}'
+
+
+def email_text(post, notes, test, deep=None):
     return "\n".join([*(["TEST RUN: not counted, not for posting.", ""] if test else []), post["main"], "",
-                      *[x for r in post["replies"] for x in (r, "")], *[f"Note: {n}" for n in notes]])
+                      *[x for r in post["replies"] for x in (r, "")],
+                      *(["Deep dive:"] + [x for d in deep for x in (*d, "")] if deep else []), *[f"Note: {n}" for n in notes]])
 
 
 # ---------------------------------------------------------------- lock
@@ -556,7 +699,7 @@ def lock(data, store, now, api, force=False):
     for g in pre:
         cands = candidates(data, g, (snaps.get(g["id"]) or {}).get("rows", []))
         n_cands += len(cands)
-        picks += [to_pick(c, g) for c in choose(cands)]
+        picks += [to_pick(c, g, data) for c in choose(cands)]
     season = read(dir_ / "record.json", {}).get("season") if not test else None
     post = slate_post(pre, picks, season, test)
     notes = [
@@ -564,7 +707,7 @@ def lock(data, store, now, api, force=False):
         "prices are from that moment, so check your book before posting.",
         "Our chance = 30% our projection + 70% the books' no-vig price. Props where the two disagree by 20+ points were skipped "
         "(usually news we can't see).",
-        "Projection = Sleeper's when available, otherwise the Mingus estimate (season + last-3 average, adjusted for the defense).",
+        "Projection = our matchup model (opportunities × efficiency, adjusted for the defense, the team total, game script and injury openings), averaged with Sleeper's when the site has it. The deep dive shows each piece.",
         "Anyone listed questionable, doubtful, out or DNP was skipped. If a pick's player is inactive, it's graded as a void.",
         "This football model has no backtest against real lines yet; the public record is the test.",
     ]
@@ -572,8 +715,8 @@ def lock(data, store, now, api, force=False):
         f"{len(picks)} pick{'s' if len(picks) != 1 else ''}" if picks else "no plays")
     write(file, {"date": day, "season": data.meta.get("season"), "week": pre[0]["week"], "test": test,
                  "games": [g["id"] for g in pre], "locked_at": now.isoformat(), "settings": PICK, "picks": picks,
-                 "post": post, "email": {"subject": f"🏈 {title}", "html": email_html(title, post, notes, test),
-                                         "text": email_text(post, notes, test)}})
+                 "post": post, "email": {"subject": f"🏈 {title}", "html": email_html(title, post, notes, test, [p["deep"] for p in picks]),
+                                         "text": email_text(post, notes, test, [p["deep"] for p in picks])}})
     return {"day": day, "state": "locked", "why": f"{len(picks)} pick(s) locked", "new": True}
 
 
