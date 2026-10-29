@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Download nflverse data and write the JSON files the Mingus FF site reads.
+"""Download nflverse data and write the JSON files the Mingus Football site reads.
 
 nflverse publishes its data as GitHub release assets and refreshes them through
 the week during the season. This script only uses the standard library, so it
@@ -494,7 +494,7 @@ def main():
     # The NFL season runs Sep-Feb, so Jan/Feb still belong to last year's season.
     season = args.season or (today.year if today.month >= 3 else today.year - 1)
 
-    print(f"Building Mingus FF data for {season}")
+    print(f"Building Mingus Football data for {season}")
     games = build_games(season)
     roster = build_roster(season)
     injuries, injury_week = build_injuries(season)

@@ -502,7 +502,7 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
   .nav .nl { display: none; }
   .nav .ns { display: inline; }
 }
-/* "Mingus FF" is short enough to keep on phones; the nav scrolls sideways after it. */
+/* "Mingus Football" is short enough to keep on phones; the nav scrolls sideways after it. */
 @media (max-width: 420px) {
   .header-inner { gap: 12px; }
   .brand { gap: 7px; }
