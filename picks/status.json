@@ -1,0 +1,19 @@
+{
+ "checked": "2026-10-29T22:12:47.278120+00:00",
+ "today": "2026-10-29",
+ "lock": {
+  "day": "2026-10-29",
+  "state": "locked",
+  "why": "1 pick(s) locked",
+  "new": true
+ },
+ "recap": {
+  "state": "none"
+ },
+ "credits": {
+  "remaining": 433,
+  "used": 67,
+  "last_cost": 4,
+  "checked": "2026-10-29T22:12:47+00:00"
+ }
+}

@@ -1,0 +1,78 @@
+{
+ "date": "2026-10-29",
+ "season": 2026,
+ "week": 8,
+ "test": true,
+ "games": [
+  "2026_08_CAR_GB"
+ ],
+ "locked_at": "2026-10-29T22:12:47.278120+00:00",
+ "settings": {
+  "per_game": 2,
+  "model_weight": 0.3,
+  "max_gap": 0.2,
+  "min_prob": 0.54,
+  "min_edge": 0.03,
+  "min_games": 4,
+  "price_range": [
+   -200,
+   180
+  ],
+  "skip_status": [
+   "Out",
+   "Doubtful",
+   "Questionable",
+   "DNP"
+  ],
+  "min_volume": {
+   "att": 20,
+   "car": 8,
+   "tgt": 3.5
+  },
+  "min_books": 2
+ },
+ "picks": [
+  {
+   "id": "2026_08_CAR_GB-00-0037614-rec",
+   "gid": "2026_08_CAR_GB",
+   "week": 8,
+   "pid": "00-0037614",
+   "name": "John Metchie III",
+   "team": "CAR",
+   "opp": "GB",
+   "pos": "WR",
+   "stat": "rec",
+   "side": "o",
+   "line": 1.5,
+   "price": -135,
+   "book": "BetMGM",
+   "books": 5,
+   "proj": 2.0,
+   "source": "Sleeper + Mingus model",
+   "prob": 0.596,
+   "model": 0.691,
+   "market": 0.555,
+   "edge": 0.037,
+   "kickoff": "2026-10-29T20:15:00-04:00",
+   "why": "Our model projects 2 vs the 1.5 line, GB allows the 2nd most catches to WRs; cleared 1.5 in 4 of his last 5.",
+   "deep": [
+    "John Metchie III O 1.5 catches \u00b7 -135 (best price: BetMGM; line from 5 books)",
+    "Projection 2 = half Sleeper (1.6), half our model (2.5); season 1.8, last 3 2.3 per game.",
+    "Volume: 3.7 targets/game \u2192 4.1 after GB defense \u00d71.09, CAR implied 21.5 \u00d70.97, game script (underdog 3.5) \u00d71.03.",
+    "Efficiency: 59% catch rate (steadied toward the league) \u00d7 GB allows \u00d71.02 \u2192 61%.",
+    "Chance: ours 69%, books' no-vig 55%, blended 60%; edge +4% at this price."
+   ]
+  }
+ ],
+ "post": {
+  "main": "\ud83c\udfc8 Mingus Football best bets \u00b7 TNF \u00b7 CAR @ GB\n\nOur pick:\n\nJohn Metchie III O 1.5 catches (-135)\n\nGraded after the game, wins and losses. Why \ud83d\udc47\n\nFor entertainment. 21+ \u00b7 Gamble responsibly \u00b7 1-800-GAMBLER",
+  "replies": [
+   "John Metchie III O 1.5 catches: Our model projects 2 vs the 1.5 line, GB allows the 2nd most catches to WRs; cleared 1.5 in 4 of his last 5."
+  ]
+ },
+ "email": {
+  "subject": "\ud83c\udfc8 TEST \u00b7 TNF post \u00b7 Thu 10/29 \u00b7 1 pick",
+  "html": "<div style=\"font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;color:#111;max-width:620px\"><h2 style=\"margin:0 0 4px\">TEST \u00b7 TNF post \u00b7 Thu 10/29 \u00b7 1 pick</h2><p style=\"background:#fff4d6;border:1px solid #f0d58a;border-radius:8px;padding:8px 12px;margin:0 0 14px\"><b>Test run.</b> Week 8 is a dry run: these picks are graded but not counted in the record, and not for posting.</p><p style=\"color:#555;margin:0 0 16px\">Copy, paste, post. Long-press a box to copy it.</p><h3 style=\"margin:0 0 6px\">Post</h3><pre style=\"white-space:pre-wrap;font:15px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;background:#f4f5f7;border:1px solid #dde0e5;border-radius:10px;padding:12px 14px;margin:0 0 12px\">\ud83c\udfc8 Mingus Football best bets \u00b7 TNF \u00b7 CAR @ GB\n\nOur pick:\n\nJohn Metchie III O 1.5 catches (-135)\n\nGraded after the game, wins and losses. Why \ud83d\udc47\n\nFor entertainment. 21+ \u00b7 Gamble responsibly \u00b7 1-800-GAMBLER</pre><h3 style=\"margin:0 0 6px\">Thread replies</h3><pre style=\"white-space:pre-wrap;font:15px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;background:#f4f5f7;border:1px solid #dde0e5;border-radius:10px;padding:12px 14px;margin:0 0 12px\">John Metchie III O 1.5 catches: Our model projects 2 vs the 1.5 line, GB allows the 2nd most catches to WRs; cleared 1.5 in 4 of his last 5.</pre><h3 style=\"margin:16px 0 6px\">Deep dive (for you, not for posting)</h3><div style=\"border:1px solid #dde0e5;border-radius:10px;padding:10px 12px;margin:0 0 10px;font-size:14px\"><b>John Metchie III O 1.5 catches \u00b7 -135 (best price: BetMGM; line from 5 books)</b><div style=\"margin-top:4px;color:#333\">Projection 2 = half Sleeper (1.6), half our model (2.5); season 1.8, last 3 2.3 per game.</div><div style=\"margin-top:4px;color:#333\">Volume: 3.7 targets/game \u2192 4.1 after GB defense \u00d71.09, CAR implied 21.5 \u00d70.97, game script (underdog 3.5) \u00d71.03.</div><div style=\"margin-top:4px;color:#333\">Efficiency: 59% catch rate (steadied toward the league) \u00d7 GB allows \u00d71.02 \u2192 61%.</div><div style=\"margin-top:4px;color:#333\">Chance: ours 69%, books&#x27; no-vig 55%, blended 60%; edge +4% at this price.</div></div><h3 style=\"margin:16px 0 6px\">For you, not for posting</h3><ul style=\"color:#444;padding-left:18px;margin:0\"><li>Locked 6:12 PM ET from 28 prop sides across 1 game(s); prices are from that moment, so check your book before posting.</li><li>Our chance = 30% our projection + 70% the books&#x27; no-vig price. Props where the two disagree by 20+ points were skipped (usually news we can&#x27;t see).</li><li>Projection = our matchup model (opportunities \u00d7 efficiency, adjusted for the defense, the team total, game script and injury openings), averaged with Sleeper&#x27;s when the site has it. The deep dive shows each piece.</li><li>Anyone listed questionable, doubtful, out or DNP was skipped. If a pick&#x27;s player is inactive, it&#x27;s graded as a void.</li><li>This football model has no backtest against real lines yet; the public record is the test.</li></ul><p style=\"color:#888;font-size:13px;margin-top:18px\">From Mingus Football's picks job. <a href=\"https://joshwilliams332.github.io/mingus/games.html\">This week's games</a></p></div>",
+  "text": "TEST RUN: not counted, not for posting.\n\n\ud83c\udfc8 Mingus Football best bets \u00b7 TNF \u00b7 CAR @ GB\n\nOur pick:\n\nJohn Metchie III O 1.5 catches (-135)\n\nGraded after the game, wins and losses. Why \ud83d\udc47\n\nFor entertainment. 21+ \u00b7 Gamble responsibly \u00b7 1-800-GAMBLER\n\nJohn Metchie III O 1.5 catches: Our model projects 2 vs the 1.5 line, GB allows the 2nd most catches to WRs; cleared 1.5 in 4 of his last 5.\n\nDeep dive:\nJohn Metchie III O 1.5 catches \u00b7 -135 (best price: BetMGM; line from 5 books)\nProjection 2 = half Sleeper (1.6), half our model (2.5); season 1.8, last 3 2.3 per game.\nVolume: 3.7 targets/game \u2192 4.1 after GB defense \u00d71.09, CAR implied 21.5 \u00d70.97, game script (underdog 3.5) \u00d71.03.\nEfficiency: 59% catch rate (steadied toward the league) \u00d7 GB allows \u00d71.02 \u2192 61%.\nChance: ours 69%, books' no-vig 55%, blended 60%; edge +4% at this price.\n\nNote: Locked 6:12 PM ET from 28 prop sides across 1 game(s); prices are from that moment, so check your book before posting.\nNote: Our chance = 30% our projection + 70% the books' no-vig price. Props where the two disagree by 20+ points were skipped (usually news we can't see).\nNote: Projection = our matchup model (opportunities \u00d7 efficiency, adjusted for the defense, the team total, game script and injury openings), averaged with Sleeper's when the site has it. The deep dive shows each piece.\nNote: Anyone listed questionable, doubtful, out or DNP was skipped. If a pick's player is inactive, it's graded as a void.\nNote: This football model has no backtest against real lines yet; the public record is the test."
+ }
+}
