@@ -13,6 +13,11 @@ on:
     # Grading, the morning and midday after night games (Fri, Sun, Mon, Tue), once nflverse has the box scores.
     - cron: "30 9,13,17 * * 0,1,2,5"
   workflow_dispatch:
+  # Also run when the picks code itself changes on main (e.g. right after merging), so a change can lock that night's
+  # picks without waiting for the schedule. Commits to the `data` branch don't trigger this.
+  push:
+    branches: [main]
+    paths: ["scripts/nfl_picks.py", ".github/workflows/nfl-picks.yml"]
 
 permissions:
   contents: write
