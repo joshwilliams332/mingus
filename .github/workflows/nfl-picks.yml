@@ -10,8 +10,9 @@ on:
     # Lock window, every 30 min on Thu/Sat/Sun/Mon afternoons: 3:15-7:45 PM EDT / 2:15-6:45 PM EST. Picks lock on the
     # first run within 4 hours of kickoff; the extra runs cover GitHub starting scheduled runs late.
     - cron: "15,45 20-23 * * 0,1,4,6"
-    # Grading, the morning and midday after night games (Fri, Sun, Mon, Tue), once nflverse has the box scores.
-    - cron: "30 9,13,17 * * 0,1,2,5"
+    # Grading, the morning after night games (Fri, Sun, Mon, Tue), once nflverse has the box scores: 4:30 / 7:30 /
+    # 10:30 AM / 1:30 PM EST. The 7:30 run lands before the 8:41 AM results email (which also waits up to an hour).
+    - cron: "30 9,12,15,18 * * 0,1,2,5"
   workflow_dispatch:
   # Also run when the picks code itself changes on main (e.g. right after merging), so a change can lock that night's
   # picks without waiting for the schedule. Commits to the `data` branch don't trigger this.

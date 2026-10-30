@@ -8,6 +8,7 @@ them to the store, which the workflow keeps on the `data` branch. Nothing here p
 task emails the ready-to-post text to Josh, who posts it himself.
 
     store/picks/YYYY-MM-DD.json          that ET date's night-game picks, locked once (never rewritten)
+    store/picks/YYYY-MM-DD-results.json  that night's picks graded, the morning after (written once)
     store/picks/week-NN-recap.json       a week's night picks graded, + season record (written once)
     store/picks/status.json              what the last run did (read by the email tasks)
     store/odds/props/<game id>.json      the props snapshot each pick was made from (one pull per game)
@@ -768,6 +769,53 @@ def recap(data, store, stats_rows, now):
     return out
 
 
+def night_results(data, store, stats_rows, now):
+    """The morning-after results for each locked night (like Hoop Lab's recap): written once all of that night's
+    picks are graded, to picks/YYYY-MM-DD-results.json. Nights with no picks get no file (nothing to report)."""
+    dir_ = Path(store) / "picks"
+    season = data.meta.get("season")
+    out = {"state": "none"}
+    for day in locked_days(dir_):
+        doc = read(dir_ / f"{day}.json", {})
+        file = dir_ / f"{day}-results.json"
+        if doc.get("season") != season or not doc.get("picks"):
+            continue
+        if file.exists():
+            out = {"day": day, "state": "done"}
+            continue
+        games = [data.game[g] for g in doc.get("games", []) if g in data.game]
+        if any(kickoff(g) > now for g in games):
+            out = {"day": day, "state": "waiting", "why": "tonight's games haven't been played"}
+            continue
+        rows = [(p, grade(p, stats_rows)) for p in doc["picks"]]
+        if any(g["status"] == "open" for _, g in rows):
+            out = {"day": day, "state": "pending", "why": "nflverse hasn't published the box score yet"}
+            continue
+        test = bool(doc.get("test"))
+        s = summarize([g for _, g in rows])
+        season_s = None if test else season_record(dir_, stats_rows, season)
+        mark = {"win": "✅", "loss": "❌"}
+        lines = [f"{mark.get(g['status'], '➖')} {short(p)}" + (" (inactive, void)" if g["status"] == "void" else f" ({g['actual']:g})")
+                 for p, g in rows]
+        slot = slot_label(games[0]) if games else "Night"
+        matchups = " · ".join(f"{g['away']} @ {g['home']}" for g in games)
+        n = s["w"] + s["l"]
+        opener = (f"{slot} results: every pick voided." if not n else
+                  f"{'✅ ' if s['profit'] > 0 else '❌ ' if s['profit'] < 0 else ''}{slot} results ({matchups}): {s['w']}-{s['l']} ({units(s['profit'])}).")
+        tail = [f"Season: {record_txt(season_s)}", "Every pick posted before kickoff, wins and losses."] if season_s else []
+        main = "\n".join([f"🏈 {BRAND} · {opener}", "", *lines, "", *tail, *([""] if tail else []), FOOT]).strip()
+        post = {"main": main, "replies": []}
+        notes = ["Graded from nflverse box scores. A player who didn't play is a void, like the sportsbooks do it."]
+        if test:
+            notes.append("Week 8 is a test run: this result isn't counted in the record. The record starts with Week 9.")
+        title = f"{'TEST · ' if test else ''}{slot} results · {day_label(day)} · {s['w']}-{s['l']}{'-' + str(s['p']) if s['p'] else ''} ({units(s['profit'])})"
+        write(file, {"date": day, "season": season, "week": doc.get("week"), "test": test, "graded_at": now.isoformat(),
+                     "record": s, "season_record": season_s, "results": [{"id": p["id"], **g} for p, g in rows], "post": post,
+                     "email": {"subject": f"🏈 {title}", "html": email_html(title, post, notes, test), "text": email_text(post, notes, test)}})
+        out = {"day": day, "state": "done", "new": True, "record": record_txt(s)}
+    return out
+
+
 def load_stats(season, path=None):
     """nflverse weekly player stats (regular season) for grading; [] if it can't be loaded."""
     try:
@@ -800,8 +848,9 @@ def main(argv=None):
     api = OddsAPI(key, a.store) if key and not a.no_odds else None
     stats_rows = load_stats(data.meta.get("season"), a.stats)
     rc = recap(data, a.store, stats_rows, now)       # first, so tonight's email can show the latest record
+    res = night_results(data, a.store, stats_rows, now)
     lk = lock(data, a.store, now, api, a.force_lock)
-    status = {"checked": now.isoformat(), "today": et_date(now), "lock": lk, "recap": rc,
+    status = {"checked": now.isoformat(), "today": et_date(now), "lock": lk, "recap": rc, "results": res,
               "credits": (api.usage if api else read(Path(a.store) / "odds" / "usage.json", {}))}
     write(Path(a.store) / "picks" / "status.json", status)
     print(f"Picks: {lk['day']} {lk['state']} ({lk.get('why', '')}); recap week {rc.get('week', '-')} {rc['state']}"
