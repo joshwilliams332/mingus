@@ -1,15 +1,21 @@
 {
- "checked": "2026-10-30T01:58:11.468581+00:00",
- "today": "2026-10-29",
+ "checked": "2026-10-30T13:56:51.041479+00:00",
+ "today": "2026-10-30",
  "lock": {
-  "day": "2026-10-29",
-  "state": "locked",
-  "why": "already locked"
+  "day": "2026-10-30",
+  "state": "no-games",
+  "why": "no night games today"
  },
  "recap": {
   "week": 8,
   "state": "waiting",
   "why": "the week's night games aren't all played yet"
+ },
+ "results": {
+  "day": "2026-10-29",
+  "state": "done",
+  "new": true,
+  "record": "1-0 (+0.7u)"
  },
  "credits": {
   "remaining": 433,

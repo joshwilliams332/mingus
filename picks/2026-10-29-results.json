@@ -1,0 +1,32 @@
+{
+ "date": "2026-10-29",
+ "season": 2026,
+ "week": 8,
+ "test": true,
+ "graded_at": "2026-10-30T13:56:51.041479+00:00",
+ "record": {
+  "w": 1,
+  "l": 0,
+  "p": 0,
+  "v": 0,
+  "profit": 0.741
+ },
+ "season_record": null,
+ "results": [
+  {
+   "id": "2026_08_CAR_GB-00-0037614-rec",
+   "status": "win",
+   "actual": 3,
+   "profit": 0.741
+  }
+ ],
+ "post": {
+  "main": "\ud83c\udfc8 Mingus Football \u00b7 \u2705 TNF results (CAR @ GB): 1-0 (+0.7u).\n\n\u2705 John Metchie III O 1.5 catches (3)\n\nFor entertainment. 21+ \u00b7 Gamble responsibly \u00b7 1-800-GAMBLER",
+  "replies": []
+ },
+ "email": {
+  "subject": "\ud83c\udfc8 TEST \u00b7 TNF results \u00b7 Thu 10/29 \u00b7 1-0 (+0.7u)",
+  "html": "<div style=\"font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;color:#111;max-width:620px\"><h2 style=\"margin:0 0 4px\">TEST \u00b7 TNF results \u00b7 Thu 10/29 \u00b7 1-0 (+0.7u)</h2><p style=\"background:#fff4d6;border:1px solid #f0d58a;border-radius:8px;padding:8px 12px;margin:0 0 14px\"><b>Test run.</b> Week 8 is a dry run: these picks are graded but not counted in the record, and not for posting.</p><p style=\"color:#555;margin:0 0 16px\">Copy, paste, post. Long-press a box to copy it.</p><h3 style=\"margin:0 0 6px\">Post</h3><pre style=\"white-space:pre-wrap;font:15px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;background:#f4f5f7;border:1px solid #dde0e5;border-radius:10px;padding:12px 14px;margin:0 0 12px\">\ud83c\udfc8 Mingus Football \u00b7 \u2705 TNF results (CAR @ GB): 1-0 (+0.7u).\n\n\u2705 John Metchie III O 1.5 catches (3)\n\nFor entertainment. 21+ \u00b7 Gamble responsibly \u00b7 1-800-GAMBLER</pre><h3 style=\"margin:16px 0 6px\">For you, not for posting</h3><ul style=\"color:#444;padding-left:18px;margin:0\"><li>Graded from nflverse box scores. A player who didn&#x27;t play is a void, like the sportsbooks do it.</li><li>Week 8 is a test run: this result isn&#x27;t counted in the record. The record starts with Week 9.</li></ul><p style=\"color:#888;font-size:13px;margin-top:18px\">From Mingus Football's picks job. <a href=\"https://joshwilliams332.github.io/mingus/games.html\">This week's games</a></p></div>",
+  "text": "TEST RUN: not counted, not for posting.\n\n\ud83c\udfc8 Mingus Football \u00b7 \u2705 TNF results (CAR @ GB): 1-0 (+0.7u).\n\n\u2705 John Metchie III O 1.5 catches (3)\n\nFor entertainment. 21+ \u00b7 Gamble responsibly \u00b7 1-800-GAMBLER\n\nNote: Graded from nflverse box scores. A player who didn't play is a void, like the sportsbooks do it.\nNote: Week 8 is a test run: this result isn't counted in the record. The record starts with Week 9."
+ }
+}
