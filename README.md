@@ -34,9 +34,9 @@ Weather forecasts for upcoming outdoor games come from [Open-Meteo](https://open
 
 1. **Lock.** On the first run within 4 hours of kickoff, it pulls player props from [The Odds API](https://the-odds-api.com) for that game (passing, rushing and receiving yards, and receptions: 4 credits per game), compares each line with our projection (Sleeper's when available, otherwise a Mingus estimate from recent games and the defense), and locks up to 2 picks per game. A pick's chance blends our projection (30%) with the books' no-vig price (70%); it needs at least a 54% chance and a 3% edge at the best posted price. Players on the injury report are skipped.
 2. **Save.** Picks, the props snapshot they came from, and a ready-to-post email go to the `data` branch (`picks/`, `odds/`). Locked picks are never rewritten.
-3. **Grade.** After the game, picks are graded from nflverse box scores (a player who didn't play is a void, like at the sportsbooks). Each week's recap and the season record are written once the week's night games are graded.
+3. **Grade.** The morning after, picks are graded from nflverse box scores (a player who didn't play is a void, like at the sportsbooks) into that night's results. Each week's recap and the season record are written once the week's night games are graded.
 
-Scheduled Claude tasks email the picks to Josh at 6:00 PM ET on game nights and the recap on Tuesday; Josh posts them himself. It needs the `ODDS_API_KEY` repository secret.
+Scheduled Claude tasks email the picks to Josh at 6:00 PM ET on game nights, the results the next morning at 8:41 AM ET, and the weekly recap on Tuesday; Josh posts them himself. It needs the `ODDS_API_KEY` repository secret.
 
 ```sh
 python3 -m unittest discover -s tests                       # tests

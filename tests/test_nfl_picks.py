@@ -252,6 +252,24 @@ class LockAndGrade(unittest.TestCase):
         N.recap(self.data, self.store, rows, self.at("13:00", "2026-11-10"))
         self.assertEqual((dir_ / "week-09-recap.json").stat().st_mtime_ns, mtime)
 
+    def test_night_results_written_once_after_grading(self):
+        dir_ = self.store / "picks"
+        pick = {"id": "a", "gid": "2026_09_PHI_WAS", "pid": "TE1", "name": "Dallas Goedert", "team": "PHI", "opp": "WAS", "week": 9,
+                "stat": "rec_yds", "side": "o", "line": 45.5, "price": -110}
+        N.write(dir_ / "2026-11-08.json", {"season": 2026, "week": 9, "test": False, "games": ["2026_09_PHI_WAS"], "picks": [pick]})
+        self.assertEqual(N.night_results(self.data, self.store, [], self.at("19:00"))["state"], "waiting")
+        self.assertEqual(N.night_results(self.data, self.store, [], self.at("09:00", "2026-11-09"))["state"], "pending")
+        rows = stats_rows(9, [("TE1", "PHI", {"receiving_yards": 60})])
+        r = N.night_results(self.data, self.store, rows, self.at("09:30", "2026-11-09"))
+        self.assertEqual((r["state"], r["record"]), ("done", "1-0 (+0.9u)"))
+        doc = json.loads((dir_ / "2026-11-08-results.json").read_text())
+        self.assertIn("SNF results", doc["post"]["main"])
+        self.assertIn("✅ Dallas Goedert O 45.5 rec yds (60)", doc["post"]["main"])
+        self.assertIn("Season: 1-0", doc["post"]["main"])
+        self.assertIn("1-800-GAMBLER", doc["post"]["main"])
+        self.assertEqual(N.locked_days(dir_), ["2026-11-08"])      # results files aren't mistaken for locked nights
+        self.assertEqual(N.night_results(self.data, self.store, rows, self.at("10:00", "2026-11-09"))["state"], "done")
+
 
 if __name__ == "__main__":
     unittest.main()
