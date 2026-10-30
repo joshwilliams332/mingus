@@ -1,14 +1,15 @@
 {
- "checked": "2026-10-29T22:12:47.278120+00:00",
+ "checked": "2026-10-30T01:58:11.468581+00:00",
  "today": "2026-10-29",
  "lock": {
   "day": "2026-10-29",
   "state": "locked",
-  "why": "1 pick(s) locked",
-  "new": true
+  "why": "already locked"
  },
  "recap": {
-  "state": "none"
+  "week": 8,
+  "state": "waiting",
+  "why": "the week's night games aren't all played yet"
  },
  "credits": {
   "remaining": 433,
