@@ -78,10 +78,28 @@ PICK = {
     "min_volume": {"att": 20, "car": 8, "tgt": 3.5},  # regulars only: per game, by the stat's opportunity
     "min_books": 2,        # a consensus line needs at least two books quoting both sides
 }
-DEF_STRENGTH = 0.5         # the defense adjustment is applied at half strength...
-DEF_CAP = (0.85, 1.15)     # ...and capped, since 8 games of defense allowed is a small sample
-PRIOR_CV = {"pass_yds": 0.30, "rush_yds": 0.50, "rec_yds": 0.55, "rec": 0.45}  # typical game-to-game spread / mean
-PRIOR_WEIGHT = 4           # the spread estimate counts the typical spread as this many games
+# Settings tuned Oct 31, 2026 on 2021-2025 (22,000 player-games, each projected only from earlier games that season,
+# against a "typical" line = floor(his average so far) + 0.5, since no historical sportsbook lines exist), then tested
+# untouched on 2026 Weeks 5-8: Brier 0.2444 (first calibration) -> 0.2398; the very first version scored 0.2594 and a
+# coin 0.2500. Better than the first calibration in every season. What the data said:
+#   - weight recent games more: opportunities decay with a 4-game half-life, efficiency with a 6-game half-life;
+#   - lean less on matchups: the defense's opportunity effect at a quarter strength (capped ±10%), its per-play effect
+#     dropped (no help), the team-total effect at a quarter strength, the game-script effect dropped;
+#   - steady efficiency toward the league with 20 opportunities, not 40;
+#   - wider typical spreads (PRIOR_CV, counted as 8 games), x1.15 overall; mean x1.03 (passing yards x0.93).
+VOL_HALF_LIFE = 4          # games
+RATE_HALF_LIFE = 6         # games
+RATE_PAD = 20              # opportunities of league-average efficiency blended in
+DEF_VOL_STRENGTH = 0.25
+DEF_EFF_STRENGTH = 0.0
+DEF_CAP = (0.9, 1.1)
+IMP_STRENGTH = 0.25
+SCRIPT_PER_POINT = 0.0     # tested 0.5-2% per point of spread: no help
+PRIOR_CV = {"pass_yds": 0.70, "rush_yds": 0.50, "rec_yds": 0.70, "rec": 0.60}  # typical game-to-game spread / mean
+PRIOR_WEIGHT = 8           # the spread estimate counts the typical spread as this many games
+MEAN_ADJ = {"pass_yds": 1.03 * 0.9, "rush_yds": 1.03, "rec_yds": 1.03, "rec": 1.03}
+SPREAD_ADJ = 1.15
+SKEWED = {"rush_yds", "rec_yds", "rec"}
 
 
 # ---------------------------------------------------------------- small helpers
@@ -323,20 +341,24 @@ def openings(data, player, game, opp_key):
     return (min(1.25, 1 + 0.6 * missing / active) if active else 1.0), [p["name"] for p in out]
 
 
+def decay_weights(n, half_life):
+    """Weights for n games, oldest first: the latest counts 1, a game half_life games earlier counts 1/2."""
+    return [0.5 ** ((n - 1 - i) / half_life) for i in range(n)]
+
+
 def projection(data, player, stat, game, week):
     """Our expected value and spread for a player's stat in this game, or None without enough history.
 
-    The Mingus model, built like the matchup report: opportunities x efficiency.
-      Opportunities (his pass attempts, carries or targets): half season per game, half last 3, then
-        x the defense: how many of those it allows to his position vs the league (half strength, 0.85-1.15)
-        x the game: the team's implied points vs the week's average (half strength, 0.9-1.1); and favorites run more,
-          underdogs throw more (1% per point of spread, up to 6%)
-        x injury openings: a share of the work teammates ruled out leave behind (see openings()).
-      Efficiency (yards per attempt / carry / target, or catch rate): his season rate steadied toward the position's
-        league rate (counted as 40 opportunities), x what this defense allows per opportunity to his position vs the
-        league (half strength, 0.85-1.15).
-    When the site has Sleeper's projection for the stat, the mean is half Sleeper, half ours (Sleeper sees news and
-    depth charts; ours sees the matchup). Spread: his game-to-game spread steadied with a typical one (PRIOR_CV)."""
+    The Mingus model: opportunities x efficiency, with the settings tuned on 2021-2025 (see VOL_HALF_LIFE).
+      Opportunities (his pass attempts, carries or targets): a recency-weighted average (4-game half-life), then
+        x the defense: how many of those it allows to his position vs the league (quarter strength, 0.9-1.1)
+        x the game: the team's implied points vs the week's average (quarter strength, 0.9-1.1)
+        x injury openings: a share of the work teammates ruled out leave behind (see openings(); not backtested,
+          since past injury reports aren't in the data).
+      Efficiency (yards per attempt / carry / target, or catch rate): his recency-weighted rate (6-game half-life)
+        steadied toward the position's league rate (counted as 20 opportunities).
+    Times MEAN_ADJ (calibration). When the site has Sleeper's projection for the stat, the mean is half Sleeper, half
+    ours (Sleeper sees news and depth charts). Spread: his game-to-game spread steadied with a typical one."""
     log = [e for e in player["log"] if e["week"] < week]
     if len(log) < PICK["min_games"]:
         return None
@@ -345,50 +367,60 @@ def projection(data, player, stat, game, week):
     opps = [e.get(ok) or 0 for e in log]
     opp = game["home"] if player["team"] == game["away"] else game["away"]
     per, league, ranks = data.dvp()
-    half = lambda x, lo, hi: min(hi, max(lo, 1 + DEF_STRENGTH * (x - 1)))
+    adj = lambda x, strength: min(DEF_CAP[1], max(DEF_CAP[0], 1 + strength * (x - 1)))
 
-    vol_base = (statistics.mean(opps) + statistics.mean(opps[-3:])) / 2
+    wv = decay_weights(len(opps), VOL_HALF_LIFE)
+    vol_base = sum(w * o for w, o in zip(wv, opps)) / sum(wv)
     d_al, d_lg = per.get(opp, {}).get(pos, {}), league.get(pos, {})
-    f_def_vol = half(d_al.get(ok, 0) / d_lg[ok], *DEF_CAP) if d_lg.get(ok) else 1.0
+    f_def_vol = adj(d_al.get(ok, 0) / d_lg[ok], DEF_VOL_STRENGTH) if d_lg.get(ok) else 1.0
     ctx = team_context(data, player["team"], game)
-    f_imp = half(ctx["implied"] / ctx["avg"], 0.9, 1.1) if ctx["implied"] and ctx["avg"] else 1.0
-    lean = max(-0.06, min(0.06, 0.01 * ctx["fav_by"]))
+    f_imp = adj(ctx["implied"] / ctx["avg"], IMP_STRENGTH) if ctx["implied"] and ctx["avg"] else 1.0
+    lean = max(-0.06, min(0.06, SCRIPT_PER_POINT * ctx["fav_by"]))
     f_script = 1 + lean if ok == "car" else 1 - lean if ok in ("att", "tgt") else 1.0
     f_inj, out_names = openings(data, player, game, ok)
     vol = vol_base * f_def_vol * f_imp * f_script * f_inj
 
-    tot_opp, tot_val = sum(opps), sum(vals)
-    lg_rate = (d_lg.get(stat, 0) / d_lg[ok]) if d_lg.get(ok) else (tot_val / tot_opp if tot_opp else 0)
-    rate = (tot_val + 40 * lg_rate) / (tot_opp + 40) if (tot_opp + 40) else lg_rate
+    wr = decay_weights(len(vals), RATE_HALF_LIFE)
+    w_val, w_opp = sum(w * v for w, v in zip(wr, vals)), sum(w * o for w, o in zip(wr, opps))
+    lg_rate = (d_lg.get(stat, 0) / d_lg[ok]) if d_lg.get(ok) else (w_val / w_opp if w_opp else 0)
+    rate = (w_val + RATE_PAD * lg_rate) / (w_opp + RATE_PAD)
     def_rate = (d_al.get(stat, 0) / d_al[ok]) if d_al.get(ok) else lg_rate
-    f_def_eff = half(def_rate / lg_rate, *DEF_CAP) if lg_rate else 1.0
+    f_def_eff = adj(def_rate / lg_rate, DEF_EFF_STRENGTH) if lg_rate else 1.0
     eff = rate * f_def_eff
-    mingus = vol * eff
+    mingus = vol * eff * MEAN_ADJ[stat]
 
     sleeper = (((player.get("proj") or {}).get("sleeper") or {}).get(str(week)) or {}).get("line", {}).get(stat)
     mean = (sleeper + mingus) / 2 if sleeper is not None else mingus
     sd_obs = statistics.pstdev(vals) if len(vals) > 1 else 0
     prior = PRIOR_CV[stat] * max(mean, 1)
-    sd = math.sqrt((len(vals) * sd_obs ** 2 + PRIOR_WEIGHT * prior ** 2) / (len(vals) + PRIOR_WEIGHT))
+    sd = SPREAD_ADJ * math.sqrt((len(vals) * sd_obs ** 2 + PRIOR_WEIGHT * prior ** 2) / (len(vals) + PRIOR_WEIGHT))
     rank = ranks.get((opp, pos, stat))
     vol_rank = ranks.get((opp, pos, ok))
     shares = [e.get("tgt_sh") if ok == "tgt" else e.get("car_sh") for e in log[-3:]]
     shares = [x for x in shares if x is not None]
     return {"mean": round(mean, 1), "sd": round(max(sd, 0.5), 1),
-            "source": "Sleeper + Mingus model" if sleeper is not None else "Mingus model",
+            "source": "Sleeper + Mingus model" if sleeper is not None else "Mingus model", "stat": stat,
             "season": round(statistics.mean(vals), 1), "last3": round(statistics.mean(vals[-3:]), 1), "vals": vals, "opp": opp,
             "opp_rank": {"rank": rank[0], "of": rank[1]} if rank else None,
             "vol_rank": {"rank": vol_rank[0], "of": vol_rank[1]} if vol_rank else None,
             "parts": {"opp_key": ok, "vol_base": round(vol_base, 1), "vol": round(vol, 1), "eff": round(eff, 3 if stat == "rec" else 2),
                       "rate": round(rate, 3 if stat == "rec" else 2), "f_def_vol": round(f_def_vol, 3), "f_imp": round(f_imp, 3),
                       "f_script": round(f_script, 3), "f_inj": round(f_inj, 3), "f_def_eff": round(f_def_eff, 3),
-                      "mingus": round(mingus, 1), "sleeper": sleeper, "out": out_names,
+                      "mean_adj": MEAN_ADJ[stat], "mingus": round(mingus, 1), "sleeper": sleeper, "out": out_names,
                       "share3": round(statistics.mean(shares), 3) if shares else None},
             "ctx": ctx}
 
 
 def chance_over(proj, line):
-    return 1 - ncdf((line - proj["mean"]) / proj["sd"])
+    """Chance he finishes over the line: log-normal (skewed like real yardage) for rushing / receiving / catches,
+    a bell curve for passing yards (tuned on 2021-2025, see VOL_HALF_LIFE)."""
+    m, sd = max(proj["mean"], 0.1), proj["sd"]
+    if proj.get("stat") in SKEWED:
+        if line <= 0:
+            return 1.0
+        s2 = math.log(1 + (sd / m) ** 2)
+        return 1 - ncdf((math.log(line) - (math.log(m) - s2 / 2)) / math.sqrt(s2))
+    return 1 - ncdf((line - m) / sd)
 
 
 # ---------------------------------------------------------------- choosing picks
@@ -505,7 +537,7 @@ def deep_dive(c):
            f"{' + '.join(x['out'])} out ×{x['f_inj']:.2f}" if x["out"] else None]
     lines = [
         f"{short_pick(c)} · {price_txt(c['price'])} (best price: {r['book_o'] if c['side'] == 'o' else r['book_u']}; line from {r['books']} books)",
-        f"Projection {proj['mean']:g}" + (f" = half Sleeper ({x['sleeper']:g}), half our model ({x['mingus']:g})" if x["sleeper"] is not None else f" (our model)") +
+        f"Projection {proj['mean']:g}" + (f" = half Sleeper ({x['sleeper']:g}), half our model ({x['mingus']:g}), less 3%" if x["sleeper"] is not None else f" (our model, less 3% for calibration)") +
         f"; season {proj['season']:g}, last 3 {proj['last3']:g} per game.",
         f"Volume: {x['vol_base']:g} {word}/game → {x['vol']:g} after " + ", ".join(a for a in adj if a) + ".",
         f"Efficiency: {fmt_rate(x['rate'])} {rate_word} (steadied toward the league) × {proj['opp']} allows ×{x['f_def_eff']:.2f} → {fmt_rate(x['eff'])}.",

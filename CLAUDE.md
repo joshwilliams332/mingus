@@ -68,13 +68,21 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   rewritten). Same rules as Hoop Lab: chance = 30% projection + 70% books' no-vig consensus at the most-posted line,
   skip if they differ by 20+ points, >= 54% and >= 3% edge at the best price, prices -200 to +180, one per player, up to
   2 per game, skip anyone Questionable / Doubtful / Out / DNP, regulars only (20 att / 8 car / 3.5 tgt a game), line
-  quoted by 2+ books. Projection (Josh asked for the matchup-report approach, Oct 29) = opportunities x efficiency:
-  att / car / tgt per game (half season, half last 3) x defense allowed to the position (half strength, 0.85-1.15) x
-  team implied vs week average (half strength, 0.9-1.1) x game script (favorites +1% carries / -1% throws per point,
-  max 6%) x injury openings (60% of Out/Doubtful teammates' recent volume, by share, max +25%); efficiency = his rate
-  steadied toward the position's league rate (40 opportunities) x defense allowed per opportunity (half strength).
-  Averaged 50/50 with Sleeper's stat line when players.json has it. Spread = his game-to-game spread blended with a
-  typical one (`PRIOR_CV`, 4 games' weight); normal curve. Each pick's "why" (one post reply) leads with projection vs
+  quoted by 2+ books. Projection = opportunities x efficiency, settings tuned Oct 31 on 2021-2025 (Josh's request:
+  train on past seasons, test on this one): att / car / tgt per game as a recency-weighted average (4-game half-life)
+  x defense allowed to the position (quarter strength, 0.9-1.1) x team implied vs week average (quarter strength,
+  0.9-1.1) x injury openings (60% of Out/Doubtful teammates' recent volume, by share, max +25%; not backtestable);
+  efficiency = his recency-weighted rate (6-game half-life) steadied toward the position's league rate (20
+  opportunities); x `MEAN_ADJ` (1.03; passing yards 0.93). Game script and the defense's per-play effect were tested
+  and dropped (no help). Averaged 50/50 with Sleeper's stat line when players.json has it. Spread = his game-to-game
+  spread blended with `PRIOR_CV` (counted as 8 games) x1.15. Chance of the over: log-normal for rush / rec yds and
+  catches (yardage is skewed), bell curve for passing yards. Backtest (each game projected only from earlier games,
+  vs a "typical" line = floor(his average) + 0.5, since no historical book lines exist): 2021-2025 Brier 0.240
+  (21,949 predictions; coin 0.250); held-out 2026 Weeks 5-8 0.238-0.240 (first version 0.259). Over leans (60%+)
+  hit 60%, under leans (40%-) 63%. Receiving yards strongest; passing yards about even with a coin. Typical lines
+  are easier than real book lines, so real edges are smaller. The backtest scripts and a standalone over/under tool
+  ("Mingus Prop Model" artifact, not on the site) live outside the repo; see the football handoff doc.
+  Each pick's "why" (one post reply) leads with projection vs
   line, then the strongest of matchup rank, injury openings, target share / carries, team total, last-5 hits and a
   top-5 Next Gen Stat; the email adds a not-for-posting "Deep dive" with every factor.
   Grading reads nflverse `stats_player_week` (void if the game's stats exist but he has no row). The morning after each
