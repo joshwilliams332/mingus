@@ -80,8 +80,8 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   vs a "typical" line = floor(his average) + 0.5, since no historical book lines exist): 2021-2025 Brier 0.240
   (21,949 predictions; coin 0.250); held-out 2026 Weeks 5-8 0.238-0.240 (first version 0.259). Over leans (60%+)
   hit 60%, under leans (40%-) 63%. Receiving yards strongest; passing yards about even with a coin. Typical lines
-  are easier than real book lines, so real edges are smaller. The backtest scripts and a standalone over/under tool
-  ("Mingus Prop Model" artifact, not on the site) live outside the repo; see the football handoff doc.
+  are easier than real book lines, so real edges are smaller. Backtest scripts: `scripts/backtest/`; the standalone
+  over/under tool ("Mingus Prop Model" artifact, not on the site): `scripts/prop_tool/`.
   Each pick's "why" (one post reply) leads with projection vs
   line, then the strongest of matchup rank, injury openings, target share / carries, team total, last-5 hits and a
   top-5 Next Gen Stat; the email adds a not-for-posting "Deep dive" with every factor.
