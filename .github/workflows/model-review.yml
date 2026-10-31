@@ -1,0 +1,71 @@
+name: Model review
+
+# The football model's feedback loop (scripts/model_review.py): save every regular's projection before kickoff,
+# score them once nflverse publishes the box scores, and once a week try new settings, keeping them only if they'd have
+# beaten the current ones on the week that just finished. Also rebuilds the prop tool page (scripts/prop_tool/).
+# Everything lands on the `data` branch under model/. Separate from the deploy; reads the live site's data files.
+
+on:
+  schedule:
+    - cron: "40 23 * * *"        # daily, 6:40/7:40 PM ET: snapshot before evening games (TNF, MNF, Saturdays)
+    - cron: "40 14 * * 0"        # Sunday 9:40/10:40 AM ET: snapshot with the final injury report, before 1 PM games
+    - cron: "0 13,17 * * 1,2,5"  # mornings after game days: score; Tuesday's run also retunes and writes the report
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["scripts/model_review.py", "scripts/backtest/**", "scripts/prop_tool/**", ".github/workflows/model-review.yml"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: data-branch           # shared with nfl-picks.yml: both push to the data branch
+  cancel-in-progress: false
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Past seasons (cached)
+        uses: actions/cache@v4
+        with:
+          path: hist
+          key: nflverse-hist-2021-2025-v1
+      - name: Download data
+        run: |
+          mkdir -p hist livedata
+          B=https://github.com/nflverse/nflverse-data/releases/download/stats_player
+          for s in 2021 2022 2023 2024 2025; do
+            [ -f hist/stats_$s.csv ] || curl -fsSLo hist/stats_$s.csv "$B/stats_player_week_$s.csv"
+          done
+          curl -fsSLo hist/stats_2026.csv "$B/stats_player_week_2026.csv"      # this season, fresh every run
+          curl -fsSLo hist/games.csv https://github.com/nflverse/nfldata/raw/master/data/games.csv
+          for f in meta players games teams; do
+            curl -fsSL "https://joshwilliams332.github.io/mingus/data/$f.json" -o "livedata/$f.json"
+          done
+      - name: Check out the data branch
+        env:
+          REPO: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}
+        run: |
+          if git ls-remote --exit-code --heads "$REPO" data >/dev/null; then
+            git clone -q --depth 1 --branch data "$REPO" store
+          else
+            mkdir store && git -C store init -q -b data && git -C store remote add origin "$REPO"
+          fi
+      - name: Snapshot, score, retune, report
+        run: python3 scripts/model_review.py --data livedata --store store --hist hist | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Prop tool page
+        run: python3 scripts/prop_tool/build.py --data livedata --store store | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Save to the data branch
+        run: |
+          cd store
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "Nothing new"; exit 0; fi
+          git commit -q -m "Model review $(date -u +%Y-%m-%dT%H:%MZ)"
+          git push -q origin data || (git pull -q --rebase origin data && git push -q origin data)

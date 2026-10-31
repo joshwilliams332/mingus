@@ -341,6 +341,42 @@ def openings(data, player, game, opp_key):
     return (min(1.25, 1 + 0.6 * missing / active) if active else 1.0), [p["name"] for p in out]
 
 
+def model_settings():
+    """The current settings in the backtest engine's format (scripts/backtest/engine.py), for saving and comparing."""
+    return {"vol": "exp", "hl": VOL_HALF_LIFE, "rate_hl": RATE_HALF_LIFE, "K": RATE_PAD, "ds": DEF_VOL_STRENGTH,
+            "de": DEF_EFF_STRENGTH, "cap": round(DEF_CAP[1] - 1, 4), "is": IMP_STRENGTH, "sc": SCRIPT_PER_POINT,
+            "c": round(MEAN_ADJ["rec_yds"], 4), "cs": {k: round(v / MEAN_ADJ["rec_yds"], 4) for k, v in MEAN_ADJ.items() if abs(v - MEAN_ADJ["rec_yds"]) > 1e-9},
+            "k": SPREAD_ADJ, "cv": dict(PRIOR_CV), "pw": PRIOR_WEIGHT, "skew": sorted(SKEWED)}
+
+
+def apply_settings(store):
+    """Use the settings the weekly model review adopted (store/model/settings.json on the data branch), if any.
+    The file holds the engine's format plus a note of when and why it was adopted; anything missing keeps the default."""
+    global VOL_HALF_LIFE, RATE_HALF_LIFE, RATE_PAD, DEF_VOL_STRENGTH, DEF_EFF_STRENGTH, DEF_CAP, IMP_STRENGTH
+    global SCRIPT_PER_POINT, MEAN_ADJ, SPREAD_ADJ, PRIOR_CV, PRIOR_WEIGHT, SKEWED
+    doc = read(Path(store) / "model" / "settings.json")
+    P = (doc or {}).get("settings")
+    if not P:
+        return None
+    VOL_HALF_LIFE = P.get("hl", VOL_HALF_LIFE)
+    RATE_HALF_LIFE = P.get("rate_hl", RATE_HALF_LIFE)
+    RATE_PAD = P.get("K", RATE_PAD)
+    DEF_VOL_STRENGTH = P.get("ds", DEF_VOL_STRENGTH)
+    DEF_EFF_STRENGTH = P.get("de", DEF_EFF_STRENGTH)
+    if "cap" in P:
+        DEF_CAP = (1 - P["cap"], 1 + P["cap"])
+    IMP_STRENGTH = P.get("is", IMP_STRENGTH)
+    SCRIPT_PER_POINT = P.get("sc", SCRIPT_PER_POINT)
+    if "c" in P:
+        MEAN_ADJ = {st: P["c"] * (P.get("cs") or {}).get(st, 1.0) for st in STAT}
+    SPREAD_ADJ = P.get("k", SPREAD_ADJ)
+    PRIOR_CV = {**PRIOR_CV, **(P.get("cv") or {})}
+    PRIOR_WEIGHT = P.get("pw", PRIOR_WEIGHT)
+    if "skew" in P:
+        SKEWED = set(P["skew"])
+    return doc
+
+
 def decay_weights(n, half_life):
     """Weights for n games, oldest first: the latest counts 1, a game half_life games earlier counts 1/2."""
     return [0.5 ** ((n - 1 - i) / half_life) for i in range(n)]
@@ -876,6 +912,9 @@ def main(argv=None):
     if now.tzinfo is None:
         now = now.replace(tzinfo=ET)
     data = Data(a.data)
+    adopted = apply_settings(a.store)
+    if adopted:
+        print(f"  model settings from the weekly review: adopted {adopted.get('adopted_at', '?')}")
     key = os.environ.get("ODDS_API_KEY")
     api = OddsAPI(key, a.store) if key and not a.no_odds else None
     stats_rows = load_stats(data.meta.get("season"), a.stats)

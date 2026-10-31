@@ -164,23 +164,29 @@ def prob_over(st, mean, sd, line, P):
 
 
 def evaluate(rows, P, detail=False):
-    b = ll = 0.0
+    """Brier score (and log loss) of the chance of the over vs the typical line. Rows may carry a weight "w"
+    (the weekly review counts this season's games more than past seasons')."""
+    b = ll = wsum = 0.0
     per = defaultdict(lambda: [0, 0.0, 0.0])
     calib = defaultdict(lambda: [0, 0])
     leans = {"over": [0, 0], "under": [0, 0]}
     for r in rows:
+        w = r.get("w", 1.0)
         m, sd = project(r, P)
         p = min(max(prob_over(r["st"], m, sd, r["line"], P), 1e-4), 1 - 1e-4)
         y = 1.0 if r["actual"] > r["line"] else 0.0
-        b += (p - y) ** 2
-        ll += -(y * math.log(p) + (1 - y) * math.log(1 - p))
+        b += w * (p - y) ** 2
+        ll += w * -(y * math.log(p) + (1 - y) * math.log(1 - p))
+        wsum += w
         s = per[r["st"]]; s[0] += 1; s[1] += (p - y) ** 2; s[2] += (0.5 - y) ** 2
         if detail:
             c = calib[min(int(p * 10), 9)]; c[0] += 1; c[1] += y
             if p >= 0.6: leans["over"][0] += 1; leans["over"][1] += y
             if p <= 0.4: leans["under"][0] += 1; leans["under"][1] += 1 - y
     n = len(rows)
-    res = {"n": n, "brier": b / n, "logloss": ll / n,
+    if not n:
+        return {"n": 0, "brier": None, "logloss": None, "by_stat": {}}
+    res = {"n": n, "brier": b / wsum, "logloss": ll / wsum,
            "by_stat": {k: {"n": v[0], "brier": v[1] / v[0], "coin": v[2] / v[0]} for k, v in per.items()}}
     if detail:
         res["calib"] = {k / 10: (v[0], v[1] / v[0]) for k, v in sorted(calib.items())}
