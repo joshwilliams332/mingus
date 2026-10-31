@@ -43,6 +43,13 @@ python3 -m unittest discover -s tests                       # tests
 python3 scripts/nfl_picks.py --data site/data --store store --no-odds   # local run without spending credits
 ```
 
+## Model review
+`scripts/model_review.py` (run by `.github/workflows/model-review.yml`) keeps the projection model honest and improving:
+it saves every regular's projection before kickoff, scores them once the box scores are out (`model/scorecard.json` on
+the `data` branch), and after each finished week tries new settings, keeping them only if they would have beaten the
+current ones on that week. `scripts/backtest/` holds the multi-season backtest it builds on, and `scripts/prop_tool/`
+builds the weekly over/under tool page (a private page outside the site).
+
 ## Scoring
 Pick **PPR**, **Half PPR** or **Standard**, and **4 or 6 points per passing TD**. The choice is saved in the browser and shared by every page.
 - Offense: 1 pt per 25 pass yds, 4/6 per pass TD, -2 per INT, 1 per 10 rush/rec yds, 6 per rush/rec TD, 0/0.5/1 per catch, -2 per fumble lost, 2 per two-point conversion.

@@ -24,7 +24,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: nfl-picks
+  group: data-branch        # shared with model-review.yml: both push to the data branch
   cancel-in-progress: false
 
 jobs:
@@ -62,4 +62,4 @@ jobs:
           git add -A
           if git diff --cached --quiet; then echo "Nothing new"; exit 0; fi
           git commit -q -m "Picks update $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push -q origin data
+          git push -q origin data || (git pull -q --rebase origin data && git push -q origin data)

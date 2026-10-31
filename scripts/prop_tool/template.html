@@ -1,0 +1,374 @@
+<title>Mingus Prop Model</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+/* Layout: a stat notebook. One game at a time, each player a ruled card; tap a stat to open its line checker. */
+:root {
+  --paper: #F2EEE4; --sheet: #FAF8F2; --ink: #0F1216; --muted: #5E5A50; --rule: #DDD7C9;
+  --blue: #2747D6; --blue-soft: #E3E7FA; --turf: #1E7A4C;
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --paper: #121417; --sheet: #191C20; --ink: #ECE8DE; --muted: #A29E93; --rule: #2C3036;
+  --blue: #8FA3FF; --blue-soft: #232A45; --turf: #52C08A; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --paper: #121417; --sheet: #191C20; --ink: #ECE8DE; --muted: #A29E93; --rule: #2C3036;
+  --blue: #8FA3FF; --blue-soft: #232A45; --turf: #52C08A; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--paper); color: var(--ink); font: 15px/1.45 var(--body); }
+.wrap { max-width: 760px; margin: 0 auto; padding-block: 20px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.num, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+button, input, select { font: inherit; color: inherit; }
+button:focus-visible, input:focus-visible, select:focus-visible, .statrow:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+header.top { display: flex; flex-direction: column; gap: 6px; padding-bottom: 14px; border-bottom: 2px solid var(--ink); }
+.lockup { display: flex; align-items: center; gap: 10px; }
+.lockup svg { width: 34px; height: 34px; flex: none; }
+.word { font: 900 30px/1 var(--display); font-stretch: 75%; letter-spacing: .5px; text-transform: uppercase; }
+.sub { font: 600 11px/1 var(--mono); letter-spacing: 1.5px; text-transform: uppercase; color: var(--turf); }
+h1 { font: 900 clamp(30px, 8vw, 46px)/0.95 var(--display); font-stretch: 75%; text-transform: uppercase; margin: 10px 0 0; text-wrap: balance; }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 62ch; }
+.asof { font: 12px var(--mono); color: var(--muted); }
+
+.controls { display: grid; gap: 10px; margin: 16px 0 6px; }
+.games { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.game { flex: none; border: 1px solid var(--rule); background: var(--sheet); border-radius: 8px; padding: 6px 10px; cursor: pointer; text-align: left; }
+.game b { display: block; font: 700 13px var(--mono); }
+.game span { font: 11px var(--mono); color: var(--muted); }
+.game[aria-pressed="true"] { border-color: var(--ink); background: var(--ink); color: var(--paper); }
+.game[aria-pressed="true"] span { color: var(--paper); opacity: .75; }
+.row2 { display: flex; gap: 8px; flex-wrap: wrap; }
+.search { flex: 1 1 200px; min-width: 0; padding: 9px 12px; border: 1px solid var(--rule); border-radius: 8px; background: var(--sheet); }
+.tabs { display: flex; gap: 4px; flex-wrap: wrap; }
+.tab { border: 1px solid var(--rule); background: transparent; border-radius: 999px; padding: 6px 11px; cursor: pointer; font-size: 13px; }
+.tab[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+:root[data-theme="dark"] .tab[aria-pressed="true"] { color: #0B0D10; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tab[aria-pressed="true"] { color: #0B0D10; } }
+
+.gamehead { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 12px;
+  margin: 18px 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--rule); }
+.gamehead h2 { font: 900 24px/1 var(--display); font-stretch: 75%; text-transform: uppercase; margin: 0; }
+.gamehead .mono { font-size: 12px; color: var(--muted); }
+
+.cards { display: grid; gap: 10px; }
+.card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.who { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 10px 12px 6px; flex-wrap: wrap; }
+.who h3 { margin: 0; font: 800 17px/1.2 var(--display); font-stretch: 87%; min-width: 0; }
+.who .meta { font: 12px var(--mono); color: var(--muted); }
+.inj { font: 700 10px var(--mono); letter-spacing: .5px; text-transform: uppercase; border: 1px dashed var(--ink); border-radius: 4px; padding: 1px 5px; margin-left: 6px; vertical-align: 2px; }
+.statrow { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; align-items: center; gap: 10px; width: 100%;
+  padding: 9px 12px; border: 0; border-top: 1px solid var(--rule); background: transparent; cursor: pointer; text-align: left; }
+.statrow:hover { background: var(--blue-soft); }
+.statrow .lbl { font-size: 14px; }
+.statrow .lbl small { display: block; font: 11px var(--mono); color: var(--muted); }
+.proj { font: 700 15px var(--mono); text-align: right; }
+.proj small { display: block; font: 400 10px var(--mono); color: var(--muted); }
+.pct { display: block; width: 74px; text-align: right; }
+.pct b { font: 700 15px var(--mono); }
+.pct small { display: block; font: 10px var(--mono); color: var(--muted); }
+.meter { display: block; height: 4px; background: var(--rule); border-radius: 2px; margin-top: 3px; overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--blue); }
+
+.detail { border-top: 1px solid var(--rule); padding: 12px; display: grid; gap: 14px; background: var(--paper); }
+.liner { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.liner label { font: 600 11px var(--mono); letter-spacing: 1px; text-transform: uppercase; color: var(--muted); width: 100%; }
+.step { width: 38px; height: 38px; border: 1px solid var(--ink); background: var(--sheet); border-radius: 8px; cursor: pointer; font: 700 18px var(--mono); }
+.lineinput { width: 96px; height: 38px; text-align: center; border: 1px solid var(--ink); border-radius: 8px; background: var(--sheet); font: 700 17px var(--mono); }
+.est { font: 700 10px var(--mono); letter-spacing: 1px; border: 1px dashed var(--muted); color: var(--muted); border-radius: 4px; padding: 2px 6px; }
+.sides { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.side { border: 1px solid var(--rule); border-radius: 10px; padding: 10px; background: var(--sheet); min-width: 0; }
+.side.lean { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); }
+.side h4 { margin: 0; font: 600 11px var(--mono); letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+.side .big { font: 700 30px/1.1 var(--mono); margin-top: 2px; }
+.side .fair { font: 12px var(--mono); color: var(--muted); }
+.odds { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+.odds input { width: 82px; padding: 5px 8px; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); font: 600 14px var(--mono); }
+.odds span { font: 11px var(--mono); color: var(--muted); }
+.verdict { font: 12px/1.4 var(--mono); margin-top: 6px; min-height: 1.4em; }
+.verdict b { color: var(--blue); }
+.sectionlbl { font: 600 11px var(--mono); letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
+.strip { display: flex; gap: 6px; flex-wrap: wrap; }
+.g { display: grid; justify-items: center; gap: 3px; font: 11px var(--mono); color: var(--muted); min-width: 34px; }
+.chip { min-width: 34px; padding: 3px 4px; border-radius: 4px; text-align: center; font: 700 12px var(--mono); }
+.chip.o { background: var(--ink); color: var(--paper); border: 1px solid var(--ink); }
+.chip.u { border: 1px solid var(--ink); color: var(--ink); }
+.factors { display: grid; gap: 4px; font-size: 13px; }
+.factors div { display: flex; justify-content: space-between; gap: 10px; border-bottom: 1px dotted var(--rule); padding-bottom: 3px; }
+.factors .num { white-space: nowrap; }
+.note { font-size: 12px; color: var(--muted); margin: 0; }
+.empty { padding: 24px 12px; text-align: center; color: var(--muted); border: 1px dashed var(--rule); border-radius: 10px; }
+
+.proof { margin-top: 34px; border-top: 2px solid var(--ink); padding-top: 14px; display: grid; gap: 14px; }
+.proof h2 { font: 900 26px/1 var(--display); font-stretch: 75%; text-transform: uppercase; margin: 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.tile { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+.tile small { display: block; font: 11px var(--mono); color: var(--muted); }
+.tile b { font: 700 24px var(--mono); }
+.chartbox { background: var(--sheet); border: 1px solid var(--rule); border-radius: 10px; padding: 10px; }
+.chartbox svg { width: 100%; max-width: 420px; height: auto; display: block; margin: 0 auto; }
+.tblwrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--rule); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font: 600 11px var(--mono); letter-spacing: .5px; text-transform: uppercase; color: var(--muted); }
+td { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.proof p { margin: 0; max-width: 66ch; }
+footer { margin-top: 28px; padding: 10px 12px; background: var(--ink); color: var(--paper); border-radius: 8px; font: 12px var(--mono); text-align: center; }
+@media (max-width: 420px) { .sides { grid-template-columns: 1fr; } .pct { width: 64px; } }
+@media (prefers-reduced-motion: no-preference) { .meter i { transition: width .25s ease; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="lockup">
+      <svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="18" fill="var(--blue)"/><polygon fill="var(--paper)" points="14,84 14,16 34,16 50,46 66,16 86,16 86,84 68,84 68,46 56,68 44,68 32,46 32,84"/></svg>
+      <div><div class="word">Mingus</div><div class="sub">Football · prop model</div></div>
+    </div>
+    <h1 id="title">Week 8 over / under chances</h1>
+    <p class="lede">Pick a game, tap a stat, and type your sportsbook's line. You get our chance of the over and under, what that's worth in odds, and every piece of the projection.</p>
+    <div class="asof" id="asof"></div>
+  </header>
+
+  <section class="controls" aria-label="Choose what to look at">
+    <div class="games" id="games" role="group" aria-label="Games"></div>
+    <div class="row2">
+      <input class="search" id="q" type="search" placeholder="Find a player (any game)" autocomplete="off" aria-label="Find a player">
+      <div class="tabs" id="tabs" role="group" aria-label="Stat"></div>
+    </div>
+  </section>
+
+  <div id="board"></div>
+
+  <section class="proof" aria-labelledby="proofh">
+    <h2 id="proofh">How much to trust it</h2>
+    <div id="season"></div>
+    <p id="prooflede"></p>
+    <div class="tiles" id="tiles"></div>
+    <div class="chartbox">
+      <p class="sectionlbl">Is 60% really 60%? (2021–2025)</p>
+      <div id="calib"></div>
+      <p class="note">Each dot groups predictions by the chance we gave the over (across) and shows how often the over actually hit (up). On the dashed line means honest percentages. Bigger dots = more predictions.</p>
+    </div>
+    <div class="tblwrap"><table id="seasons"></table></div>
+    <div class="tblwrap"><table id="bystat"></table></div>
+    <div class="factors" style="font-size:14px">
+      <p class="sectionlbl">How the projection works</p>
+      <p><b>Opportunities × efficiency.</b> His pass attempts, carries or targets per game, with recent games counting more (a game four weeks back counts half as much as last week), nudged by how many this defense allows to his position and his team's implied points, plus work opened up by teammates ruled out. Then times his yards per attempt, carry or target (or catch rate), recent games weighted more and steadied toward the league average.</p>
+      <p><b>What five seasons taught it.</b> Recent form matters more than the season average. Matchups matter less than they look: the defense's effect on volume is applied at a quarter strength, and its yards-per-play effect and game script didn't help at all, so they're out.</p>
+      <p><b>The spread.</b> His own game-to-game swings, steadied with a typical swing for the stat. Rushing, receiving and catches use a lopsided curve, because most games land below a player's average and a few big ones pull it up. Passing yards use a normal bell curve.</p>
+    </div>
+  </section>
+
+  <footer>For entertainment · 21+ · Gamble responsibly · 1-800-GAMBLER</footer>
+</div>
+
+<script type="application/json" id="data">__DATA__</script>
+<script>
+(() => {
+  'use strict';
+  const D = JSON.parse(document.getElementById('data').textContent);
+  const STAT = {
+    pass_yds: { label: 'Passing yards', short: 'pass yds', step: 1, rate: 'yds / attempt', opp: 'pass attempts' },
+    rush_yds: { label: 'Rushing yards', short: 'rush yds', step: 1, rate: 'yds / carry', opp: 'carries' },
+    rec_yds:  { label: 'Receiving yards', short: 'rec yds', step: 1, rate: 'yds / target', opp: 'targets' },
+    rec:      { label: 'Receptions', short: 'catches', step: 0.5, rate: 'catch rate', opp: 'targets' },
+  };
+  const SKEWED = new Set(['rush_yds', 'rec_yds', 'rec']);
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const ord = n => n + (n % 100 >= 11 && n % 100 <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[n % 10] || 'th'));
+  const pctTxt = p => (p * 100 < 1 ? '<1' : p * 100 > 99 ? '>99' : Math.round(p * 100)) + '%';
+
+  // Standard normal CDF (Abramowitz-Stegun erf approximation, error < 1.5e-7).
+  function ncdf(x) {
+    const t = 1 / (1 + 0.3275911 * Math.abs(x) / Math.SQRT2);
+    const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-x * x / 2);
+    return 0.5 * (1 + (x >= 0 ? y : -y));
+  }
+  // Same as scripts/nfl_picks.py chance_over: log-normal for rushing / receiving / catches, bell curve for passing.
+  function pOver(p, line) {
+    const m = Math.max(p.mean, 0.1), sd = p.sd;
+    if (SKEWED.has(p.st)) {
+      if (line <= 0) return 1;
+      const s2 = Math.log(1 + (sd / m) ** 2);
+      return 1 - ncdf((Math.log(line) - (Math.log(m) - s2 / 2)) / Math.sqrt(s2));
+    }
+    return 1 - ncdf((line - m) / sd);
+  }
+  const fairOdds = p => p <= 0.005 || p >= 0.995 ? '—' : p >= 0.5 ? String(Math.round(-100 * p / (1 - p))) : '+' + Math.round(100 * (1 - p) / p);
+  const implied = o => o > 0 ? 100 / (o + 100) : -o / (-o + 100);
+  const payout = o => o > 0 ? o / 100 : 100 / -o;
+  const typical = p => Math.floor(p.vals.reduce((a, b) => a + b, 0) / p.vals.length) + 0.5;
+  const kickoff = g => {
+    const [h, m] = g.time.split(':').map(Number), d = new Date(g.date + 'T12:00:00');
+    return `${d.toLocaleDateString('en-US', { weekday: 'short' })} ${(h + 11) % 12 + 1}:${String(m).padStart(2, '0')}`;
+  };
+
+  const state = { gid: D.games[0] && D.games[0].id, stat: 'all', q: '', open: null, line: {}, odds: {} };
+  try { const s = JSON.parse(localStorage.getItem('mingus.propmodel') || '{}'); if (D.games.some(g => g.id === s.gid)) state.gid = s.gid; if (s.stat) state.stat = s.stat; } catch (e) { /* storage blocked */ }
+  const save = () => { try { localStorage.setItem('mingus.propmodel', JSON.stringify({ gid: state.gid, stat: state.stat })); } catch (e) { /* storage blocked */ } };
+  const key = p => p.pid + '|' + p.st;
+  const lineOf = p => state.line[key(p)] ?? typical(p);
+
+  $('title').textContent = `Week ${D.week} over / under chances`;
+  const built = new Date(D.built);
+  $('asof').textContent = `Stats through ${built.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · injuries from the latest report · ${D.proj.length} player props in ${D.games.length} games`;
+
+  // ---------- controls
+  function renderControls() {
+    $('games').innerHTML = D.games.map(g => `<button class="game" type="button" data-g="${g.id}" aria-pressed="${g.id === state.gid && !state.q}">
+      <b>${g.away} @ ${g.home}</b><span>${kickoff(g)} · O/U ${g.total ?? '—'}</span></button>`).join('');
+    const tabs = [['all', 'All'], ['pass_yds', 'Pass yds'], ['rush_yds', 'Rush yds'], ['rec_yds', 'Rec yds'], ['rec', 'Catches']];
+    $('tabs').innerHTML = tabs.map(([k, l]) => `<button class="tab" type="button" data-s="${k}" aria-pressed="${state.stat === k}">${l}</button>`).join('');
+  }
+  $('games').addEventListener('click', e => { const b = e.target.closest('[data-g]'); if (!b) return; state.gid = b.dataset.g; state.q = ''; $('q').value = ''; state.open = null; save(); render(); });
+  $('tabs').addEventListener('click', e => { const b = e.target.closest('[data-s]'); if (!b) return; state.stat = b.dataset.s; save(); render(); });
+  $('q').addEventListener('input', e => { state.q = e.target.value.trim().toLowerCase(); render(); });
+
+  // ---------- board
+  function rowsFor() {
+    let rows = D.proj.filter(p => state.stat === 'all' || p.st === state.stat);
+    rows = state.q ? rows.filter(p => p.name.toLowerCase().includes(state.q)) : rows.filter(p => p.gid === state.gid);
+    return rows;
+  }
+  function statRow(p) {
+    const line = lineOf(p), po = pOver(p, line), open = state.open === key(p);
+    return `<button class="statrow" type="button" data-k="${key(p)}" aria-expanded="${open}">
+        <span class="lbl">${STAT[p.st].label}<small>${state.line[key(p)] != null ? 'your line' : 'typical line'} ${line}</small></span>
+        <span class="proj">${p.mean}<small>proj</small></span>
+        <span class="pct"><b>${pctTxt(po)}</b><small>over</small><span class="meter"><i style="width:${(po * 100).toFixed(1)}%"></i></span></span>
+      </button>${open ? detail(p) : ''}`;
+  }
+  function detail(p) {
+    const k = key(p), line = lineOf(p), po = pOver(p, line), pu = 1 - po, x = p.x, c = p.ctx, S = STAT[p.st];
+    const side = (name, pr, which) => {
+      const odds = (state.odds[k] || {})[which];
+      let verdict = '';
+      if (odds != null && !isNaN(odds) && Math.abs(odds) >= 100) {
+        const be = implied(odds), edge = pr * (1 + payout(odds)) - 1;
+        verdict = `Break-even ${pctTxt(be)} · our edge <b>${edge >= 0 ? '+' : ''}${(edge * 100).toFixed(1)}%</b>`;
+        if (Math.abs(pr - be) > 0.2) verdict += `<br>We're ${Math.round(Math.abs(pr - be) * 100)} points away from the book. Gaps this big usually mean news we can't see, so our picks skip them.`;
+      }
+      return `<div class="side ${pr >= 0.55 ? 'lean' : ''}"><h4>${name} ${line}</h4><div class="big">${pctTxt(pr)}</div>
+        <div class="fair">Fair odds ${fairOdds(pr)}</div>
+        <div class="odds"><input id="odds-${esc(k)}-${which}" inputmode="numeric" placeholder="odds" aria-label="${name} odds at your book" data-odds="${which}" data-k="${k}" value="${odds ?? ''}"><span>your book's odds</span></div>
+        <div class="verdict">${verdict}</div></div>`;
+    };
+    const strip = p.vals.map((v, i) => `<div class="g"><span class="chip ${v > line ? 'o' : 'u'}">${v}</span>W${p.weeks[i]}</div>`).join('');
+    const hits = p.vals.filter(v => v > line).length;
+    const rk = p.rank ? `${ord(p.rank.rank)}-most of ${p.rank.of}` : '—';
+    const vr = p.vrank ? `${ord(p.vrank.rank)}-most` : '—';
+    const fav = c.fav_by > 0 ? `favored by ${c.fav_by}` : c.fav_by < 0 ? `underdog by ${-c.fav_by}` : 'pick-em';
+    const rateFmt = v => p.st === 'rec' ? Math.round(v * 100) + '%' : v.toFixed(1);
+    return `<div class="detail">
+      <div class="liner"><label for="line-${esc(k)}">Line</label>
+        <button class="step" type="button" data-step="-1" data-k="${k}" aria-label="Lower the line">−</button>
+        <input class="lineinput" id="line-${esc(k)}" inputmode="decimal" value="${line}" data-line="${k}" aria-label="Line">
+        <button class="step" type="button" data-step="1" data-k="${k}" aria-label="Raise the line">+</button>
+        <span class="est">MINGUS ESTIMATE</span></div>
+      <div class="sides">${side('Over', po, 'o')}${side('Under', pu, 'u')}</div>
+      <div><p class="sectionlbl">Last ${p.vals.length} games vs ${line} · over ${hits} of ${p.vals.length}</p><div class="strip">${strip}</div></div>
+      <div><p class="sectionlbl">The projection, piece by piece</p><div class="factors">
+        <div><span>${S.opp} per game (recent games weighted more)</span><span class="num">${x.vol_base}</span></div>
+        <div><span>${p.opp} allows ${S.opp} to ${p.pos}s (${vr})</span><span class="num">×${x.f_def_vol.toFixed(2)}</span></div>
+        <div><span>${p.team} implied ${c.implied ?? '—'} (${c.rank ? ord(c.rank) + ' of ' + c.of : '—'})</span><span class="num">×${x.f_imp.toFixed(2)}</span></div>
+        ${x.f_script !== 1 ? `<div><span>Game script: ${fav}</span><span class="num">×${x.f_script.toFixed(2)}</span></div>` : ''}
+        ${x.out.length ? `<div><span>Openings: ${esc(x.out.join(', '))} out</span><span class="num">×${x.f_inj.toFixed(2)}</span></div>` : ''}
+        <div><span>Projected ${S.opp}</span><span class="num">${x.vol}</span></div>
+        <div><span>His ${S.rate}, recent-weighted and steadied</span><span class="num">${rateFmt(x.rate)}</span></div>
+        ${x.f_def_eff !== 1 ? `<div><span>${p.opp} allows per play to ${p.pos}s</span><span class="num">×${x.f_def_eff.toFixed(2)}</span></div>` : ''}
+        <div><span>${p.opp} rank vs ${p.pos}s in ${S.short}</span><span class="num">${rk}</span></div>
+        <div><span><b>Projection</b> (× ${x.mean_adj.toFixed(2)} calibration) · spread ±${p.sd}</span><span class="num"><b>${p.mean}</b></span></div>
+      </div></div>
+      ${p.st === 'pass_yds' ? '<p class="note">Passing yards haven\'t shown an edge in the backtest yet. Treat this one as a rough guide.</p>' : ''}
+      <p class="note">Our model only. Books know things we don't (late injuries, depth charts); our night picks blend 30% this with 70% the books' price.</p>
+    </div>`;
+  }
+  function render() {
+    renderControls();
+    const rows = rowsFor();
+    const g = D.games.find(x => x.id === state.gid);
+    let head = '';
+    if (state.q) head = `<div class="gamehead"><h2>Search</h2><span class="mono">${rows.length} props for “${esc(state.q)}”</span></div>`;
+    else if (g) head = `<div class="gamehead"><h2>${g.away} @ ${g.home}</h2><span class="mono">${kickoff(g)} ET · ${g.home} ${g.spread > 0 ? '+' : ''}${g.spread} · O/U ${g.total} · implied ${g.away} ${g.imp[0]} / ${g.home} ${g.imp[1]}</span></div>`;
+    const byPlayer = new Map();
+    for (const p of rows) { if (!byPlayer.has(p.pid)) byPlayer.set(p.pid, []); byPlayer.get(p.pid).push(p); }
+    const order = { QB: 0, RB: 1, WR: 2, TE: 3 }, stOrder = ['pass_yds', 'rush_yds', 'rec_yds', 'rec'];
+    const players = [...byPlayer.values()].sort((a, b) => a[0].team.localeCompare(b[0].team) || order[a[0].pos] - order[b[0].pos] || Math.max(...b.map(p => p.mean)) - Math.max(...a.map(p => p.mean)));
+    const cards = players.map(ps => {
+      const p = ps[0];
+      ps.sort((a, b) => stOrder.indexOf(a.st) - stOrder.indexOf(b.st));
+      return `<article class="card"><div class="who"><h3>${esc(p.name)}${p.inj ? `<span class="inj">${esc(p.inj)}</span>` : ''}${p.check_qb ? '<span class="inj" title="He didn\'t start his team\'s last game">check starter</span>' : ''}</h3>
+        <span class="meta">${p.pos} · ${p.team} vs ${p.opp}</span></div>${ps.map(statRow).join('')}</article>`;
+    }).join('');
+    $('board').innerHTML = head + (cards ? `<div class="cards">${cards}</div>` : `<div class="empty">No props match. Try another game, stat or name.</div>`);
+  }
+  $('board').addEventListener('click', e => {
+    const step = e.target.closest('[data-step]');
+    if (step) { const p = D.proj.find(q => key(q) === step.dataset.k); const s = STAT[p.st].step * Number(step.dataset.step);
+      state.line[key(p)] = Math.max(0.5, Math.round((lineOf(p) + s) * 2) / 2); render(); return; }
+    const r = e.target.closest('.statrow');
+    if (r) { state.open = state.open === r.dataset.k ? null : r.dataset.k; render(); }
+  });
+  $('board').addEventListener('change', e => {
+    const t = e.target;
+    if (t.dataset.line) { const v = parseFloat(t.value); if (!isNaN(v) && v >= 0) state.line[t.dataset.line] = v; render(); }
+    if (t.dataset.odds) { const v = parseInt(t.value, 10); (state.odds[t.dataset.k] ||= {})[t.dataset.odds] = isNaN(v) ? null : v; render();
+      const back = document.getElementById(t.id); if (back) back.focus(); }
+  });
+
+  // ---------- backtest
+  function renderSeason() {
+    const W = D.scorecard || {}, weeks = Object.keys(W).map(Number).sort((a, b) => a - b);
+    const names = { pass_yds: 'Pass yds', rush_yds: 'Rush yds', rec_yds: 'Rec yds', rec: 'Catches' };
+    if (!weeks.length) {
+      $('season').innerHTML = `<p class="sectionlbl">This season, week by week</p><p class="note">Projections are saved before every kickoff and scored once the box score is out. The first scored week shows up here after this week's games.</p>`;
+      return;
+    }
+    const rows = weeks.map(w => { const x = W[w], s = x.by_stat || {};
+      const bias = ['rec_yds', 'rush_yds'].map(k => s[k] ? `${names[k]} ${s[k].bias_pct > 0 ? '+' : ''}${s[k].bias_pct}%` : '').filter(Boolean).join(' · ');
+      return `<tr><td>Week ${w}${x.complete ? '' : ' (so far)'}</td><td>${x.n}</td><td><b>${x.brier.toFixed(3)}</b></td><td>${x.coin.toFixed(3)}</td><td>${x.books ? `${x.books.ours.toFixed(3)} / ${x.books.books.toFixed(3)}` : '—'}</td><td>${bias || '—'}</td></tr>`; }).join('');
+    const ch = (D.changes || []).slice(-4).reverse().map(c => `<li>Week ${c.week}: ${esc(c.why)}</li>`).join('');
+    $('season').innerHTML = `<p class="sectionlbl">This season, week by week (scored after every game)</p>
+      <div class="tblwrap"><table><thead><tr><th>Week</th><th>Props</th><th>Brier</th><th>Coin</th><th>vs books (ours / books)</th><th>Running high or low</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <p class="note">Every regular's projection is saved before kickoff and scored against the box score at his typical line. On night games we also score our chance at the real sportsbook line against the books' own chance. After each finished week the model tries new settings and keeps them only if they'd have beaten the current ones on that week.</p>
+      ${ch ? `<p class="sectionlbl" style="margin-top:12px">Model changes</p><ul class="note" style="padding-left:18px;margin:0">${ch}</ul>` : '<p class="note" style="margin-top:8px">No setting changes yet this season.</p>'}`;
+  }
+
+  function renderProof() {
+    const B = D.backtest, Hh = D.history, held = Hh.seasons.find(x => x.held_out);
+    $('prooflede').innerHTML = `We tuned the model on five past seasons (2021–2025, ${Hh.train_n.toLocaleString()} predictions), each game projected only from games before it, against a typical line (his average so far, since old sportsbook lines aren't available). Then we tested it on 2026, which the tuning never saw. Lower Brier = better; a coin flip scores 0.250. Typical lines are easier to beat than real sportsbook lines, so real edges are smaller.`;
+    $('tiles').innerHTML = [
+      ['2026 Brier (never seen)', held.tuned.toFixed(3), `first version ${held.first.toFixed(3)} · coin 0.250`],
+      ['Under leans (≤40%) hit', pctTxt(Hh.train_leans.under.hit), `${Hh.train_leans.under.n.toLocaleString()} leans, 2021–25 · 2026: ${pctTxt(B.leans.under.hit)}`],
+      ['Over leans (≥60%) hit', pctTxt(Hh.train_leans.over.hit), `${Hh.train_leans.over.n} leans, 2021–25 · 2026: ${B.leans.over.n} so far`],
+      ['Overs at typical lines', pctTxt(B.over_rate), 'most games land below average'],
+    ].map(([a, b, c]) => `<div class="tile"><small>${a}</small><b>${b}</b><small>${c}</small></div>`).join('');
+    const cal = Hh.train_calibration;
+    const W = 320, H = 240, pad = 34, sx = v => pad + v * (W - pad - 10), sy = v => H - pad - v * (H - pad - 10);
+    const grid = [0, 0.25, 0.5, 0.75, 1].map(v => `<line x1="${sx(0)}" x2="${sx(1)}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--rule)"/>
+      <text x="${pad - 6}" y="${sy(v) + 4}" text-anchor="end" font-size="10" fill="var(--muted)" font-family="var(--mono)">${v * 100}%</text>
+      <text x="${sx(v)}" y="${H - pad + 14}" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="var(--mono)">${v * 100}%</text>`).join('');
+    const maxN = Math.max(...cal.map(c => c.n));
+    const dots = cal.map(c => `<circle cx="${sx(c.pred)}" cy="${sy(c.hit)}" r="${3 + 9 * Math.sqrt(c.n / maxN)}" fill="var(--blue)" fill-opacity=".75" stroke="var(--sheet)"><title>Said ${pctTxt(c.pred)}, hit ${pctTxt(c.hit)} (${c.n.toLocaleString()})</title></circle>`).join('');
+    $('calib').innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Calibration: predicted chance of the over vs how often it hit, 2021 to 2025">${grid}
+      <line x1="${sx(0)}" y1="${sy(0)}" x2="${sx(1)}" y2="${sy(1)}" stroke="var(--ink)" stroke-dasharray="4 4" fill="none"/>${dots}
+      <text x="${sx(0.5)}" y="${H - 4}" text-anchor="middle" font-size="10" fill="var(--muted)" font-family="var(--mono)">our chance of the over</text></svg>`;
+    $('seasons').innerHTML = `<thead><tr><th>Season</th><th>Predictions</th><th>First version</th><th>Tuned</th><th>Coin</th></tr></thead><tbody>${
+      Hh.seasons.map(x => `<tr><td>${x.season}${x.held_out ? ' (test)' : ''}</td><td>${x.n.toLocaleString()}</td><td>${x.first.toFixed(3)}</td><td><b>${x.tuned.toFixed(3)}</b></td><td>${x.coin.toFixed(3)}</td></tr>`).join('')}</tbody>`;
+    const names = { pass_yds: 'Passing yards', rush_yds: 'Rushing yards', rec_yds: 'Receiving yards', rec: 'Receptions' };
+    $('bystat').innerHTML = `<thead><tr><th>2026 by stat</th><th>Games</th><th>Brier</th><th>Coin</th><th>Verdict</th></tr></thead><tbody>${
+      Object.entries(B.by_stat).map(([k, s]) => `<tr><td>${names[k]}</td><td>${s.n}</td><td>${s.brier.toFixed(3)}</td><td>${s.brier_coin.toFixed(3)}</td><td>${s.brier < s.brier_coin - 0.004 ? 'beats a coin' : s.brier <= s.brier_coin + 0.002 ? 'about even' : 'no edge yet'}</td></tr>`).join('')}</tbody>`;
+  }
+
+  render();
+  renderSeason();
+  renderProof();
+})();
+</script>

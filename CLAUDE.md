@@ -93,6 +93,23 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   8:41 AM ET Fri/Sun/Mon/Tue (last night's results) and Tue 1:41 PM ET (weekly recap); they only fetch `picks/` from the `data` branch and send it as written. No model
   backtest exists yet (no historical lines); the public record is the test.
 
+- **Model review loop** (`scripts/model_review.py`, `.github/workflows/model-review.yml`, tested in
+  `tests/test_model_review.py`; Josh, Oct 31: "improving after every single game"). Separate from the deploy; shares the
+  `data-branch` concurrency group with nfl-picks.yml. Every run: (1) snapshot every regular's projection for games not
+  yet kicked off into `data` branch `model/projections/<season>-wNN.json` (frozen at kickoff); (2) score every saved game
+  with a published box score into `model/scorecard.json` (by week / game day / stat: average miss, bias %, Brier at
+  the typical line vs coin, and on night games ours vs the books' no-vig chance at the real line; biggest misses);
+  (3) once per finished week W (all games' stats out, W >= 6): local search from the current settings (one grid step
+  either way per setting, twice) on 2021-2025 + this season's weeks < W counted x4 (`THIS_SEASON_WEIGHT`), adopted only
+  if it also beats the current settings on week W itself by `ADOPT_MARGIN` -> `model/tuning/wNN.json`, and if adopted
+  `model/settings.json` (read by `nfl_picks.apply_settings`, so picks and the tool use it) + `settings-history.json`;
+  (4) `model/report-wNN.json` / `report-latest.json` with a ready-to-send email. Scored weekly, not per game, because
+  one game is ~40 noisy projections. Retuning needs past seasons in `hist/` (Actions cache) and this season's
+  `stats_<season>.csv`, plus `games.csv`; `scripts/backtest/engine.py` must keep mirroring `projection()`.
+  The weekly prop tool page (`scripts/prop_tool/`, private claude.ai artifact "Mingus Prop Model", NOT on the site; Josh
+  asked to keep it off the website) is rebuilt by the same workflow into `model/prop-tool.html` when the week, scored
+  weeks or settings change; a scheduled Claude task republishes it and emails the weekly model report.
+
 ## Open threads
 - `espn-sync` branch: My League page + `scripts/espn_sync.py` (ESPN leagues). Not merged into `main` yet.
   `scripts/espn_config.json` holds Josh's ESPN cookies and must never be committed (it's ignored on that branch;
