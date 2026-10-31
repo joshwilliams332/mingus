@@ -135,7 +135,7 @@ class Projection(unittest.TestCase):
             p = N.projection(data, data.by_id["TE1"], "rec_yds", data.game["2026_09_PHI_WAS"], 9)
             x = p["parts"]
             self.assertEqual(p["source"], "Mingus model")
-            self.assertAlmostEqual(p["mean"], x["vol"] * x["eff"], delta=0.2)
+            self.assertAlmostEqual(p["mean"], x["vol"] * x["eff"] * N.MEAN_ADJ, delta=0.2)
             self.assertGreater(x["f_def_vol"], 1)                 # WAS gives TEs lots of targets...
             self.assertLessEqual(x["f_def_vol"], 1.15)            # ...capped
             self.assertLess(x["f_imp"], 1)                        # PHI's 21 implied is below the week's average
@@ -159,7 +159,14 @@ class Projection(unittest.TestCase):
             data = make_data(d, sleeper=61.0)
             p = N.projection(data, data.by_id["TE1"], "rec_yds", data.game["2026_09_PHI_WAS"], 9)
             self.assertEqual(p["source"], "Sleeper + Mingus model")
-            self.assertAlmostEqual(p["mean"], (61.0 + p["parts"]["mingus"]) / 2, delta=0.1)
+            self.assertAlmostEqual(p["mean"], (61.0 + p["parts"]["mingus"]) / 2 * N.MEAN_ADJ, delta=0.1)
+
+    def test_yardage_is_skewed_passing_is_not(self):
+        # A line right at the projection: the skewed curve gives the over less than 50% (most games land below the
+        # average), passing yards' bell curve gives exactly 50%.
+        self.assertLess(N.chance_over({"mean": 50, "sd": 30, "stat": "rec_yds"}, 50), 0.45)
+        self.assertAlmostEqual(N.chance_over({"mean": 240, "sd": 70, "stat": "pass_yds"}, 240), 0.5)
+        self.assertEqual(N.chance_over({"mean": 3, "sd": 2, "stat": "rec"}, 0), 1.0)
 
     def test_not_enough_games(self):
         with tempfile.TemporaryDirectory() as d:

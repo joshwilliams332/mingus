@@ -73,8 +73,12 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   team implied vs week average (half strength, 0.9-1.1) x game script (favorites +1% carries / -1% throws per point,
   max 6%) x injury openings (60% of Out/Doubtful teammates' recent volume, by share, max +25%); efficiency = his rate
   steadied toward the position's league rate (40 opportunities) x defense allowed per opportunity (half strength).
-  Averaged 50/50 with Sleeper's stat line when players.json has it. Spread = his game-to-game spread blended with a
-  typical one (`PRIOR_CV`, 4 games' weight); normal curve. Each pick's "why" (one post reply) leads with projection vs
+  Averaged 50/50 with Sleeper's stat line when players.json has it, then x0.97 (`MEAN_ADJ`). Spread = his game-to-game
+  spread blended with a typical one (`PRIOR_CV`, 4 games' weight) x1.3 (`SPREAD_ADJ`). Chance of the over: log-normal
+  for rush / rec yds and catches (yardage is skewed: most games land below the average), bell curve for passing yards.
+  Both adjustments come from a backtest of Weeks 5-8 (860 player-games, earlier weeks only, vs a "typical" line =
+  floor(his average) + 0.5, no historical book lines exist): the first version's symmetric curve overrated overs (60%+
+  overs hit 45%, Brier 0.259 vs coin 0.250); calibrated, Brier 0.243. Passing yards still show no edge (71 games). Each pick's "why" (one post reply) leads with projection vs
   line, then the strongest of matchup rank, injury openings, target share / carries, team total, last-5 hits and a
   top-5 Next Gen Stat; the email adds a not-for-posting "Deep dive" with every factor.
   Grading reads nflverse `stats_player_week` (void if the game's stats exist but he has no row). The morning after each

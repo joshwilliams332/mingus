@@ -82,6 +82,14 @@ DEF_STRENGTH = 0.5         # the defense adjustment is applied at half strength.
 DEF_CAP = (0.85, 1.15)     # ...and capped, since 8 games of defense allowed is a small sample
 PRIOR_CV = {"pass_yds": 0.30, "rush_yds": 0.50, "rec_yds": 0.55, "rec": 0.45}  # typical game-to-game spread / mean
 PRIOR_WEIGHT = 4           # the spread estimate counts the typical spread as this many games
+# Calibration, from a backtest of Weeks 5-8 (860 player-games, each projected from earlier weeks only, against a
+# "typical" line = his average so far): projections ran ~3-8% high, real outcomes spread ~20-30% wider than the
+# estimate, and yardage is lopsided (a normal game lands below the average, a few big games pull it up). A symmetric
+# bell curve therefore overrated overs (60%+ overs hit 45%). Fix: trim the mean 3%, widen the spread 30%, and use a
+# log-normal curve (skewed like real yardage) for everything but passing yards. Brier score 0.259 -> 0.243 (coin 0.250).
+MEAN_ADJ = 0.97
+SPREAD_ADJ = 1.3
+SKEWED = {"rush_yds", "rec_yds", "rec"}
 
 
 # ---------------------------------------------------------------- small helpers
@@ -366,16 +374,16 @@ def projection(data, player, stat, game, week):
     mingus = vol * eff
 
     sleeper = (((player.get("proj") or {}).get("sleeper") or {}).get(str(week)) or {}).get("line", {}).get(stat)
-    mean = (sleeper + mingus) / 2 if sleeper is not None else mingus
+    mean = ((sleeper + mingus) / 2 if sleeper is not None else mingus) * MEAN_ADJ
     sd_obs = statistics.pstdev(vals) if len(vals) > 1 else 0
     prior = PRIOR_CV[stat] * max(mean, 1)
-    sd = math.sqrt((len(vals) * sd_obs ** 2 + PRIOR_WEIGHT * prior ** 2) / (len(vals) + PRIOR_WEIGHT))
+    sd = SPREAD_ADJ * math.sqrt((len(vals) * sd_obs ** 2 + PRIOR_WEIGHT * prior ** 2) / (len(vals) + PRIOR_WEIGHT))
     rank = ranks.get((opp, pos, stat))
     vol_rank = ranks.get((opp, pos, ok))
     shares = [e.get("tgt_sh") if ok == "tgt" else e.get("car_sh") for e in log[-3:]]
     shares = [x for x in shares if x is not None]
     return {"mean": round(mean, 1), "sd": round(max(sd, 0.5), 1),
-            "source": "Sleeper + Mingus model" if sleeper is not None else "Mingus model",
+            "source": "Sleeper + Mingus model" if sleeper is not None else "Mingus model", "stat": stat,
             "season": round(statistics.mean(vals), 1), "last3": round(statistics.mean(vals[-3:]), 1), "vals": vals, "opp": opp,
             "opp_rank": {"rank": rank[0], "of": rank[1]} if rank else None,
             "vol_rank": {"rank": vol_rank[0], "of": vol_rank[1]} if vol_rank else None,
@@ -388,7 +396,15 @@ def projection(data, player, stat, game, week):
 
 
 def chance_over(proj, line):
-    return 1 - ncdf((line - proj["mean"]) / proj["sd"])
+    """Chance he finishes over the line: log-normal (skewed like real yardage) for rushing / receiving / catches,
+    a bell curve for passing yards (see the calibration note at MEAN_ADJ)."""
+    m, sd = max(proj["mean"], 0.1), proj["sd"]
+    if proj.get("stat") in SKEWED:
+        if line <= 0:
+            return 1.0
+        s2 = math.log(1 + (sd / m) ** 2)
+        return 1 - ncdf((math.log(line) - (math.log(m) - s2 / 2)) / math.sqrt(s2))
+    return 1 - ncdf((line - m) / sd)
 
 
 # ---------------------------------------------------------------- choosing picks
@@ -505,7 +521,7 @@ def deep_dive(c):
            f"{' + '.join(x['out'])} out ×{x['f_inj']:.2f}" if x["out"] else None]
     lines = [
         f"{short_pick(c)} · {price_txt(c['price'])} (best price: {r['book_o'] if c['side'] == 'o' else r['book_u']}; line from {r['books']} books)",
-        f"Projection {proj['mean']:g}" + (f" = half Sleeper ({x['sleeper']:g}), half our model ({x['mingus']:g})" if x["sleeper"] is not None else f" (our model)") +
+        f"Projection {proj['mean']:g}" + (f" = half Sleeper ({x['sleeper']:g}), half our model ({x['mingus']:g}), less 3%" if x["sleeper"] is not None else f" (our model, less 3% for calibration)") +
         f"; season {proj['season']:g}, last 3 {proj['last3']:g} per game.",
         f"Volume: {x['vol_base']:g} {word}/game → {x['vol']:g} after " + ", ".join(a for a in adj if a) + ".",
         f"Efficiency: {fmt_rate(x['rate'])} {rate_word} (steadied toward the league) × {proj['opp']} allows ×{x['f_def_eff']:.2f} → {fmt_rate(x['eff'])}.",
