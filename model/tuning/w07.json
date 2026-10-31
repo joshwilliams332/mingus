@@ -1,0 +1,88 @@
+{
+ "week": 7,
+ "tuned_at": "2026-10-31T14:34+00:00",
+ "train_rows": 22488,
+ "valid_rows": 290,
+ "this_season_weight": 4.0,
+ "train": {
+  "current": 0.24006,
+  "candidate": 0.23953
+ },
+ "valid": {
+  "current": 0.23794,
+  "candidate": 0.23638,
+  "coin": 0.25
+ },
+ "changes": [
+  {
+   "setting": "de",
+   "from": 0.0,
+   "to": 0.125
+  },
+  {
+   "setting": "is",
+   "from": 0.25,
+   "to": 0.125
+  },
+  {
+   "setting": "c",
+   "from": 1.03,
+   "to": 1.06
+  },
+  {
+   "setting": "k",
+   "from": 1.15,
+   "to": 1.225
+  },
+  {
+   "setting": "pw",
+   "from": 8,
+   "to": 12
+  },
+  {
+   "setting": "cv",
+   "from": {
+    "pass_yds": 0.7,
+    "rush_yds": 0.5,
+    "rec_yds": 0.7,
+    "rec": 0.6
+   },
+   "to": {
+    "pass_yds": 0.5,
+    "rush_yds": 0.6,
+    "rec_yds": 0.7,
+    "rec": 0.6
+   }
+  }
+ ],
+ "decision": "adopted",
+ "why": "adopted: better on week 7 (0.2364 vs 0.2379), which it never saw",
+ "candidate": {
+  "vol": "exp",
+  "hl": 4,
+  "rate_hl": 6,
+  "K": 20,
+  "ds": 0.25,
+  "de": 0.125,
+  "cap": 0.1,
+  "is": 0.125,
+  "sc": 0.0,
+  "c": 1.06,
+  "cs": {
+   "pass_yds": 0.9
+  },
+  "k": 1.225,
+  "cv": {
+   "pass_yds": 0.5,
+   "rush_yds": 0.6,
+   "rec_yds": 0.7,
+   "rec": 0.6
+  },
+  "pw": 12,
+  "skew": [
+   "rec",
+   "rec_yds",
+   "rush_yds"
+  ]
+ }
+}

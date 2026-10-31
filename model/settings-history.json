@@ -1,0 +1,49 @@
+[
+ {
+  "adopted_at": "2026-10-31T14:34+00:00",
+  "week": 7,
+  "why": "adopted: better on week 7 (0.2364 vs 0.2379), which it never saw",
+  "changes": [
+   {
+    "setting": "de",
+    "from": 0.0,
+    "to": 0.125
+   },
+   {
+    "setting": "is",
+    "from": 0.25,
+    "to": 0.125
+   },
+   {
+    "setting": "c",
+    "from": 1.03,
+    "to": 1.06
+   },
+   {
+    "setting": "k",
+    "from": 1.15,
+    "to": 1.225
+   },
+   {
+    "setting": "pw",
+    "from": 8,
+    "to": 12
+   },
+   {
+    "setting": "cv",
+    "from": {
+     "pass_yds": 0.7,
+     "rush_yds": 0.5,
+     "rec_yds": 0.7,
+     "rec": 0.6
+    },
+    "to": {
+     "pass_yds": 0.5,
+     "rush_yds": 0.6,
+     "rec_yds": 0.7,
+     "rec": 0.6
+    }
+   }
+  ]
+ }
+]

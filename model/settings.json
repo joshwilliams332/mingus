@@ -1,0 +1,33 @@
+{
+ "settings": {
+  "vol": "exp",
+  "hl": 4,
+  "rate_hl": 6,
+  "K": 20,
+  "ds": 0.25,
+  "de": 0.125,
+  "cap": 0.1,
+  "is": 0.125,
+  "sc": 0.0,
+  "c": 1.06,
+  "cs": {
+   "pass_yds": 0.9
+  },
+  "k": 1.225,
+  "cv": {
+   "pass_yds": 0.5,
+   "rush_yds": 0.6,
+   "rec_yds": 0.7,
+   "rec": 0.6
+  },
+  "pw": 12,
+  "skew": [
+   "rec",
+   "rec_yds",
+   "rush_yds"
+  ]
+ },
+ "adopted_at": "2026-10-31T14:34+00:00",
+ "week": 7,
+ "why": "adopted: better on week 7 (0.2364 vs 0.2379), which it never saw"
+}
