@@ -1,10 +1,10 @@
 {
- "checked": "2026-11-01T02:35:03.149739+00:00",
- "today": "2026-10-31",
+ "checked": "2026-11-01T14:13:00.430953+00:00",
+ "today": "2026-11-01",
  "lock": {
-  "day": "2026-10-31",
-  "state": "no-games",
-  "why": "no night games today"
+  "day": "2026-11-01",
+  "state": "waiting",
+  "why": "locks within 4 hours of the 8:20 PM ET kickoff"
  },
  "recap": {
   "week": 8,
@@ -15,10 +15,33 @@
   "day": "2026-10-29",
   "state": "done"
  },
+ "sunday": {
+  "early": {
+   "results": {
+    "state": "none"
+   },
+   "lock": {
+    "day": "2026-11-01",
+    "state": "locked",
+    "why": "5 pick(s) locked",
+    "new": true
+   }
+  },
+  "late": {
+   "results": {
+    "state": "none"
+   },
+   "lock": {
+    "day": "2026-11-01",
+    "state": "waiting",
+    "why": "locks within 3 hours of the 4:05 PM ET kickoff"
+   }
+  }
+ },
  "credits": {
-  "remaining": 433,
-  "used": 67,
-  "last_cost": 4,
-  "checked": "2026-10-29T22:12:47+00:00"
+  "remaining": 483,
+  "used": 17,
+  "last_cost": 2,
+  "checked": "2026-11-01T14:13:01+00:00"
  }
 }
