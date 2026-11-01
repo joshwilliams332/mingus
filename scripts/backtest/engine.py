@@ -44,7 +44,29 @@ def games_for(season):
     return out
 
 
+_pfr = None
+def snaps_for(season):
+    """(gsis player_id, week) -> offensive snap share that game, from snaps_<season>.csv (nflverse snap_counts) matched
+    through every roster_<season>.csv in H (pfr id -> gsis id). Empty if the files aren't there."""
+    global _pfr
+    if _pfr is None:
+        _pfr = {}
+        for f in sorted(os.listdir(H)):
+            if f.startswith("roster_") and f.endswith(".csv"):
+                for r in csv.DictReader(open(H + f)):
+                    if r.get("pfr_id") and r.get("gsis_id"):
+                        _pfr[r["pfr_id"]] = r["gsis_id"]
+    out, f = {}, f"{H}snaps_{season}.csv"
+    if os.path.exists(f):
+        for r in csv.DictReader(open(f)):
+            g = _pfr.get(r["pfr_player_id"])
+            if g and r["game_type"] == "REG":
+                out[(g, int(r["week"]))] = num(r["offense_pct"])
+    return out
+
+
 def features(season, path=None):
+    snaps = snaps_for(season)
     rows = [r for r in csv.DictReader(open(path or f"{H}stats_{season}.csv"))
             if r["season_type"] == "REG" and r["position"] in POS]
     gl = games_for(season)
@@ -52,7 +74,8 @@ def features(season, path=None):
     dtot = defaultdict(lambda: defaultdict(float))      # (opp, pos, week) -> key totals
     for r in rows:
         wk, team, opp = int(r["week"]), FIX.get(r["team"], r["team"]), FIX.get(r["opponent_team"], r["opponent_team"])
-        e = {"week": wk, "team": team, "opp": opp, **{k: num(r[c]) for k, c in COLS.items()}}
+        e = {"week": wk, "team": team, "opp": opp, "snap": snaps.get((r["player_id"], wk)),
+             **{k: num(r[c]) for k, c in COLS.items()}}
         players[(r["player_id"], r["position"])].append(e)
         t = dtot[(opp, r["position"], wk)]
         for k in KEYS:
@@ -103,6 +126,7 @@ def features(season, path=None):
                     continue
                 vals = [p[st] for p in prior]
                 out.append({"season": season, "week": e["week"], "pid": pid, "pos": pos, "st": st, "vals": vals, "opps": opps,
+                            "snaps": [p["snap"] for p in prior],
                             "d_opp": dpg.get(ok, 0), "d_val": dpg.get(st, 0), "l_opp": lg[ok], "l_val": lg[st],
                             "imp": ctx["imp"], "imp_avg": statistics.mean(imp_avg[e["week"]]), "fav": ctx["fav"],
                             "actual": e[st], "line": math.floor(statistics.mean(vals)) + 0.5})
@@ -122,9 +146,28 @@ def wmean(xs, hl):
     return sum(a * b for a, b in zip(w, xs)) / sum(w)
 
 
+def partial_games(opps, vals, snaps, mode, frac, cap=2.0, keep=3):
+    """Games where he played well under his usual snap share (an early injury exit, a blowout) say little about his
+    role. mode "drop": leave out games below frac x his median snap share (keeping at least `keep` games);
+    "scale": count them as a full game (opportunities and stats x median / that game's share, at most x cap)."""
+    known = sorted(s for s in snaps if s)
+    if not mode or len(known) < 2:
+        return opps, vals
+    med = known[len(known) // 2] if len(known) % 2 else (known[len(known) // 2 - 1] + known[len(known) // 2]) / 2
+    short = [bool(s is not None and s < frac * med) for s in snaps]
+    if mode == "drop":
+        if len(opps) - sum(short) < keep:
+            return opps, vals
+        return [o for o, x in zip(opps, short) if not x], [v for v, x in zip(vals, short) if not x]
+    f = [min(cap, med / max(s, 0.01)) if x else 1.0 for s, x in zip(snaps, short)]
+    return [o * k for o, k in zip(opps, f)], [v * k for v, k in zip(vals, f)]
+
+
 def project(r, P):
     clamp = lambda x, lo, hi: min(hi, max(lo, x))
     opps, vals = r["opps"], r["vals"]
+    if P.get("snap"):
+        opps, vals = partial_games(opps, vals, r.get("snaps") or [None] * len(opps), *P["snap"])
     if P["vol"] == "half3":
         vol = (statistics.mean(opps) + statistics.mean(opps[-3:])) / 2
     else:
