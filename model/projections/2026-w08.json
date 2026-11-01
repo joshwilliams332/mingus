@@ -3984,7 +3984,7 @@
    ]
   },
   "2026_08_PHI_WAS": {
-   "saved": "2026-11-01T19:09+00:00",
+   "saved": "2026-11-01T22:31+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -4392,10 +4392,210 @@
      "p_over": 0.5632,
      "inj": "Questionable"
     }
+   ],
+   "td": [
+    {
+     "pid": "00-0037258",
+     "name": "Dameon Pierce",
+     "pos": "RB",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.3431,
+     "inj": null
+    },
+    {
+     "pid": "00-0031588",
+     "name": "Stefon Diggs",
+     "pos": "WR",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.3288,
+     "inj": null
+    },
+    {
+     "pid": "00-0036912",
+     "name": "DeVonta Smith",
+     "pos": "WR",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.3197,
+     "inj": "Out"
+    },
+    {
+     "pid": "00-0040242",
+     "name": "Jacory Croskey-Merritt",
+     "pos": "RB",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.3098,
+     "inj": null
+    },
+    {
+     "pid": "00-0037256",
+     "name": "Rachaad White",
+     "pos": "RB",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.2605,
+     "inj": null
+    },
+    {
+     "pid": "00-0039910",
+     "name": "Jayden Daniels",
+     "pos": "QB",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.2183,
+     "inj": null
+    },
+    {
+     "pid": "00-0035659",
+     "name": "Terry McLaurin",
+     "pos": "WR",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.2038,
+     "inj": null
+    },
+    {
+     "pid": "00-0034351",
+     "name": "Dallas Goedert",
+     "pos": "TE",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.2036,
+     "inj": null
+    },
+    {
+     "pid": "00-0037809",
+     "name": "Chig Okonkwo",
+     "pos": "TE",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.203,
+     "inj": null
+    },
+    {
+     "pid": "00-0037742",
+     "name": "Treylon Burks",
+     "pos": "WR",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.196,
+     "inj": "Questionable"
+    },
+    {
+     "pid": "00-0041040",
+     "name": "Antonio Williams",
+     "pos": "WR",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.1802,
+     "inj": null
+    },
+    {
+     "pid": "00-0034844",
+     "name": "Saquon Barkley",
+     "pos": "RB",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.1644,
+     "inj": "Limited"
+    },
+    {
+     "pid": "00-0040867",
+     "name": "Makai Lemon",
+     "pos": "WR",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.1637,
+     "inj": null
+    },
+    {
+     "pid": "00-0038393",
+     "name": "Dontayvion Wicks",
+     "pos": "WR",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.1539,
+     "inj": "Out"
+    },
+    {
+     "pid": "00-0038555",
+     "name": "Tank Bigsby",
+     "pos": "RB",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.141,
+     "inj": null
+    },
+    {
+     "pid": "00-0033699",
+     "name": "Austin Ekeler",
+     "pos": "RB",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.1386,
+     "inj": null
+    },
+    {
+     "pid": "00-0036626",
+     "name": "Dyami Brown",
+     "pos": "WR",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.1378,
+     "inj": null
+    },
+    {
+     "pid": "00-0040024",
+     "name": "Darius Cooper",
+     "pos": "WR",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.1337,
+     "inj": null
+    },
+    {
+     "pid": "00-0039746",
+     "name": "Will Shipley",
+     "pos": "RB",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.1273,
+     "inj": null
+    },
+    {
+     "pid": "00-0032268",
+     "name": "Marcus Mariota",
+     "pos": "QB",
+     "team": "WAS",
+     "opp": "PHI",
+     "p": 0.1263,
+     "inj": null
+    },
+    {
+     "pid": "00-0036389",
+     "name": "Jalen Hurts",
+     "pos": "QB",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.1214,
+     "inj": null
+    },
+    {
+     "pid": "00-0030061",
+     "name": "Zach Ertz",
+     "pos": "TE",
+     "team": "PHI",
+     "opp": "WAS",
+     "p": 0.1117,
+     "inj": null
+    }
    ]
   },
   "2026_08_CHI_SEA": {
-   "saved": "2026-11-01T19:09+00:00",
+   "saved": "2026-11-01T22:31+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -4786,6 +4986,179 @@
      "sleeper": 4.7,
      "line": 5.5,
      "p_over": 0.2873,
+     "inj": null
+    }
+   ],
+   "td": [
+    {
+     "pid": "00-0036275",
+     "name": "D'Andre Swift",
+     "pos": "RB",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.5255,
+     "inj": null
+    },
+    {
+     "pid": "00-0038543",
+     "name": "Jaxon Smith-Njigba",
+     "pos": "WR",
+     "team": "SEA",
+     "opp": "CHI",
+     "p": 0.5131,
+     "inj": null
+    },
+    {
+     "pid": "00-0038797",
+     "name": "Emanuel Wilson",
+     "pos": "RB",
+     "team": "SEA",
+     "opp": "CHI",
+     "p": 0.4498,
+     "inj": null
+    },
+    {
+     "pid": "00-0040236",
+     "name": "Kyle Monangai",
+     "pos": "RB",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.4068,
+     "inj": "Out"
+    },
+    {
+     "pid": "00-0040126",
+     "name": "Colston Loveland",
+     "pos": "TE",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.2845,
+     "inj": null
+    },
+    {
+     "pid": "00-0040735",
+     "name": "Luther Burden III",
+     "pos": "WR",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.2673,
+     "inj": null
+    },
+    {
+     "pid": "00-0041512",
+     "name": "Jadarian Price",
+     "pos": "RB",
+     "team": "SEA",
+     "opp": "CHI",
+     "p": 0.2336,
+     "inj": null
+    },
+    {
+     "pid": "00-0039793",
+     "name": "AJ Barner",
+     "pos": "TE",
+     "team": "SEA",
+     "opp": "CHI",
+     "p": 0.2274,
+     "inj": null
+    },
+    {
+     "pid": "00-0037545",
+     "name": "Rashid Shaheed",
+     "pos": "WR",
+     "team": "SEA",
+     "opp": "CHI",
+     "p": 0.2052,
+     "inj": "Out"
+    },
+    {
+     "pid": "00-0039299",
+     "name": "George Holani",
+     "pos": "RB",
+     "team": "SEA",
+     "opp": "CHI",
+     "p": 0.1944,
+     "inj": null
+    },
+    {
+     "pid": "00-0039919",
+     "name": "Rome Odunze",
+     "pos": "WR",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.1901,
+     "inj": null
+    },
+    {
+     "pid": "00-0033908",
+     "name": "Cooper Kupp",
+     "pos": "WR",
+     "team": "SEA",
+     "opp": "CHI",
+     "p": 0.1854,
+     "inj": null
+    },
+    {
+     "pid": "00-0039918",
+     "name": "Caleb Williams",
+     "pos": "QB",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.1803,
+     "inj": null
+    },
+    {
+     "pid": "00-0039021",
+     "name": "Roschon Johnson",
+     "pos": "RB",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.1738,
+     "inj": null
+    },
+    {
+     "pid": "00-0032464",
+     "name": "Kalif Raymond",
+     "pos": "WR",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.1607,
+     "inj": null
+    },
+    {
+     "pid": "00-0040648",
+     "name": "Tory Horton",
+     "pos": "WR",
+     "team": "SEA",
+     "opp": "CHI",
+     "p": 0.1599,
+     "inj": null
+    },
+    {
+     "pid": "00-0036290",
+     "name": "Cole Kmet",
+     "pos": "TE",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.1369,
+     "inj": null
+    },
+    {
+     "pid": "00-0037745",
+     "name": "Velus Jones Jr.",
+     "pos": "RB",
+     "team": "SEA",
+     "opp": "CHI",
+     "p": 0.1274,
+     "inj": "Out"
+    },
+    {
+     "pid": "00-0038416",
+     "name": "Tyson Bagent",
+     "pos": "QB",
+     "team": "CHI",
+     "opp": "SEA",
+     "p": 0.1191,
      "inj": null
     }
    ]
