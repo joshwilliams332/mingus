@@ -1,11 +1,10 @@
 {
- "checked": "2026-11-01T22:14:59.130347+00:00",
+ "checked": "2026-11-01T22:31:06.980842+00:00",
  "today": "2026-11-01",
  "lock": {
   "day": "2026-11-01",
   "state": "locked",
-  "why": "0 pick(s) locked",
-  "new": true
+  "why": "already locked"
  },
  "recap": {
   "week": 8,
