@@ -10,6 +10,8 @@ mkdir hist && cd hist
 for s in 2021 2022 2023 2024 2025 2026; do
   curl -fsSLo stats_$s.csv https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_$s.csv
 done
+# optional, for the snap-share test (P["snap"] in engine.py): snaps_<season>.csv and roster_<season>.csv
+#   from .../snap_counts/snap_counts_$s.csv and .../rosters/roster_$s.csv
 curl -fsSLo games.csv https://github.com/nflverse/nfldata/raw/master/data/games.csv
 cd .. && export MINGUS_HIST=hist/
 python3 scripts/backtest/build_features.py   # hist/features.pkl + the pre-tuning settings' score per season

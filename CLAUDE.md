@@ -74,7 +74,10 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   0.9-1.1) x injury openings (60% of Out/Doubtful teammates' recent volume, by share, max +25%; not backtestable);
   efficiency = his recency-weighted rate (6-game half-life) steadied toward the position's league rate (20
   opportunities); x `MEAN_ADJ` (1.03; passing yards 0.93). Game script and the defense's per-play effect were tested
-  and dropped (no help). Averaged 50/50 with Sleeper's stat line when players.json has it. Spread = his game-to-game
+  and dropped (no help). So was discounting low-snap games (early injury exits; Nov 1, nflverse snap counts: dropping or
+  scaling games under 40-80% of his usual snap share, also only dips he bounced back from) - worse on 2021-2025 and 2026,
+  because low-snap games are mostly real role changes and future games carry the same exit risk (`snap` option in
+  `scripts/backtest/engine.py`, off). Averaged 50/50 with Sleeper's stat line when players.json has it. Spread = his game-to-game
   spread blended with `PRIOR_CV` (counted as 8 games) x1.15. Chance of the over: log-normal for rush / rec yds and
   catches (yardage is skewed), bell curve for passing yards. Backtest (each game projected only from earlier games,
   vs a "typical" line = floor(his average) + 0.5, since no historical book lines exist): 2021-2025 Brier 0.240
