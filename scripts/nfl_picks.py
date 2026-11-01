@@ -954,6 +954,107 @@ def night_results(data, store, stats_rows, now, slate="night"):
     return out
 
 
+# ---------------------------------------------------------------- same-day results (unofficial, ESPN)
+
+ESPN = "https://site.api.espn.com/apis/site/v2/sports/football/nfl"
+ESPN_TEAM = {"WSH": "WAS", "LAR": "LA"}
+ESPN_COL = {("receiving", "REC"): "receptions", ("receiving", "YDS"): "receiving_yards", ("receiving", "TD"): "receiving_tds",
+            ("rushing", "YDS"): "rushing_yards", ("rushing", "TD"): "rushing_tds", ("passing", "YDS"): "passing_yards"}
+
+
+def fetch_json(url):
+    req = urllib.request.Request(url, headers={"User-Agent": "mingus-picks", "Accept": "application/json"})
+    with urllib.request.urlopen(req, timeout=30) as resp:
+        return json.loads(resp.read().decode("utf-8"))
+
+
+def espn_box(summary):
+    """ESPN game summary -> {(team, normalized name): {nflverse-style stat columns}} for players in the box score."""
+    out = {}
+    for side in (summary.get("boxscore") or {}).get("players") or []:
+        abbr = ((side.get("team") or {}).get("abbreviation") or "").upper()
+        team = ESPN_TEAM.get(abbr, abbr)
+        for block in side.get("statistics") or []:
+            kind = (block.get("name") or "").lower()
+            labels = [str(x).upper() for x in block.get("labels") or []]
+            for a in block.get("athletes") or []:
+                name = norm_name((a.get("athlete") or {}).get("displayName"))
+                row = out.setdefault((team, name), {})
+                for label, val in zip(labels, a.get("stats") or []):
+                    col = ESPN_COL.get((kind, label))
+                    if col:
+                        try:
+                            row[col] = float(str(val).replace(",", ""))
+                        except ValueError:
+                            pass
+    return out
+
+
+def espn_finals(day, fetch=fetch_json):
+    """{frozenset({home, away}): box} for every NFL game on this ET date that ESPN marks final."""
+    sb = fetch(f"{ESPN}/scoreboard?dates={day.replace('-', '')}")
+    out = {}
+    for ev in sb.get("events") or []:
+        comp = (ev.get("competitions") or [{}])[0]
+        if not ((comp.get("status") or ev.get("status") or {}).get("type") or {}).get("completed"):
+            continue
+        teams = frozenset(ESPN_TEAM.get(c["team"]["abbreviation"].upper(), c["team"]["abbreviation"].upper())
+                          for c in comp.get("competitors") or [])
+        out[teams] = espn_box(fetch(f"{ESPN}/summary?event={ev['id']}"))
+    return out
+
+
+def quick_results(data, store, now, slate, fetch=fetch_json):
+    """Unofficial results for today's locked slate as soon as ESPN has every game final: picks/<slate dir>/DATE-quick.json,
+    written once, emailed same day. Never counted: the record still comes from nflverse the next morning
+    (night_results). A pick whose player isn't in ESPN's box score shows as 'check' (could be inactive or no touches)."""
+    dir_ = picks_dir(store, slate)
+    day = et_date(now)
+    doc, file = read(dir_ / f"{day}.json"), dir_ / f"{day}-quick.json"
+    if not doc or not doc.get("picks"):
+        return {"day": day, "state": "none"}
+    if file.exists():
+        return {"day": day, "state": "done"}
+    games = [data.game[g] for g in doc.get("games", []) if g in data.game]
+    if any(kickoff(g) > now for g in games):
+        return {"day": day, "state": "waiting", "why": "games not played yet"}
+    try:
+        finals = espn_finals(day, fetch)
+    except Exception as e:
+        return {"day": day, "state": "waiting", "why": f"couldn't reach ESPN ({e})"}
+    if not all(frozenset((g["home"], g["away"])) in finals for g in games):
+        return {"day": day, "state": "waiting", "why": "not every game is final on ESPN yet"}
+    rows, s = [], {"w": 0, "l": 0, "p": 0, "v": 0, "profit": 0.0}
+    for pk in doc["picks"]:
+        box = next((b for t, b in finals.items() if pk["team"] in t), {})
+        st = box.get((pk["team"], norm_name(pk["name"])))
+        if st is None:
+            rows.append((pk, {"status": "check", "actual": None}))
+            continue
+        g = grade(pk, [{"week": str(pk["week"]), "team": pk["team"], "player_id": pk["pid"],
+                        **{k: str(v) for k, v in st.items()}}])
+        rows.append((pk, g))
+        k = {"win": "w", "loss": "l", "push": "p"}.get(g["status"])
+        if k:
+            s[k] += 1
+            s["profit"] = round(s["profit"] + g["profit"], 3)
+    mark = {"win": "✅", "loss": "❌", "push": "➖"}
+    lines = [f"{mark.get(g['status'], '❔')} {short(p)}" + (f" ({g['actual']:g})" if g.get("actual") is not None else " (not in ESPN's box score: check)")
+             for p, g in rows]
+    slot = slot_label(games[0]) if games else "Today"
+    main = "\n".join([f"🏈 {BRAND} · {slot} results: {s['w']}-{s['l']}{'-' + str(s['p']) if s['p'] else ''} ({units(s['profit'])})",
+                      "", *lines, "", FOOT])
+    post = {"main": main, "replies": []}
+    notes = ["Unofficial: graded from ESPN's box score right after the games. The official grade (nflverse stats) and the "
+             "record come in tomorrow's 8:41 AM results email; stat corrections can change a close one."]
+    title = f"{'TEST · ' if doc.get('test') else ''}{slot} results (unofficial) · {day_label(day)} · {s['w']}-{s['l']}"
+    write(file, {"date": day, "slate": slate, "unofficial": True, "graded_at": now.isoformat(), "record": s,
+                 "results": [{"id": p["id"], **g} for p, g in rows], "post": post,
+                 "email": {"subject": f"🏈 {title}", "html": email_html(title, post, notes, doc.get("test")),
+                           "text": email_text(post, notes, doc.get("test"))}})
+    return {"day": day, "state": "done", "new": True, "record": f"{s['w']}-{s['l']}"}
+
+
 def load_stats(season, path=None):
     """nflverse weekly player stats (regular season) for grading; [] if it can't be loaded."""
     try:
@@ -993,7 +1094,8 @@ def main(argv=None):
     sun = {}
     for slate in SLATES:
         sun[slate] = {"results": night_results(data, a.store, stats_rows, now, slate=slate),
-                      "lock": lock(data, a.store, now, api, a.force_lock, slate=slate)}
+                      "lock": lock(data, a.store, now, api, a.force_lock, slate=slate),
+                      "quick": quick_results(data, a.store, now, slate) if not a.no_odds else {"state": "skipped"}}
     lk = lock(data, a.store, now, api, a.force_lock)
     status = {"checked": now.isoformat(), "today": et_date(now), "lock": lk, "recap": rc, "results": res,
               "sunday": sun,
