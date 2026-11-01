@@ -109,6 +109,15 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   final -> `picks/sun-*/YYYY-MM-DD-quick.json`, written once, marked unofficial, never counted; a player missing from
   ESPN's box score shows as "check". The record still comes from nflverse the next morning. Emailed ~5:15 PM (1 PM games)
   and ~8:15 PM ET (4 PM games) by scheduled tasks.
+- **Anytime-TD model** (`td_chance` in nfl_picks.py; Josh, Nov 1: tested TD numbers instead of rough reads). Logistic on
+  2021-2025 player games from earlier games only: recency-weighted (4-game half-life) carries, targets, red-zone carries
+  and targets, TDs per game, his share of the team's red-zone carries / targets, team implied points vs the week average,
+  position. Platt-calibrated out of season; chances over 50% pulled in 20%. Brier 0.1674 (2021-25 held out by season) /
+  0.1790 (2026), vs 0.1738 / 0.1919 for his own TD rate. Defense TDs allowed to the position and inside-10/5 usage added
+  nothing (dropped). Rushing + receiving TDs only (anytime-TD rules). Doesn't know depth-chart news (e.g. a goal-line
+  back returning) beyond the injury report. Saved before kickoff and scored weekly by the model review (`td` in each
+  game's projections and in the scorecard / report). Backtest: `scripts/backtest/td/`. Not used for locked picks yet
+  (no TD odds pulled).
 
 - **Model review loop** (`scripts/model_review.py`, `.github/workflows/model-review.yml`, tested in
   `tests/test_model_review.py`; Josh, Oct 31: "improving after every single game"). Separate from the deploy; shares the
@@ -120,7 +129,8 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   either way per setting, twice) on 2021-2025 + this season's weeks < W counted x4 (`THIS_SEASON_WEIGHT`), adopted only
   if it also beats the current settings on week W itself by `ADOPT_MARGIN` -> `model/tuning/wNN.json`, and if adopted
   `model/settings.json` (read by `nfl_picks.apply_settings`, so picks and the tool use it) + `settings-history.json`;
-  (4) `model/report-wNN.json` / `report-latest.json` with a ready-to-send email. Scored weekly, not per game, because
+  (4) `model/report-wNN.json` / `report-latest.json` with a ready-to-send email (also ours vs Sleeper vs the 50/50 average,
+  as average miss %, and the anytime-TD scorecard; Josh, Nov 1). Scored weekly, not per game, because
   one game is ~40 noisy projections. Retuning needs past seasons in `hist/` (Actions cache) and this season's
   `stats_<season>.csv`, plus `games.csv`; `scripts/backtest/engine.py` must keep mirroring `projection()`.
   The weekly prop tool page (`scripts/prop_tool/`, private claude.ai artifact "Mingus Prop Model", NOT on the site; Josh

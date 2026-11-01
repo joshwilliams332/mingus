@@ -238,6 +238,41 @@ class QuickResults(unittest.TestCase):
         self.assertEqual(box[("PHI", "saquon barkley")]["rushing_yards"], 104.0)   # "1,04"-style thousands commas stripped
 
 
+class Touchdowns(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.data = make_data(Path(self.tmp.name))
+        self.game = self.data.game["2026_09_PHI_WAS"]
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_more_red_zone_work_and_points_mean_more_tds(self):
+        te = self.data.by_id["TE1"]
+        base = N.td_chance(self.data, te, self.game)["p"]
+        for e in te["log"]:
+            e["rz_tgt"] = 2
+        self.data._rz = None
+        more = N.td_chance(self.data, te, self.game)["p"]
+        self.assertGreater(more, base)
+        self.game["away_implied"] = 30.0
+        self.assertGreater(N.td_chance(self.data, te, self.game)["p"], more)
+
+    def test_needs_three_games_and_counts_only_rush_rec(self):
+        te = self.data.by_id["TE1"]
+        self.assertIsNone(N.td_chance(self.data, te, {**self.game, "week": 3}))
+        self.assertIsNone(N.td_chance(self.data, {**te, "pos": "K"}, self.game))
+        p = N.td_chance(self.data, te, self.game)["p"]
+        for e in te["log"]:
+            e["pass_td"] = 3                                # passing TDs aren't anytime TDs
+        self.assertEqual(N.td_chance(self.data, te, self.game)["p"], p)
+
+    def test_fair_price(self):
+        self.assertEqual(N.fair_price(0.5), -100)
+        self.assertEqual(N.fair_price(0.25), 300)
+        self.assertEqual(N.fair_price(0.6), -150)
+
+
 class LockAndGrade(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()

@@ -85,6 +85,22 @@ def week_projections(data, games, week):
     return out
 
 
+def week_td(data, games):
+    """Anytime-TD chance (nfl_picks.td_chance) for everyone with enough games, per game id."""
+    out = {}
+    for g in games:
+        rows = []
+        for p in data.players:
+            if p["team"] not in (g["home"], g["away"]):
+                continue
+            t = N.td_chance(data, p, g)
+            if t:
+                rows.append({"pid": p["id"], "name": p["name"], "pos": p["pos"], "team": p["team"], "opp": t["opp"], "p": t["p"],
+                             "inj": (p.get("injury") or {}).get("status")})
+        out[g["id"]] = sorted(rows, key=lambda r: -r["p"])
+    return out
+
+
 def snapshot(data, store, now):
     season = data.meta.get("season")
     upcoming = [g for g in data.games if g.get("home_score") is None and g.get("type", "REG") == "REG"]
@@ -97,8 +113,9 @@ def snapshot(data, store, now):
     if not pre:
         return {"week": week, "state": "all started"}
     settings = (N.read(Path(store) / "model" / "settings.json") or {}).get("adopted_at", "default (Oct 31 tuning)")
+    tds = week_td(data, pre)
     for gid, rows in week_projections(data, pre, week).items():
-        doc["games"][gid] = {"saved": now.isoformat(timespec="minutes"), "settings": settings, "rows": rows}
+        doc["games"][gid] = {"saved": now.isoformat(timespec="minutes"), "settings": settings, "rows": rows, "td": tds.get(gid, [])}
     N.write(file, doc)
     return {"week": week, "state": "saved", "games": len(pre), "rows": sum(len(doc["games"][g["id"]]["rows"]) for g in pre)}
 
@@ -138,8 +155,32 @@ def summarize_rows(rs):
         books = {"n": len(bk), "ours": round(brier([(r["book"]["ours"], r["book"]["hit"]) for r in bk]), 4),
                  "books": round(brier([(r["book"]["market"], r["book"]["hit"]) for r in bk]), 4),
                  "blend": round(brier([(0.3 * r["book"]["ours"] + 0.7 * r["book"]["market"], r["book"]["hit"]) for r in bk]), 4)}
+    both = [r for r in rs if r.get("sleeper") is not None and r.get("mingus") is not None]
+    sources = None
+    if both:
+        # Ours vs Sleeper vs the 50/50 average, as average misses in percent of the actual totals (Josh, Nov 1: is
+        # Sleeper's half helping?).
+        tot = max(sum(r["actual"] for r in both), 1e-9)
+        miss = lambda k: round(100 * sum(abs(r[k] - r["actual"]) for r in both) / tot, 1)
+        sources = {"n": len(both), "ours": miss("mingus"), "sleeper": miss("sleeper"), "blend": miss("mean")}
     return {"n": len(rs), "brier": round(brier([(r["p_over"], r["hit"]) for r in rs]), 4) if rs else None,
-            "coin": round(brier([(0.5, r["hit"]) for r in rs]), 4) if rs else None, "by_stat": by, "books": books}
+            "coin": round(brier([(0.5, r["hit"]) for r in rs]), 4) if rs else None, "by_stat": by, "books": books,
+            "sources": sources}
+
+
+def summarize_td(rs):
+    """Anytime-TD chances vs what happened: Brier vs everyone-the-same (this week's actual rate), and calibration."""
+    if not rs:
+        return None
+    rate = sum(r["hit"] for r in rs) / len(rs)
+    buckets = {}
+    for r in rs:
+        b = min(int(r["p"] * 10), 9) / 10
+        x = buckets.setdefault(f"{b:.1f}", [0, 0.0, 0])
+        x[0] += 1; x[1] += r["p"]; x[2] += r["hit"]
+    return {"n": len(rs), "brier": round(brier([(r["p"], r["hit"]) for r in rs]), 4),
+            "flat": round(brier([(rate, r["hit"]) for r in rs]), 4), "avg_p": round(sum(r["p"] for r in rs) / len(rs), 3),
+            "rate": round(rate, 3), "calib": {k: [v[0], round(v[1] / v[0], 3), round(v[2] / v[0], 3)] for k, v in sorted(buckets.items())}}
 
 
 def score(data, store, stats_by_week):
@@ -151,7 +192,7 @@ def score(data, store, stats_by_week):
         doc = N.read(f, {})
         wk = doc.get("week")
         played = stats_by_week.get(wk, {})
-        scored, days = [], {}
+        scored, days, td_rows = [], {}, []
         for gid, entry in doc.get("games", {}).items():
             g = data.game.get(gid)
             if not g:
@@ -174,12 +215,17 @@ def score(data, store, stats_by_week):
                                  "hit": 1.0 if actual > bk["line"] else 0.0}
                 scored.append(s)
                 days.setdefault(g["date"], []).append(s)
+            for t in entry.get("td", []):
+                a = played.get(t["pid"])
+                if a:
+                    tds = float(a.get("rushing_tds") or 0) + float(a.get("receiving_tds") or 0)
+                    td_rows.append({**t, "hit": 1.0 if tds > 0 else 0.0})
         if not scored:
             continue
         misses = sorted(scored, key=lambda r: -abs(r["z"]))[:6]
         weeks[wk] = {**summarize_rows(scored),
                      "days": {d: {**summarize_rows(rs), "slot": day_slot(data, d), "games": len({r["gid"] for r in rs})} for d, rs in sorted(days.items())},
-                     "complete": week_complete(data, wk, stats_by_week),
+                     "complete": week_complete(data, wk, stats_by_week), "td": summarize_td(td_rows),
                      "misses": [{"name": r["name"], "st": r["st"], "mean": r["mean"], "actual": r["actual"], "opp": r["opp"]} for r in misses]}
     card = {"season": season, "weeks": {str(k): v for k, v in sorted(weeks.items())}}
     N.write(Path(store) / "model" / "scorecard.json", card)
@@ -349,6 +395,14 @@ def report(data, store, card, tuning, now):
         b = wk["books"]
         lines += ["", f"Against real sportsbook lines (night games, {b['n']} props): ours {b['ours']:.3f}, the books' {b['books']:.3f}, "
                       f"our 30/70 blend {b['blend']:.3f} (lower is better)."]
+    if wk.get("sources"):
+        so = wk["sources"]
+        lines += ["", f"Ours vs Sleeper ({so['n']} projections with both): average miss ours {so['ours']:g}%, Sleeper's {so['sleeper']:g}%, "
+                      f"the 50/50 average we use {so['blend']:g}% (of the actual totals; lower is better)."]
+    if wk.get("td"):
+        t = wk["td"]
+        lines += ["", f"Anytime TD: {t['n']} players, Brier {t['brier']:.3f} vs {t['flat']:.3f} for giving everyone the same chance; "
+                      f"we expected {t['avg_p']:.0%} to score, {t['rate']:.0%} did."]
     lines += ["", "Biggest misses: " + "; ".join(f"{m['name']} {LABEL[m['st']]} {m['mean']:g} projected, {m['actual']:g} actual (vs {m['opp']})" for m in wk["misses"])]
     lines += ["", f"Tuning: {log.get('why', '')}."]
     if log.get("changes"):

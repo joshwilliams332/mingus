@@ -488,6 +488,78 @@ def chance_over(proj, line):
 
 # ---------------------------------------------------------------- choosing picks
 
+# ---------------------------------------------------------------- anytime touchdown
+
+# Anytime-TD model (Nov 1, 2026; Josh asked for tested TD numbers instead of rough reads). Logistic regression on
+# 2021-2025 nflverse player games (week 4+, at least 3 earlier games that season; 13,235 games), each game described
+# only by earlier games: recency-weighted (4-game half-life) carries, targets, red-zone carries and targets, TDs per
+# game, his share of the team's red-zone carries and targets, and the team's implied points vs the week average.
+# Calibrated out of season (Platt); chances above 50% pulled in 20% (TD_TOP_SHRINK, it ran hot up there).
+# Brier, lower = better: 2021-25 held out by season 0.1674 (his own TD rate alone 0.1738, everyone the same 0.1814);
+# untouched 2026 weeks 4-7 0.1790 (0.1919 / 0.1934). The defense's TDs allowed to the position had no predictive
+# value (weight ~0) and is left out. Scripts: scripts/backtest/td/.
+TD_MODEL = {
+    "names": ["car", "tgt", "rz_car", "rz_tgt", "td_rate", "rz_car_share", "rz_tgt_share", "log_implied", "QB", "RB", "WR", "TE"],
+    "weights": [0.082626, 0.136538, 0.021174, 0.022308, 0.464942, 0.293399, 0.262097, 1.174721, 0.063443, -0.164981, 0.040517, 0.130508],
+    "intercept": -2.254231,
+}
+TD_HALF_LIFE = 4
+TD_TOP_SHRINK = 0.8
+TD_MIN_GAMES = 3
+
+
+def team_redzone(data):
+    """{(team, week): (red-zone carries, red-zone targets)} summed over every player's game log."""
+    if getattr(data, "_rz", None) is None:
+        tot = {}
+        for p in data.players:
+            for e in p.get("log", []):
+                k = (e.get("team") or p["team"], e["week"])
+                c, t = tot.get(k, (0, 0))
+                tot[k] = (c + (e.get("rz_car") or 0), t + (e.get("rz_tgt") or 0))
+        data._rz = tot
+    return data._rz
+
+
+def td_chance(data, player, game):
+    """Chance he scores a rushing or receiving TD in this game (passing TDs don't count, like the books' anytime TD).
+    None if he has fewer than TD_MIN_GAMES earlier games, little volume, or the game has no implied total."""
+    if player["pos"] not in ("QB", "RB", "WR", "TE"):
+        return None
+    log = sorted((e for e in player.get("log", []) if e["week"] < game["week"]), key=lambda e: e["week"])
+    if len(log) < TD_MIN_GAMES:
+        return None
+    ctx = team_context(data, player["team"], game)
+    if not ctx["implied"] or not ctx["avg"]:
+        return None
+    w = decay_weights(len(log), TD_HALF_LIFE)
+    avg = lambda f: sum(a * f(e) for a, e in zip(w, log)) / sum(w)
+    rz = team_redzone(data)
+    team_rz = lambda e, i: rz.get((e.get("team") or player["team"], e["week"]), (0, 0))[i]
+    f = {"car": avg(lambda e: e.get("car") or 0), "tgt": avg(lambda e: e.get("tgt") or 0),
+         "rz_car": avg(lambda e: e.get("rz_car") or 0), "rz_tgt": avg(lambda e: e.get("rz_tgt") or 0),
+         "td_rate": avg(lambda e: (e.get("rush_td") or 0) + (e.get("rec_td") or 0))}
+    if f["car"] + f["tgt"] < 2:
+        return None
+    t_car, t_tgt = avg(lambda e: team_rz(e, 0)), avg(lambda e: team_rz(e, 1))
+    f["rz_car_share"] = f["rz_car"] / t_car if t_car else 0
+    f["rz_tgt_share"] = f["rz_tgt"] / t_tgt if t_tgt else 0
+    f["log_implied"] = math.log(ctx["implied"] / ctx["avg"])
+    for pos in ("QB", "RB", "WR", "TE"):
+        f[pos] = 1.0 if player["pos"] == pos else 0.0
+    z = TD_MODEL["intercept"] + sum(wt * f[n] for n, wt in zip(TD_MODEL["names"], TD_MODEL["weights"]))
+    p = 1 / (1 + math.exp(-z))
+    if p > 0.5:
+        p = 0.5 + TD_TOP_SHRINK * (p - 0.5)
+    return {"p": round(p, 4), "parts": {k: round(v, 3) for k, v in f.items() if k not in ("QB", "RB", "WR", "TE")},
+            "implied": ctx["implied"], "opp": game["away"] if game["home"] == player["team"] else game["home"]}
+
+
+def fair_price(p):
+    """American odds that break even at chance p."""
+    return round(-100 * p / (1 - p)) if p >= 0.5 else round(100 * (1 - p) / p)
+
+
 def injured(player):
     inj = player.get("injury") or {}
     return (inj.get("status") or "") in PICK["skip_status"]
