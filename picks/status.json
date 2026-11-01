@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-01T22:31:06.980842+00:00",
+ "checked": "2026-11-01T22:32:29.061098+00:00",
  "today": "2026-11-01",
  "lock": {
   "day": "2026-11-01",
@@ -26,6 +26,12 @@
     "day": "2026-11-01",
     "state": "locked",
     "why": "already locked"
+   },
+   "quick": {
+    "day": "2026-11-01",
+    "state": "done",
+    "new": true,
+    "record": "3-2"
    }
   },
   "late": {
@@ -38,6 +44,11 @@
     "day": "2026-11-01",
     "state": "locked",
     "why": "already locked"
+   },
+   "quick": {
+    "day": "2026-11-01",
+    "state": "waiting",
+    "why": "not every game is final on ESPN yet"
    }
   }
  },

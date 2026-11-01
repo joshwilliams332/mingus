@@ -1,0 +1,54 @@
+{
+ "date": "2026-11-01",
+ "slate": "early",
+ "unofficial": true,
+ "graded_at": "2026-11-01T22:32:29.061098+00:00",
+ "record": {
+  "w": 3,
+  "l": 2,
+  "p": 0,
+  "v": 0,
+  "profit": 0.719
+ },
+ "results": [
+  {
+   "id": "2026_08_ATL_TB-00-0036970-rec_yds",
+   "status": "win",
+   "actual": 6,
+   "profit": 0.901
+  },
+  {
+   "id": "2026_08_MIN_DET-00-0036322-rec_yds",
+   "status": "win",
+   "actual": 33,
+   "profit": 0.909
+  },
+  {
+   "id": "2026_08_ARI_DAL-00-0037744-rec_yds",
+   "status": "win",
+   "actual": 72,
+   "profit": 0.909
+  },
+  {
+   "id": "2026_08_TEN_CIN-00-0036900-rec_yds",
+   "status": "loss",
+   "actual": 141,
+   "profit": -1
+  },
+  {
+   "id": "2026_08_TEN_CIN-00-0038117-rec_yds",
+   "status": "loss",
+   "actual": 57,
+   "profit": -1
+  }
+ ],
+ "post": {
+  "main": "\ud83c\udfc8 Mingus Football \u00b7 Sunday 1 PM results: 3-2 (+0.7u)\n\n\u2705 Kyle Pitts U 35.5 rec yds (6)\n\u2705 Justin Jefferson U 75.5 rec yds (33)\n\u2705 Trey McBride U 73.5 rec yds (72)\n\u274c Ja'Marr Chase U 80.5 rec yds (141)\n\u274c Wan'Dale Robinson U 46.5 rec yds (57)\n\nFor entertainment. 21+ \u00b7 Gamble responsibly \u00b7 1-800-GAMBLER",
+  "replies": []
+ },
+ "email": {
+  "subject": "\ud83c\udfc8 Sunday 1 PM results (unofficial) \u00b7 Sun 11/1 \u00b7 3-2",
+  "html": "<div style=\"font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;color:#111;max-width:620px\"><h2 style=\"margin:0 0 4px\">Sunday 1 PM results (unofficial) \u00b7 Sun 11/1 \u00b7 3-2</h2><p style=\"color:#555;margin:0 0 16px\">Copy, paste, post. Long-press a box to copy it.</p><h3 style=\"margin:0 0 6px\">Post</h3><pre style=\"white-space:pre-wrap;font:15px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;background:#f4f5f7;border:1px solid #dde0e5;border-radius:10px;padding:12px 14px;margin:0 0 12px\">\ud83c\udfc8 Mingus Football \u00b7 Sunday 1 PM results: 3-2 (+0.7u)\n\n\u2705 Kyle Pitts U 35.5 rec yds (6)\n\u2705 Justin Jefferson U 75.5 rec yds (33)\n\u2705 Trey McBride U 73.5 rec yds (72)\n\u274c Ja&#x27;Marr Chase U 80.5 rec yds (141)\n\u274c Wan&#x27;Dale Robinson U 46.5 rec yds (57)\n\nFor entertainment. 21+ \u00b7 Gamble responsibly \u00b7 1-800-GAMBLER</pre><h3 style=\"margin:16px 0 6px\">For you, not for posting</h3><ul style=\"color:#444;padding-left:18px;margin:0\"><li>Unofficial: graded from ESPN&#x27;s box score right after the games. The official grade (nflverse stats) and the record come in tomorrow&#x27;s 8:41 AM results email; stat corrections can change a close one.</li></ul><p style=\"color:#888;font-size:13px;margin-top:18px\">From Mingus Football's picks job. <a href=\"https://joshwilliams332.github.io/mingus/games.html\">This week's games</a></p></div>",
+  "text": "\ud83c\udfc8 Mingus Football \u00b7 Sunday 1 PM results: 3-2 (+0.7u)\n\n\u2705 Kyle Pitts U 35.5 rec yds (6)\n\u2705 Justin Jefferson U 75.5 rec yds (33)\n\u2705 Trey McBride U 73.5 rec yds (72)\n\u274c Ja'Marr Chase U 80.5 rec yds (141)\n\u274c Wan'Dale Robinson U 46.5 rec yds (57)\n\nFor entertainment. 21+ \u00b7 Gamble responsibly \u00b7 1-800-GAMBLER\n\nNote: Unofficial: graded from ESPN's box score right after the games. The official grade (nflverse stats) and the record come in tomorrow's 8:41 AM results email; stat corrections can change a close one."
+ }
+}
