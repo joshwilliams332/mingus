@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-01T14:13:00.430953+00:00",
+ "checked": "2026-11-01T16:14:11.593082+00:00",
  "today": "2026-11-01",
  "lock": {
   "day": "2026-11-01",
@@ -18,13 +18,14 @@
  "sunday": {
   "early": {
    "results": {
-    "state": "none"
+    "day": "2026-11-01",
+    "state": "waiting",
+    "why": "tonight's games haven't been played"
    },
    "lock": {
     "day": "2026-11-01",
     "state": "locked",
-    "why": "5 pick(s) locked",
-    "new": true
+    "why": "already locked"
    }
   },
   "late": {
