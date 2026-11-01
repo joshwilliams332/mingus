@@ -92,14 +92,15 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   Delivery: scheduled Claude tasks email Josh (joshwilliams332@comcast.net) at 6:00 PM ET Thu/Sat/Sun/Mon (picks),
   8:41 AM ET Fri/Sun/Mon/Tue (last night's results) and Tue 1:41 PM ET (weekly recap); they only fetch `picks/` from the `data` branch and send it as written. No model
   backtest exists yet (no historical lines); the public record is the test.
-- **Sunday afternoon slate** (Josh, Nov 1, 2026: top model picks for the 1 PM and 4 PM games, emailed, "for tracking";
-  same script, `slate="day"`). Sunday games kicking off noon to before 7 PM ET (`is_day`; not London 9:30 AM, not
-  Thanksgiving). Locked together once, on the first run within 4 h of the first kickoff (Sunday crons 14-17 UTC), into
-  `picks/day/YYYY-MM-DD.json`; results `picks/day/YYYY-MM-DD-results.json` and its own `picks/day/record.json`, never
-  mixed into the night record. Only receiving + rushing yards (`DAY_MARKETS`, 2 credits a game, ~22 a Sunday, ~110 a
-  month) to stay inside the ~200/month football budget; same pick rules, best 5 by edge (`DAY_MAX_PICKS`). Counts from
-  Week 8 (`DAY_RECORD_START_WEEK`). 4 PM games lock before their inactives (inactive = void). Scheduled Claude task
-  emails it Sunday ~11:40 AM ET; the Monday 8:41 AM results email adds the afternoon results.
+- **Sunday daytime slates** (Josh, Nov 1, 2026: model picks for the 1 PM and 4 PM games, emailed 9 AM and 2 PM ET,
+  "for tracking"; same script, `SLATES` in nfl_picks.py). "early" = Sunday kickoffs noon-3:59 PM ET, locked on the first
+  run within 5 h (from 8 AM); "late" = 4-6:59 PM, within 3 h (from ~1 PM). Not London 9:30 AM or Thanksgiving. Sunday
+  crons every 30 min 12-19 UTC. Files `picks/sun-early/` and `picks/sun-late/` (picks + morning-after results); both
+  count in one `picks/sunday-record.json`, never mixed into the night record. Only receiving + rushing yards
+  (`DAY_MARKETS`, 2 credits a game, ~22 a Sunday, ~110 a month) to stay inside the ~200/month football budget; same
+  pick rules, best 5 by edge per slate (`DAY_MAX_PICKS`). Counts from Week 8 (`DAY_RECORD_START_WEEK`). Locks come
+  before inactives (inactive = void). Scheduled Claude tasks email each slate at 9:00 AM / 2:00 PM ET Sundays; the
+  Monday 8:41 AM results email adds both.
 
 - **Model review loop** (`scripts/model_review.py`, `.github/workflows/model-review.yml`, tested in
   `tests/test_model_review.py`; Josh, Oct 31: "improving after every single game"). Separate from the deploy; shares the
