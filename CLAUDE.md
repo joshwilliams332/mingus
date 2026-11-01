@@ -104,6 +104,11 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   pick rules, best 5 by edge per slate (`DAY_MAX_PICKS`). Counts from Week 8 (`DAY_RECORD_START_WEEK`). Locks come
   before inactives (inactive = void). Scheduled Claude tasks email each slate at 9:00 AM / 2:00 PM ET Sundays; the
   Monday 8:41 AM results email adds both.
+  Same-day unofficial results (Josh, Nov 1: wanted the 1 PM results that evening): `quick_results` grades a Sunday slate
+  from ESPN's box scores (site.api.espn.com, free; reachable from Actions, not from the cloud sandbox) once every game is
+  final -> `picks/sun-*/YYYY-MM-DD-quick.json`, written once, marked unofficial, never counted; a player missing from
+  ESPN's box score shows as "check". The record still comes from nflverse the next morning. Emailed ~5:15 PM (1 PM games)
+  and ~8:15 PM ET (4 PM games) by scheduled tasks.
 - **Anytime-TD model** (`td_chance` in nfl_picks.py; Josh, Nov 1: tested TD numbers instead of rough reads). Logistic on
   2021-2025 player games from earlier games only: recency-weighted (4-game half-life) carries, targets, red-zone carries
   and targets, TDs per game, his share of the team's red-zone carries / targets, team implied points vs the week average,

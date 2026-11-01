@@ -189,6 +189,55 @@ class Projection(unittest.TestCase):
             self.assertIsNone(N.projection(data, data.by_id["TE1"], "rec_yds", data.game["2026_09_PHI_WAS"], 3))
 
 
+def espn_fake(completed=True, goedert=(6, 52)):
+    sb = {"events": [{"id": "e1", "competitions": [{"status": {"type": {"completed": completed}}, "competitors": [
+        {"team": {"abbreviation": "WSH"}}, {"team": {"abbreviation": "PHI"}}]}]}]}
+    athletes = [{"athlete": {"displayName": "Dallas Goedert"}, "stats": [str(goedert[0]), str(goedert[1]), "8.7", "0", "21", "8"]}] if goedert else []
+    summ = {"boxscore": {"players": [{"team": {"abbreviation": "PHI"}, "statistics": [
+        {"name": "receiving", "labels": ["REC", "YDS", "AVG", "TD", "LONG", "TGTS"], "athletes": athletes},
+        {"name": "rushing", "labels": ["CAR", "YDS", "AVG", "TD", "LONG"], "athletes": [
+            {"athlete": {"displayName": "Saquon Barkley"}, "stats": ["15", "1,04", "6.9", "1", "30"]}]}]}]}}
+    return lambda url: sb if "scoreboard" in url else summ
+
+
+class QuickResults(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.data = make_data(Path(self.tmp.name))
+        self.store = Path(self.tmp.name) / "store"
+        self.pick = {"id": "a", "gid": "2026_09_PHI_WAS", "pid": "TE1", "name": "Dallas Goedert", "team": "PHI", "opp": "WAS",
+                     "week": 9, "stat": "rec_yds", "side": "o", "line": 45.5, "price": -110}
+        N.write(self.store / "picks" / "2026-11-08.json", {"season": 2026, "week": 9, "test": False,
+                                                           "games": ["2026_09_PHI_WAS"], "picks": [self.pick]})
+        self.late = datetime.fromisoformat("2026-11-08T23:45").replace(tzinfo=ET)
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def test_waits_for_final_then_grades_once(self):
+        self.assertEqual(N.quick_results(self.data, self.store, self.late, "night", espn_fake(completed=False))["state"], "waiting")
+        r = N.quick_results(self.data, self.store, self.late, "night", espn_fake())
+        self.assertEqual((r["state"], r["record"]), ("done", "1-0"))
+        doc = json.loads((self.store / "picks" / "2026-11-08-quick.json").read_text())
+        self.assertTrue(doc["unofficial"])
+        self.assertIn("✅ Dallas Goedert O 45.5 rec yds (52)", doc["post"]["main"])
+        self.assertIn("1-800-GAMBLER", doc["post"]["main"])
+        self.assertIn("unofficial", doc["email"]["subject"])
+        self.assertEqual(N.locked_days(self.store / "picks"), ["2026-11-08"])     # never mistaken for a locked day
+        self.assertEqual(N.quick_results(self.data, self.store, self.late, "night", espn_fake(goedert=(1, 3)))["state"], "done")
+
+    def test_missing_player_is_check_not_void(self):
+        N.quick_results(self.data, self.store, self.late, "night", espn_fake(goedert=None))
+        doc = json.loads((self.store / "picks" / "2026-11-08-quick.json").read_text())
+        self.assertEqual(doc["results"][0]["status"], "check")
+        self.assertEqual(doc["record"]["w"] + doc["record"]["l"], 0)
+
+    def test_espn_parsing(self):
+        box = N.espn_box(espn_fake()("summary"))
+        self.assertEqual(box[("PHI", "dallas goedert")]["receiving_yards"], 52.0)
+        self.assertEqual(box[("PHI", "saquon barkley")]["rushing_yards"], 104.0)   # "1,04"-style thousands commas stripped
+
+
 class Touchdowns(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
