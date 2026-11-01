@@ -63,6 +63,13 @@ CREDIT_RESERVE = 10        # never pull if fewer than this would be left
 NIGHT_HOUR = 19            # kickoff at 7 PM ET or later = a night game
 LOCK_BEFORE_MIN = 240      # picks lock on the first run within 4 hours of kickoff
 RECORD_START_WEEK = 9      # Week 8 night games are a test run, emailed but not counted (Josh, Oct 29, 2026)
+# Sunday afternoon slate (1 PM and 4 PM ET games; Josh, Nov 1, 2026: "for tracking"): its own folder (picks/day/) and
+# its own record, separate from the night record. Only the two strongest stats in the backtest (receiving and rushing
+# yards), 2 credits a game (~22 a Sunday), so football stays within the ~200 credits a month left for it by Hoop Lab.
+DAY_MARKETS = ("player_rush_yds", "player_reception_yds")
+DAY_RECORD_START_WEEK = 8
+DAY_MAX_PICKS = 5          # the slate's best 5 by edge (still at most 2 a game), like Hoop Lab's daily 5
+DAY_HOURS = (12, NIGHT_HOUR)  # kickoff from noon to before 7 PM ET (not the 9:30 AM London games)
 
 PICK = {
     "per_game": 2,         # at most this many picks from one game (one per player)
@@ -136,8 +143,15 @@ def time_label(dt):
     return f"{(t.hour - 1) % 12 + 1}:{t.minute:02d} {'PM' if t.hour >= 12 else 'AM'} ET".replace(":00 ", " ")
 
 
+def is_day(game):
+    k = kickoff(game)
+    return k.weekday() == 6 and DAY_HOURS[0] <= k.hour < DAY_HOURS[1]
+
+
 def slot_label(game):
     k = kickoff(game)
+    if is_day(game):
+        return "Sunday afternoon"
     return {3: "TNF", 6: "SNF", 0: "MNF", 5: "Saturday night"}.get(k.weekday(), k.strftime("%A night"))
 
 
@@ -254,8 +268,9 @@ class OddsAPI:
     def events(self):
         return self.get("/events", {})  # free
 
-    def props(self, event_id):
-        return self.get(f"/events/{event_id}/odds", {"regions": "us", "markets": ",".join(MARKETS), "oddsFormat": "american"})
+    def props(self, event_id, markets=None):
+        return self.get(f"/events/{event_id}/odds", {"regions": "us", "markets": ",".join(markets or MARKETS),
+                                                     "oddsFormat": "american"})
 
 
 def match_event(data, game, events):
@@ -665,10 +680,13 @@ FOOT = "For entertainment. 21+ · Gamble responsibly · 1-800-GAMBLER"
 
 def slate_post(games, picks, season, test):
     g0 = games[0]
-    head = f"🏈 {BRAND} best bets · {slot_label(g0)} · " + " · ".join(f"{g['away']} @ {g['home']}" for g in games)
+    if is_day(g0):
+        head = f"🏈 {BRAND} best bets · Sunday 1 & 4 PM slate"
+    else:
+        head = f"🏈 {BRAND} best bets · {slot_label(g0)} · " + " · ".join(f"{g['away']} @ {g['home']}" for g in games)
     rec = season and season["w"] + season["l"]
     if not picks:
-        main = f"{head}\n\nNothing cleared our bar at tonight's prices. No plays is a play.\n\n{('Season: ' + record_txt(season) + chr(10)) if rec else ''}{FOOT}"
+        main = f"{head}\n\nNothing cleared our bar at {'today' if is_day(g0) else 'tonight'}'s prices. No plays is a play.\n\n{('Season: ' + record_txt(season) + chr(10)) if rec else ''}{FOOT}"
         return {"main": main, "replies": []}
 
     def build(with_prices):
@@ -719,16 +737,26 @@ def night_games_on(data, day):
     return sorted((g for g in data.games if g["date"] == day and is_night(g)), key=kickoff)
 
 
-def lock(data, store, now, api, force=False):
-    """Lock tonight's night-game picks once (first run within LOCK_BEFORE_MIN of the first night kickoff)."""
-    dir_ = Path(store) / "picks"
+def day_games_on(data, day):
+    return sorted((g for g in data.games if g["date"] == day and is_day(g)), key=kickoff)
+
+
+def picks_dir(store, slate="night"):
+    return Path(store) / "picks" / ("day" if slate == "day" else "")
+
+
+def lock(data, store, now, api, force=False, slate="night"):
+    """Lock a slate's picks once: tonight's night games, or (slate="day") the Sunday 1 PM + 4 PM games together, on the
+    first run within LOCK_BEFORE_MIN of the slate's first kickoff."""
+    dir_ = picks_dir(store, slate)
     day = et_date(now)
     file = dir_ / f"{day}.json"
-    games = night_games_on(data, day)
+    games = (day_games_on if slate == "day" else night_games_on)(data, day)
+    markets = DAY_MARKETS if slate == "day" else tuple(MARKETS)
     if file.exists():
         return {"day": day, "state": "locked", "why": "already locked"}
     if not games:
-        return {"day": day, "state": "no-games", "why": "no night games today"}
+        return {"day": day, "state": "no-games", "why": f"no {'Sunday afternoon' if slate == 'day' else 'night'} games today"}
     pre = [g for g in games if kickoff(g) > now]
     if not pre:
         return {"day": day, "state": "missed", "why": "every night game had started before picks locked"}
@@ -751,27 +779,34 @@ def lock(data, store, now, api, force=False):
             if not ev:
                 continue
             left = (api.usage or {}).get("remaining")
-            if left is not None and left - len(MARKETS) < CREDIT_RESERVE:
-                return {"day": day, "state": "no-credits", "why": f"only {left} Odds API credits left this month"}
+            if left is not None and left - len(markets) < CREDIT_RESERVE:
+                if not snaps:
+                    return {"day": day, "state": "no-credits", "why": f"only {left} Odds API credits left this month"}
+                break                                   # lock what we already pulled rather than nothing
             try:
-                raw = api.props(ev["id"])
+                raw = api.props(ev["id"], list(markets))
             except Exception as e:
                 return {"day": day, "state": "no-props", "why": f"props pull failed ({e})"}
             snap = {"game": g["id"], "event": ev["id"], "pulled": now.isoformat(), "rows": parse_props(raw, data, g)}
             write(snap_file, snap)
         snaps[g["id"]] = snap
     if not any(s["rows"] for s in snaps.values()):
-        return {"day": day, "state": "no-props", "why": "the books haven't posted player props for tonight yet"}
+        return {"day": day, "state": "no-props", "why": "the books haven't posted player props for this slate yet"}
 
-    test = pre[0]["week"] < RECORD_START_WEEK
+    test = pre[0]["week"] < (DAY_RECORD_START_WEEK if slate == "day" else RECORD_START_WEEK)
     picks, n_cands = [], 0
     for g in pre:
         cands = candidates(data, g, (snaps.get(g["id"]) or {}).get("rows", []))
         n_cands += len(cands)
         picks += [to_pick(c, g, data) for c in choose(cands)]
+    if slate == "day":
+        picks = sorted(picks, key=lambda p: -p["edge"])[:DAY_MAX_PICKS]
     season = read(dir_ / "record.json", {}).get("season") if not test else None
     post = slate_post(pre, picks, season, test)
-    notes = [
+    day_note = ([f"Sunday afternoon slate: receiving and rushing yards only (2 credits a game). Tracked in its own record, "
+                 "separate from the night-game record. 4 PM games lock with the 1 PM games, before their inactives are out: "
+                 "a pick whose player is inactive is graded as a void."] if slate == "day" else [])
+    notes = day_note + [
         f"Locked {time_label(now)} from {n_cands} prop sides across {sum(s['rows'] and 1 or 0 for s in snaps.values())} game(s); "
         "prices are from that moment, so check your book before posting.",
         "Our chance = 30% our projection + 70% the books' no-vig price. Props where the two disagree by 20+ points were skipped "
@@ -782,7 +817,7 @@ def lock(data, store, now, api, force=False):
     ]
     title = f"{'TEST · ' if test else ''}{slot_label(pre[0])} post · {day_label(day)} · " + (
         f"{len(picks)} pick{'s' if len(picks) != 1 else ''}" if picks else "no plays")
-    write(file, {"date": day, "season": data.meta.get("season"), "week": pre[0]["week"], "test": test,
+    write(file, {"date": day, "season": data.meta.get("season"), "week": pre[0]["week"], "test": test, "slate": slate,
                  "games": [g["id"] for g in pre], "locked_at": now.isoformat(), "settings": PICK, "picks": picks,
                  "post": post, "email": {"subject": f"🏈 {title}", "html": email_html(title, post, notes, test, [p["deep"] for p in picks]),
                                          "text": email_text(post, notes, test, [p["deep"] for p in picks])}})
@@ -837,11 +872,14 @@ def recap(data, store, stats_rows, now):
     return out
 
 
-def night_results(data, store, stats_rows, now):
+def night_results(data, store, stats_rows, now, slate="night"):
     """The morning-after results for each locked night (like Hoop Lab's recap): written once all of that night's
-    picks are graded, to picks/YYYY-MM-DD-results.json. Nights with no picks get no file (nothing to report)."""
-    dir_ = Path(store) / "picks"
+    picks are graded, to picks/YYYY-MM-DD-results.json (picks/day/... for the Sunday afternoon slate, which also keeps
+    its own picks/day/record.json). Nights with no picks get no file (nothing to report)."""
+    dir_ = picks_dir(store, slate)
     season = data.meta.get("season")
+    if slate == "day" and locked_days(dir_):
+        write(dir_ / "record.json", {"season": season_record(dir_, stats_rows, season)})
     out = {"state": "none"}
     for day in locked_days(dir_):
         doc = read(dir_ / f"{day}.json", {})
@@ -868,14 +906,19 @@ def night_results(data, store, stats_rows, now):
         slot = slot_label(games[0]) if games else "Night"
         matchups = " · ".join(f"{g['away']} @ {g['home']}" for g in games)
         n = s["w"] + s["l"]
+        if slate == "day":
+            matchups = f"{len(games)} games"
         opener = (f"{slot} results: every pick voided." if not n else
                   f"{'✅ ' if s['profit'] > 0 else '❌ ' if s['profit'] < 0 else ''}{slot} results ({matchups}): {s['w']}-{s['l']} ({units(s['profit'])}).")
-        tail = [f"Season: {record_txt(season_s)}", "Every pick posted before kickoff, wins and losses."] if season_s else []
+        tail = [f"{'Sunday afternoons' if slate == 'day' else 'Season'}: {record_txt(season_s)}",
+                "Every pick posted before kickoff, wins and losses."] if season_s else []
         main = "\n".join([f"🏈 {BRAND} · {opener}", "", *lines, "", *tail, *([""] if tail else []), FOOT]).strip()
         post = {"main": main, "replies": []}
         notes = ["Graded from nflverse box scores. A player who didn't play is a void, like the sportsbooks do it."]
         if test:
             notes.append("Week 8 is a test run: this result isn't counted in the record. The record starts with Week 9.")
+        if slate == "day":
+            notes.append("Sunday afternoon record, kept separate from the night-game record.")
         title = f"{'TEST · ' if test else ''}{slot} results · {day_label(day)} · {s['w']}-{s['l']}{'-' + str(s['p']) if s['p'] else ''} ({units(s['profit'])})"
         write(file, {"date": day, "season": season, "week": doc.get("week"), "test": test, "graded_at": now.isoformat(),
                      "record": s, "season_record": season_s, "results": [{"id": p["id"], **g} for p, g in rows], "post": post,
@@ -920,10 +963,14 @@ def main(argv=None):
     stats_rows = load_stats(data.meta.get("season"), a.stats)
     rc = recap(data, a.store, stats_rows, now)       # first, so tonight's email can show the latest record
     res = night_results(data, a.store, stats_rows, now)
+    dres = night_results(data, a.store, stats_rows, now, slate="day")
+    dlk = lock(data, a.store, now, api, a.force_lock, slate="day")
     lk = lock(data, a.store, now, api, a.force_lock)
     status = {"checked": now.isoformat(), "today": et_date(now), "lock": lk, "recap": rc, "results": res,
+              "day_lock": dlk, "day_results": dres,
               "credits": (api.usage if api else read(Path(a.store) / "odds" / "usage.json", {}))}
     write(Path(a.store) / "picks" / "status.json", status)
+    print(f"Sunday afternoon: {dlk['state']} ({dlk.get('why', '')}); day results {dres['state']}")
     print(f"Picks: {lk['day']} {lk['state']} ({lk.get('why', '')}); recap week {rc.get('week', '-')} {rc['state']}"
           f"{' ' + rc['record'] if rc.get('record') else ''}; credits left {status['credits'].get('remaining', '?')}")
 

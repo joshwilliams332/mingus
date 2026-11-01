@@ -36,6 +36,8 @@ Weather forecasts for upcoming outdoor games come from [Open-Meteo](https://open
 2. **Save.** Picks, the props snapshot they came from, and a ready-to-post email go to the `data` branch (`picks/`, `odds/`). Locked picks are never rewritten.
 3. **Grade.** The morning after, picks are graded from nflverse box scores (a player who didn't play is a void, like at the sportsbooks) into that night's results. Each week's recap and the season record are written once the week's night games are graded.
 
+On Sundays the same job also picks the **1 PM and 4 PM games** together (receiving and rushing yards only, 2 credits a game, the best 5), locked within 4 hours of the 1 PM kickoff into `picks/day/`, graded the next morning and tracked in its own record, separate from the night games.
+
 Scheduled Claude tasks email the picks to Josh at 6:00 PM ET on game nights, the results the next morning at 8:41 AM ET, and the weekly recap on Tuesday; Josh posts them himself. It needs the `ODDS_API_KEY` repository secret.
 
 ```sh
