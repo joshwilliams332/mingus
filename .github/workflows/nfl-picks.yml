@@ -1,15 +1,20 @@
 name: NFL night picks
 
-# Locks Mingus Football's night-game best bets (TNF, SNF, MNF, late-season Saturdays) before kickoff, grades them after,
+# Locks Mingus Football's night-game best bets (TNF, SNF, MNF, late-season Saturdays) and the Sunday 1 PM / 4 PM
+# slates (picks/sun-early/, picks/sun-late/, one Sunday record) before kickoff, grades them after,
 # and writes the weekly recap. Output goes to the `data` branch (picks/, odds/); scheduled Claude tasks email it to Josh.
 # Separate from the site deploy: it reads the live site's data files instead of rebuilding them.
-# Every scheduled run is cheap: listing events is free, and props are pulled once per night game (4 credits).
+# Every scheduled run is cheap: listing events is free, and props are pulled once per game (4 credits a night game,
+# 2 a Sunday afternoon game).
 
 on:
   schedule:
     # Lock window, every 30 min on Thu/Sat/Sun/Mon afternoons: 3:15-7:45 PM EDT / 2:15-6:45 PM EST. Picks lock on the
     # first run within 4 hours of kickoff; the extra runs cover GitHub starting scheduled runs late.
     - cron: "15,45 20-23 * * 0,1,4,6"
+    # Sunday daytime slates, every 30 min 7:05 AM-2:35 PM EST / 8:05 AM-3:35 PM EDT: the 1 PM games lock on the first
+    # run within 5 hours of kickoff (for the 9 AM email), the 4 PM games within 3 hours (for the 2 PM email).
+    - cron: "5,35 12-19 * * 0"
     # Grading, the morning after night games (Fri, Sun, Mon, Tue), once nflverse has the box scores: 4:30 / 7:30 /
     # 10:30 AM / 1:30 PM EST. The 7:30 run lands before the 8:41 AM results email (which also waits up to an hour).
     - cron: "30 9,12,15,18 * * 0,1,2,5"

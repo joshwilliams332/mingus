@@ -67,11 +67,14 @@ class FakeAPI:
     def events(self):
         self.calls.append("events")
         return [{"id": "ev1", "home_team": "Washington Commanders", "away_team": "Philadelphia Eagles",
-                 "commence_time": "2026-11-09T01:20:00Z"}]
+                 "commence_time": "2026-11-09T01:20:00Z"},
+                {"id": "ev2", "home_team": "New York Giants", "away_team": "Dallas Cowboys",
+                 "commence_time": "2026-11-08T18:00:00Z"}]
 
-    def props(self, event_id):
+    def props(self, event_id, markets=None):
         self.calls.append(event_id)
-        self.usage["remaining"] -= 4
+        self.markets = list(markets or N.MARKETS)
+        self.usage["remaining"] -= len(self.markets)
         return self.odds
 
 
@@ -224,6 +227,64 @@ class LockAndGrade(unittest.TestCase):
         again = N.lock(self.data, self.store, self.at("17:30"), api)
         self.assertEqual(again["why"], "already locked")
         self.assertEqual(api.calls, before)                       # never re-pulled or rewritten
+
+    def test_sunday_1pm_slate_locks_separately_with_two_markets(self):
+        odds = event_odds(over=110, under=-140)
+        for b in odds["bookmakers"]:                      # the DAL @ NYG game: Some TE (DAL) receiving yards
+            b["markets"].append({"key": "player_reception_yds", "outcomes": [
+                {"name": "Over", "description": "Some TE", "price": -110, "point": 20.5},
+                {"name": "Under", "description": "Some TE", "price": -110, "point": 20.5}]})
+        api = FakeAPI(odds)
+        self.assertEqual(N.lock(self.data, self.store, self.at("07:30"), api, slate="early")["state"], "waiting")
+        self.assertEqual(N.lock(self.data, self.store, self.at("08:05"), api, slate="late")["state"], "no-games")
+        r = N.lock(self.data, self.store, self.at("08:05"), api, slate="early")   # in time for the 9 AM email
+        self.assertEqual(r["state"], "locked")
+        self.assertEqual(api.calls, ["events", "ev2"])            # only the 1 PM game, never the night game
+        self.assertEqual(api.markets, list(N.DAY_MARKETS))        # 2 credits, not 4
+        doc = json.loads((self.store / "picks" / "sun-early" / "2026-11-08.json").read_text())
+        self.assertEqual((doc["slate"], doc["games"], doc["test"]), ("early", ["2026_09_DAL_NYG"], False))
+        self.assertLessEqual(len(doc["picks"]), N.DAY_MAX_PICKS)
+        self.assertIn("Sunday 1 PM games", doc["post"]["main"])
+        self.assertIn("1-800-GAMBLER", doc["post"]["main"])
+        self.assertTrue(doc["email"]["subject"].startswith("🏈 Sunday 1 PM post"))
+        self.assertFalse((self.store / "picks" / "2026-11-08.json").exists())   # the night slate is untouched
+        self.assertEqual(N.lock(self.data, self.store, self.at("10:00"), api, slate="early")["why"], "already locked")
+        self.assertEqual(N.lock(self.data, self.store, self.at("17:00"), api)["state"], "locked")   # night still locks
+        self.assertEqual(api.markets, list(N.MARKETS))
+
+    def test_sunday_4pm_slate_locks_about_three_hours_before(self):
+        g = {"id": "2026_09_NYG_DAL", "week": 9, "date": "2026-11-08", "time": "16:25", "away": "NYG", "home": "DAL",
+             "home_spread": -3, "home_implied": 24.0, "away_implied": 21.0}
+        self.data.games.append(g)
+        self.data.game[g["id"]] = g
+        api = FakeAPI(event_odds())
+        self.assertEqual(N.lock(self.data, self.store, self.at("12:30"), api, slate="late")["state"], "waiting")
+        self.assertEqual(api.calls, [])
+        r = N.lock(self.data, self.store, self.at("13:35"), api, slate="late")   # in time for the 2 PM email
+        self.assertNotEqual(r["state"], "waiting")
+
+    def test_day_results_and_record_kept_apart(self):
+        day_dir = self.store / "picks" / "sun-early"
+        pick = {"id": "d", "gid": "2026_09_DAL_NYG", "pid": "Y1", "name": "Some TE", "team": "DAL", "opp": "NYG", "week": 9,
+                "stat": "rec_yds", "side": "u", "line": 20.5, "price": -110}
+        N.write(day_dir / "2026-11-08.json", {"season": 2026, "week": 9, "test": False, "slate": "early",
+                                              "games": ["2026_09_DAL_NYG"], "picks": [pick]})
+        rows = stats_rows(9, [("Y1", "DAL", {"receiving_yards": 12})])
+        r = N.night_results(self.data, self.store, rows, self.at("09:30", "2026-11-09"), slate="early")
+        self.assertEqual((r["state"], r["record"]), ("done", "1-0 (+0.9u)"))
+        doc = json.loads((day_dir / "2026-11-08-results.json").read_text())
+        self.assertIn("Sunday 1 PM results (1 game)", doc["post"]["main"])
+        self.assertIn("Sundays: 1-0", doc["post"]["main"])
+        self.assertEqual(json.loads((self.store / "picks" / "sunday-record.json").read_text())["season"]["w"], 1)
+        N.recap(self.data, self.store, rows, self.at("12:00", "2026-11-10"))   # the night record never sees day picks
+        self.assertEqual(json.loads((self.store / "picks" / "record.json").read_text())["season"]["w"], 0)
+
+    def test_sunday_slates(self):
+        slate = lambda t, d="2026-11-08": N.day_slate({"date": d, "time": t})
+        self.assertEqual([slate("13:00"), slate("15:00"), slate("16:05"), slate("16:25")], ["early", "early", "late", "late"])
+        self.assertIsNone(slate("09:30"))                 # London
+        self.assertIsNone(slate("20:20"))                 # SNF is the night slate
+        self.assertIsNone(slate("13:00", "2026-11-26"))   # Thanksgiving Thursday
 
     def test_injured_player_skipped(self):
         with tempfile.TemporaryDirectory() as d:
