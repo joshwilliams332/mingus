@@ -1,10 +1,11 @@
 {
- "checked": "2026-11-01T19:04:41.360905+00:00",
+ "checked": "2026-11-01T22:14:59.130347+00:00",
  "today": "2026-11-01",
  "lock": {
   "day": "2026-11-01",
-  "state": "waiting",
-  "why": "locks within 4 hours of the 8:20 PM ET kickoff"
+  "state": "locked",
+  "why": "0 pick(s) locked",
+  "new": true
  },
  "recap": {
   "week": 8,
@@ -30,20 +31,21 @@
   },
   "late": {
    "results": {
-    "state": "none"
+    "day": "2026-11-01",
+    "state": "pending",
+    "why": "nflverse hasn't published the box score yet"
    },
    "lock": {
     "day": "2026-11-01",
     "state": "locked",
-    "why": "1 pick(s) locked",
-    "new": true
+    "why": "already locked"
    }
   }
  },
  "credits": {
-  "remaining": 473,
-  "used": 27,
-  "last_cost": 2,
-  "checked": "2026-11-01T19:04:42+00:00"
+  "remaining": 468,
+  "used": 32,
+  "last_cost": 4,
+  "checked": "2026-11-01T22:14:59+00:00"
  }
 }
