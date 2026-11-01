@@ -16,7 +16,8 @@ from test_nfl_picks import make_data  # noqa: E402
 
 
 def write_stats(path, rows):
-    cols = ["player_id", "week", "team", "season_type", "passing_yards", "rushing_yards", "receiving_yards", "receptions"]
+    cols = ["player_id", "week", "team", "season_type", "passing_yards", "rushing_yards", "receiving_yards", "receptions",
+            "rushing_tds", "receiving_tds"]
     with open(path, "w", newline="") as f:
         w = csv.DictWriter(f, fieldnames=cols)
         w.writeheader()
@@ -64,6 +65,24 @@ class ReviewTest(unittest.TestCase):
         self.assertEqual(wk["books"]["n"], 1)              # the one prop with a real line
         self.assertAlmostEqual(wk["books"]["books"], (0.52 - 1) ** 2, places=4)
         self.assertFalse(wk["complete"])                   # DAL @ NYG has no box score yet
+
+    def test_td_chances_saved_and_scored(self):
+        R.snapshot(self.data, self.store, self.at("2026-11-08T10:00"))
+        doc = json.loads((self.store / "model" / "projections" / "2026-w09.json").read_text())
+        td = {r["pid"]: r["p"] for r in doc["games"]["2026_09_PHI_WAS"]["td"]}
+        self.assertIn("TE1", td)
+        self.assertTrue(0 < td["TE1"] < 1)
+        stats = self.dir / "stats.csv"
+        write_stats(stats, [{"player_id": "TE1", "week": 9, "team": "PHI", "receiving_yards": 60, "receiving_tds": 1},
+                            {"player_id": "QB1", "week": 9, "team": "WAS", "passing_yards": 250}])
+        t = R.score(self.data, self.store, R.load_week_stats(stats))["weeks"]["9"]["td"]
+        self.assertEqual(t["rate"], 0.5)                   # TE scored, QB didn't (passing TDs don't count)
+        self.assertEqual(t["n"], 2)
+
+    def test_sources_compare_ours_and_sleeper(self):
+        rows = [{"st": "rec_yds", "mean": 50, "mingus": 40, "sleeper": 60, "actual": 50, "err": 0, "p_over": .5, "hit": 1.0}]
+        so = R.summarize_rows(rows)["sources"]
+        self.assertEqual((so["ours"], so["sleeper"], so["blend"]), (20.0, 20.0, 0.0))
 
     def test_adoption_rule(self):
         change = [{"setting": "hl", "from": 4, "to": 6}]
