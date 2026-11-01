@@ -1,5 +1,5 @@
 {
- "checked": "2026-10-31T14:34+00:00",
+ "checked": "2026-11-01T02:34+00:00",
  "snapshot": {
   "week": 8,
   "state": "saved",
@@ -10,8 +10,7 @@
  "tuning": {
   "week": 7,
   "state": "done",
-  "decision": "adopted",
-  "new": true
+  "decision": "adopted"
  },
  "report": {
   "week": 7,
