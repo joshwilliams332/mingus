@@ -2,104 +2,127 @@
  "season": 2026,
  "weeks": {
   "8": {
-   "n": 233,
-   "brier": 0.2385,
+   "n": 251,
+   "brier": 0.2364,
    "coin": 0.25,
    "by_stat": {
     "pass_yds": {
-     "n": 23,
-     "mae": 89.87,
-     "bias_pct": 9.7,
-     "brier": 0.2383,
+     "n": 24,
+     "mae": 87.22,
+     "bias_pct": 8.9,
+     "brier": 0.2386,
      "coin": 0.25
     },
     "rush_yds": {
-     "n": 40,
-     "mae": 33.59,
-     "bias_pct": -9.1,
-     "brier": 0.2299,
+     "n": 43,
+     "mae": 32.83,
+     "bias_pct": -6.8,
+     "brier": 0.2257,
      "coin": 0.25
     },
     "rec_yds": {
-     "n": 85,
-     "mae": 25.99,
-     "bias_pct": 7.5,
-     "brier": 0.2415,
+     "n": 92,
+     "mae": 25.42,
+     "bias_pct": 6.2,
+     "brier": 0.2399,
      "coin": 0.25
     },
     "rec": {
-     "n": 85,
-     "mae": 1.74,
-     "bias_pct": 9.0,
-     "brier": 0.2397,
+     "n": 92,
+     "mae": 1.7,
+     "bias_pct": 8.5,
+     "brier": 0.2373,
      "coin": 0.25
     }
    },
    "books": {
-    "n": 123,
-    "ours": 0.2658,
-    "books": 0.2502,
-    "blend": 0.2524
+    "n": 141,
+    "ours": 0.2644,
+    "books": 0.2497,
+    "blend": 0.2517
    },
    "sources": {
-    "n": 232,
-    "ours": 54.2,
-    "sleeper": 50.8,
-    "blend": 52.2
+    "n": 250,
+    "ours": 53.0,
+    "sleeper": 50.1,
+    "blend": 51.3
    },
    "days": {
     "2026-11-01": {
-     "n": 233,
-     "brier": 0.2385,
+     "n": 251,
+     "brier": 0.2364,
      "coin": 0.25,
      "by_stat": {
       "pass_yds": {
-       "n": 23,
-       "mae": 89.87,
-       "bias_pct": 9.7,
-       "brier": 0.2383,
+       "n": 24,
+       "mae": 87.22,
+       "bias_pct": 8.9,
+       "brier": 0.2386,
        "coin": 0.25
       },
       "rush_yds": {
-       "n": 40,
-       "mae": 33.59,
-       "bias_pct": -9.1,
-       "brier": 0.2299,
+       "n": 43,
+       "mae": 32.83,
+       "bias_pct": -6.8,
+       "brier": 0.2257,
        "coin": 0.25
       },
       "rec_yds": {
-       "n": 85,
-       "mae": 25.99,
-       "bias_pct": 7.5,
-       "brier": 0.2415,
+       "n": 92,
+       "mae": 25.42,
+       "bias_pct": 6.2,
+       "brier": 0.2399,
        "coin": 0.25
       },
       "rec": {
-       "n": 85,
-       "mae": 1.74,
-       "bias_pct": 9.0,
-       "brier": 0.2397,
+       "n": 92,
+       "mae": 1.7,
+       "bias_pct": 8.5,
+       "brier": 0.2373,
        "coin": 0.25
       }
      },
      "books": {
-      "n": 123,
-      "ours": 0.2658,
-      "books": 0.2502,
-      "blend": 0.2524
+      "n": 141,
+      "ours": 0.2644,
+      "books": 0.2497,
+      "blend": 0.2517
      },
      "sources": {
-      "n": 232,
-      "ours": 54.2,
-      "sleeper": 50.8,
-      "blend": 52.2
+      "n": 250,
+      "ours": 53.0,
+      "sleeper": 50.1,
+      "blend": 51.3
      },
      "slot": "Sunday",
-     "games": 11
+     "games": 12
     }
    },
    "complete": false,
-   "td": null,
+   "td": {
+    "n": 12,
+    "brier": 0.165,
+    "flat": 0.1875,
+    "avg_p": 0.194,
+    "rate": 0.25,
+    "calib": {
+     "0.1": [
+      7,
+      0.159,
+      0.143
+     ],
+     "0.2": [
+      4,
+      0.221,
+      0.25
+     ],
+     "0.3": [
+      1,
+      0.329,
+      1.0
+     ]
+    }
+   },
    "misses": [
     {
      "name": "Tyler Allgeier",

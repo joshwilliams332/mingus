@@ -4595,7 +4595,7 @@
    ]
   },
   "2026_08_CHI_SEA": {
-   "saved": "2026-11-02T02:44+00:00",
+   "saved": "2026-11-02T22:15+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -4665,12 +4665,12 @@
      "team": "SEA",
      "opp": "CHI",
      "st": "pass_yds",
-     "mean": 238.4,
+     "mean": 238.5,
      "sd": 143.4,
      "mingus": 216.2,
      "sleeper": 260.7,
      "line": 215.5,
-     "p_over": 0.5634,
+     "p_over": 0.5637,
      "inj": null
     },
     {
@@ -4831,11 +4831,11 @@
      "opp": "CHI",
      "st": "rec_yds",
      "mean": 35.1,
-     "sd": 28.3,
+     "sd": 28.4,
      "mingus": 33.8,
      "sleeper": 36.4,
      "line": 25.5,
-     "p_over": 0.5389,
+     "p_over": 0.538,
      "inj": null
     },
     {
@@ -4862,7 +4862,7 @@
      "st": "pass_yds",
      "mean": 214.7,
      "sd": 121.5,
-     "mingus": 228.6,
+     "mingus": 228.7,
      "sleeper": 200.7,
      "line": 255.5,
      "p_over": 0.3685,
@@ -4877,7 +4877,7 @@
      "st": "rush_yds",
      "mean": 30.1,
      "sd": 24.0,
-     "mingus": 36.1,
+     "mingus": 36.2,
      "sleeper": 24.0,
      "line": 32.5,
      "p_over": 0.3227,
