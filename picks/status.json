@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-01T23:34:34.516968+00:00",
+ "checked": "2026-11-02T02:44:31.425454+00:00",
  "today": "2026-11-01",
  "lock": {
   "day": "2026-11-01",
@@ -19,8 +19,9 @@
   "early": {
    "results": {
     "day": "2026-11-01",
-    "state": "pending",
-    "why": "nflverse hasn't published the box score yet"
+    "state": "done",
+    "new": true,
+    "record": "3-2 (+0.7u)"
    },
    "lock": {
     "day": "2026-11-01",
@@ -35,8 +36,9 @@
   "late": {
    "results": {
     "day": "2026-11-01",
-    "state": "pending",
-    "why": "nflverse hasn't published the box score yet"
+    "state": "done",
+    "new": true,
+    "record": "0-1 (-1.0u)"
    },
    "lock": {
     "day": "2026-11-01",
@@ -45,8 +47,9 @@
    },
    "quick": {
     "day": "2026-11-01",
-    "state": "waiting",
-    "why": "not every game is final on ESPN yet"
+    "state": "done",
+    "new": true,
+    "record": "0-1"
    }
   }
  },
