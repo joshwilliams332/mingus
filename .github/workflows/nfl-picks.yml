@@ -15,9 +15,10 @@ on:
     # Sunday daytime slates, every 30 min 7:05 AM-2:35 PM EST / 8:05 AM-3:35 PM EDT: the 1 PM games lock on the first
     # run within 5 hours of kickoff (for the 9 AM email), the 4 PM games within 3 hours (for the 2 PM email).
     - cron: "5,35 12-19 * * 0"
-    # Same-day unofficial results (ESPN box scores) for the Sunday 4 PM games: Sun 7:15-8:45 PM EST (Mon 00-01 UTC).
-    # The 1 PM games are covered by the 20-23 UTC runs above.
-    - cron: "15,45 0-1 * * 1"
+    # Same-day unofficial results (ESPN box scores) for the Sunday 4 PM games: every 15 min, Sun 7:05-10:50 PM EST
+    # (Mon 00-03 UTC). GitHub skips or delays scheduled runs on busy Sunday nights (Nov 1: nothing ran 00:15-02:44 UTC),
+    # so there are plenty of chances. The 1 PM games are covered by the 20-23 UTC runs above.
+    - cron: "5,20,35,50 0-3 * * 1"
     # Grading, the morning after night games (Fri, Sun, Mon, Tue), once nflverse has the box scores: 4:30 / 7:30 /
     # 10:30 AM / 1:30 PM EST. The 7:30 run lands before the 8:41 AM results email (which also waits up to an hour).
     - cron: "30 9,12,15,18 * * 0,1,2,5"
