@@ -4595,7 +4595,7 @@
    ]
   },
   "2026_08_CHI_SEA": {
-   "saved": "2026-11-01T22:31+00:00",
+   "saved": "2026-11-02T02:44+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -4605,12 +4605,12 @@
      "team": "CHI",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 29.1,
+     "mean": 29.2,
      "sd": 32.8,
      "mingus": 28.1,
      "sleeper": 30.2,
      "line": 34.5,
-     "p_over": 0.2608,
+     "p_over": 0.2623,
      "inj": null
     },
     {
@@ -4635,12 +4635,12 @@
      "team": "SEA",
      "opp": "CHI",
      "st": "rec_yds",
-     "mean": 39.3,
+     "mean": 39.4,
      "sd": 28.8,
-     "mingus": 35.7,
+     "mingus": 35.8,
      "sleeper": 43.0,
      "line": 28.5,
-     "p_over": 0.5645,
+     "p_over": 0.5666,
      "inj": null
     },
     {
@@ -4652,7 +4652,7 @@
      "st": "rec",
      "mean": 3.0,
      "sd": 2.0,
-     "mingus": 2.9,
+     "mingus": 3.0,
      "sleeper": 3.0,
      "line": 2.5,
      "p_over": 0.499,
@@ -4665,12 +4665,12 @@
      "team": "SEA",
      "opp": "CHI",
      "st": "pass_yds",
-     "mean": 238.2,
-     "sd": 143.3,
-     "mingus": 215.6,
+     "mean": 238.4,
+     "sd": 143.4,
+     "mingus": 216.2,
      "sleeper": 260.7,
      "line": 215.5,
-     "p_over": 0.5629,
+     "p_over": 0.5634,
      "inj": null
     },
     {
@@ -4682,7 +4682,7 @@
      "st": "rush_yds",
      "mean": 68.5,
      "sd": 45.0,
-     "mingus": 84.3,
+     "mingus": 84.2,
      "sleeper": 52.8,
      "line": 68.5,
      "p_over": 0.3823,
@@ -4695,12 +4695,12 @@
      "team": "CHI",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 21.0,
-     "sd": 18.4,
-     "mingus": 23.1,
+     "mean": 21.1,
+     "sd": 18.5,
+     "mingus": 23.3,
      "sleeper": 18.9,
      "line": 21.5,
-     "p_over": 0.3414,
+     "p_over": 0.3437,
      "inj": null
     },
     {
@@ -4755,12 +4755,12 @@
      "team": "SEA",
      "opp": "CHI",
      "st": "rec_yds",
-     "mean": 127.7,
-     "sd": 89.1,
-     "mingus": 134.8,
+     "mean": 128.0,
+     "sd": 89.2,
+     "mingus": 135.2,
      "sleeper": 120.7,
      "line": 123.5,
-     "p_over": 0.3967,
+     "p_over": 0.3983,
      "inj": null
     },
     {
@@ -4800,12 +4800,12 @@
      "team": "CHI",
      "opp": "SEA",
      "st": "rush_yds",
-     "mean": 22.2,
+     "mean": 22.3,
      "sd": 18.1,
-     "mingus": 25.5,
+     "mingus": 25.6,
      "sleeper": 18.9,
      "line": 17.5,
-     "p_over": 0.4905,
+     "p_over": 0.494,
      "inj": null
     },
     {
@@ -4817,7 +4817,7 @@
      "st": "rush_yds",
      "mean": 15.4,
      "sd": 10.4,
-     "mingus": 17.6,
+     "mingus": 17.7,
      "sleeper": 13.2,
      "line": 15.5,
      "p_over": 0.3756,
@@ -4830,12 +4830,12 @@
      "team": "SEA",
      "opp": "CHI",
      "st": "rec_yds",
-     "mean": 35.0,
+     "mean": 35.1,
      "sd": 28.3,
-     "mingus": 33.6,
+     "mingus": 33.8,
      "sleeper": 36.4,
      "line": 25.5,
-     "p_over": 0.5366,
+     "p_over": 0.5389,
      "inj": null
     },
     {
@@ -4860,12 +4860,12 @@
      "team": "CHI",
      "opp": "SEA",
      "st": "pass_yds",
-     "mean": 214.3,
-     "sd": 121.3,
-     "mingus": 228.0,
+     "mean": 214.7,
+     "sd": 121.5,
+     "mingus": 228.6,
      "sleeper": 200.7,
      "line": 255.5,
-     "p_over": 0.3671,
+     "p_over": 0.3685,
      "inj": null
     },
     {
@@ -4875,12 +4875,12 @@
      "team": "CHI",
      "opp": "SEA",
      "st": "rush_yds",
-     "mean": 30.3,
-     "sd": 24.1,
-     "mingus": 36.6,
+     "mean": 30.1,
+     "sd": 24.0,
+     "mingus": 36.1,
      "sleeper": 24.0,
      "line": 32.5,
-     "p_over": 0.3263,
+     "p_over": 0.3227,
      "inj": null
     },
     {
@@ -4890,12 +4890,12 @@
      "team": "CHI",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 51.4,
-     "sd": 37.7,
-     "mingus": 50.1,
+     "mean": 51.5,
+     "sd": 37.8,
+     "mingus": 50.2,
      "sleeper": 52.8,
      "line": 54.5,
-     "p_over": 0.3382,
+     "p_over": 0.3393,
      "inj": null
     },
     {
@@ -4920,12 +4920,12 @@
      "team": "CHI",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 41.4,
+     "mean": 41.5,
      "sd": 34.6,
-     "mingus": 44.0,
+     "mingus": 44.2,
      "sleeper": 38.8,
      "line": 34.5,
-     "p_over": 0.4549,
+     "p_over": 0.4566,
      "inj": null
     },
     {
@@ -4967,8 +4967,8 @@
      "st": "rec_yds",
      "mean": 61.4,
      "sd": 47.5,
-     "mingus": 65.1,
-     "sleeper": 57.7,
+     "mingus": 65.3,
+     "sleeper": 57.6,
      "line": 70.5,
      "p_over": 0.2931,
      "inj": null
@@ -4996,7 +4996,7 @@
      "pos": "RB",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.5255,
+     "p": 0.5262,
      "inj": null
     },
     {
@@ -5005,7 +5005,7 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "CHI",
-     "p": 0.5131,
+     "p": 0.5138,
      "inj": null
     },
     {
@@ -5014,7 +5014,7 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "CHI",
-     "p": 0.4498,
+     "p": 0.4506,
      "inj": null
     },
     {
@@ -5023,7 +5023,7 @@
      "pos": "RB",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.4068,
+     "p": 0.4076,
      "inj": "Out"
     },
     {
@@ -5032,7 +5032,7 @@
      "pos": "TE",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.2845,
+     "p": 0.2852,
      "inj": null
     },
     {
@@ -5041,7 +5041,7 @@
      "pos": "WR",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.2673,
+     "p": 0.2679,
      "inj": null
     },
     {
@@ -5050,7 +5050,7 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "CHI",
-     "p": 0.2336,
+     "p": 0.2342,
      "inj": null
     },
     {
@@ -5059,7 +5059,7 @@
      "pos": "TE",
      "team": "SEA",
      "opp": "CHI",
-     "p": 0.2274,
+     "p": 0.228,
      "inj": null
     },
     {
@@ -5068,7 +5068,7 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "CHI",
-     "p": 0.2052,
+     "p": 0.2057,
      "inj": "Out"
     },
     {
@@ -5077,7 +5077,7 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "CHI",
-     "p": 0.1944,
+     "p": 0.195,
      "inj": null
     },
     {
@@ -5086,7 +5086,7 @@
      "pos": "WR",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.1901,
+     "p": 0.1906,
      "inj": null
     },
     {
@@ -5095,7 +5095,7 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "CHI",
-     "p": 0.1854,
+     "p": 0.1859,
      "inj": null
     },
     {
@@ -5104,7 +5104,7 @@
      "pos": "QB",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.1803,
+     "p": 0.1808,
      "inj": null
     },
     {
@@ -5113,7 +5113,7 @@
      "pos": "RB",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.1738,
+     "p": 0.1743,
      "inj": null
     },
     {
@@ -5122,7 +5122,7 @@
      "pos": "WR",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.1607,
+     "p": 0.1612,
      "inj": null
     },
     {
@@ -5131,7 +5131,7 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "CHI",
-     "p": 0.1599,
+     "p": 0.1603,
      "inj": null
     },
     {
@@ -5140,7 +5140,7 @@
      "pos": "TE",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.1369,
+     "p": 0.1373,
      "inj": null
     },
     {
@@ -5149,7 +5149,7 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "CHI",
-     "p": 0.1274,
+     "p": 0.1278,
      "inj": "Out"
     },
     {
@@ -5158,7 +5158,7 @@
      "pos": "QB",
      "team": "CHI",
      "opp": "SEA",
-     "p": 0.1191,
+     "p": 0.1194,
      "inj": null
     }
    ]

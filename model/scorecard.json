@@ -1,4 +1,149 @@
 {
  "season": 2026,
- "weeks": {}
+ "weeks": {
+  "8": {
+   "n": 233,
+   "brier": 0.2385,
+   "coin": 0.25,
+   "by_stat": {
+    "pass_yds": {
+     "n": 23,
+     "mae": 89.87,
+     "bias_pct": 9.7,
+     "brier": 0.2383,
+     "coin": 0.25
+    },
+    "rush_yds": {
+     "n": 40,
+     "mae": 33.59,
+     "bias_pct": -9.1,
+     "brier": 0.2299,
+     "coin": 0.25
+    },
+    "rec_yds": {
+     "n": 85,
+     "mae": 25.99,
+     "bias_pct": 7.5,
+     "brier": 0.2415,
+     "coin": 0.25
+    },
+    "rec": {
+     "n": 85,
+     "mae": 1.74,
+     "bias_pct": 9.0,
+     "brier": 0.2397,
+     "coin": 0.25
+    }
+   },
+   "books": {
+    "n": 123,
+    "ours": 0.2658,
+    "books": 0.2502,
+    "blend": 0.2524
+   },
+   "sources": {
+    "n": 232,
+    "ours": 54.2,
+    "sleeper": 50.8,
+    "blend": 52.2
+   },
+   "days": {
+    "2026-11-01": {
+     "n": 233,
+     "brier": 0.2385,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 23,
+       "mae": 89.87,
+       "bias_pct": 9.7,
+       "brier": 0.2383,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 40,
+       "mae": 33.59,
+       "bias_pct": -9.1,
+       "brier": 0.2299,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 85,
+       "mae": 25.99,
+       "bias_pct": 7.5,
+       "brier": 0.2415,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 85,
+       "mae": 1.74,
+       "bias_pct": 9.0,
+       "brier": 0.2397,
+       "coin": 0.25
+      }
+     },
+     "books": {
+      "n": 123,
+      "ours": 0.2658,
+      "books": 0.2502,
+      "blend": 0.2524
+     },
+     "sources": {
+      "n": 232,
+      "ours": 54.2,
+      "sleeper": 50.8,
+      "blend": 52.2
+     },
+     "slot": "Sunday",
+     "games": 11
+    }
+   },
+   "complete": false,
+   "td": null,
+   "misses": [
+    {
+     "name": "Tyler Allgeier",
+     "st": "rush_yds",
+     "mean": 30.1,
+     "actual": 147.0,
+     "opp": "DAL"
+    },
+    {
+     "name": "Kenny Gainwell",
+     "st": "rush_yds",
+     "mean": 23.3,
+     "actual": 140.0,
+     "opp": "ATL"
+    },
+    {
+     "name": "Harold Fannin Jr.",
+     "st": "rec_yds",
+     "mean": 39.1,
+     "actual": 154.0,
+     "opp": "PIT"
+    },
+    {
+     "name": "Darnell Washington",
+     "st": "rec_yds",
+     "mean": 25.0,
+     "actual": 94.0,
+     "opp": "CLE"
+    },
+    {
+     "name": "Mike Washington Jr.",
+     "st": "rush_yds",
+     "mean": 29.0,
+     "actual": 83.0,
+     "opp": "NYJ"
+    },
+    {
+     "name": "Kevin Coleman Jr.",
+     "st": "rec_yds",
+     "mean": 14.8,
+     "actual": 46.0,
+     "opp": "NE"
+    }
+   ]
+  }
+ }
 }
