@@ -1,10 +1,11 @@
 {
- "checked": "2026-11-02T19:40:24.453729+00:00",
+ "checked": "2026-11-02T23:00:06.356151+00:00",
  "today": "2026-11-02",
  "lock": {
   "day": "2026-11-02",
-  "state": "waiting",
-  "why": "locks within 4 hours of the 8:15 PM ET kickoff"
+  "state": "locked",
+  "why": "1 pick(s) locked",
+  "new": true
  },
  "recap": {
   "week": 8,
@@ -48,9 +49,9 @@
   }
  },
  "credits": {
-  "remaining": 468,
-  "used": 32,
+  "remaining": 453,
+  "used": 47,
   "last_cost": 4,
-  "checked": "2026-11-01T22:14:59+00:00"
+  "checked": "2026-11-02T23:00:07+00:00"
  }
 }
