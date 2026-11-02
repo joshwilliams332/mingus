@@ -1,10 +1,10 @@
 {
- "checked": "2026-11-02T02:44:31.425454+00:00",
- "today": "2026-11-01",
+ "checked": "2026-11-02T05:57:52.641371+00:00",
+ "today": "2026-11-02",
  "lock": {
-  "day": "2026-11-01",
-  "state": "locked",
-  "why": "already locked"
+  "day": "2026-11-02",
+  "state": "waiting",
+  "why": "locks within 4 hours of the 8:15 PM ET kickoff"
  },
  "recap": {
   "week": 8,
@@ -19,37 +19,31 @@
   "early": {
    "results": {
     "day": "2026-11-01",
-    "state": "done",
-    "new": true,
-    "record": "3-2 (+0.7u)"
+    "state": "done"
    },
    "lock": {
-    "day": "2026-11-01",
-    "state": "locked",
-    "why": "already locked"
+    "day": "2026-11-02",
+    "state": "no-games",
+    "why": "no Sunday 1 PM games today"
    },
    "quick": {
-    "day": "2026-11-01",
-    "state": "done"
+    "day": "2026-11-02",
+    "state": "none"
    }
   },
   "late": {
    "results": {
     "day": "2026-11-01",
-    "state": "done",
-    "new": true,
-    "record": "0-1 (-1.0u)"
+    "state": "done"
    },
    "lock": {
-    "day": "2026-11-01",
-    "state": "locked",
-    "why": "already locked"
+    "day": "2026-11-02",
+    "state": "no-games",
+    "why": "no Sunday 4 PM games today"
    },
    "quick": {
-    "day": "2026-11-01",
-    "state": "done",
-    "new": true,
-    "record": "0-1"
+    "day": "2026-11-02",
+    "state": "none"
    }
   }
  },
