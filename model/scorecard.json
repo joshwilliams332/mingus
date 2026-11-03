@@ -2,50 +2,50 @@
  "season": 2026,
  "weeks": {
   "8": {
-   "n": 251,
-   "brier": 0.2364,
+   "n": 273,
+   "brier": 0.236,
    "coin": 0.25,
    "by_stat": {
     "pass_yds": {
-     "n": 24,
-     "mae": 87.22,
-     "bias_pct": 8.9,
-     "brier": 0.2386,
+     "n": 26,
+     "mae": 83.7,
+     "bias_pct": 8.5,
+     "brier": 0.2377,
      "coin": 0.25
     },
     "rush_yds": {
-     "n": 43,
-     "mae": 32.83,
-     "bias_pct": -6.8,
-     "brier": 0.2257,
+     "n": 47,
+     "mae": 30.91,
+     "bias_pct": -4.8,
+     "brier": 0.225,
      "coin": 0.25
     },
     "rec_yds": {
-     "n": 92,
-     "mae": 25.42,
+     "n": 100,
+     "mae": 24.84,
      "bias_pct": 6.2,
-     "brier": 0.2399,
+     "brier": 0.2385,
      "coin": 0.25
     },
     "rec": {
-     "n": 92,
-     "mae": 1.7,
-     "bias_pct": 8.5,
-     "brier": 0.2373,
+     "n": 100,
+     "mae": 1.69,
+     "bias_pct": 8.3,
+     "brier": 0.2382,
      "coin": 0.25
     }
    },
    "books": {
-    "n": 141,
-    "ours": 0.2644,
-    "books": 0.2497,
-    "blend": 0.2517
+    "n": 162,
+    "ours": 0.2622,
+    "books": 0.2499,
+    "blend": 0.2513
    },
    "sources": {
-    "n": 250,
-    "ours": 53.0,
-    "sleeper": 50.1,
-    "blend": 51.3
+    "n": 272,
+    "ours": 51.2,
+    "sleeper": 48.8,
+    "blend": 49.6
    },
    "days": {
     "2026-11-01": {
@@ -96,29 +96,83 @@
      },
      "slot": "Sunday",
      "games": 12
+    },
+    "2026-11-02": {
+     "n": 22,
+     "brier": 0.2313,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 2,
+       "mae": 41.4,
+       "bias_pct": 4.0,
+       "brier": 0.2268,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 4,
+       "mae": 10.33,
+       "bias_pct": 29.6,
+       "brier": 0.2177,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 8,
+       "mae": 18.15,
+       "bias_pct": 6.7,
+       "brier": 0.2217,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 8,
+       "mae": 1.61,
+       "bias_pct": 6.3,
+       "brier": 0.2487,
+       "coin": 0.25
+      }
+     },
+     "books": {
+      "n": 21,
+      "ours": 0.2474,
+      "books": 0.2511,
+      "blend": 0.2484
+     },
+     "sources": {
+      "n": 22,
+      "ours": 29.6,
+      "sleeper": 33.5,
+      "blend": 30.0
+     },
+     "slot": "MNF",
+     "games": 1
     }
    },
-   "complete": false,
+   "complete": true,
    "td": {
-    "n": 12,
-    "brier": 0.165,
-    "flat": 0.1875,
-    "avg_p": 0.194,
-    "rate": 0.25,
+    "n": 25,
+    "brier": 0.1607,
+    "flat": 0.2016,
+    "avg_p": 0.225,
+    "rate": 0.28,
     "calib": {
      "0.1": [
-      7,
-      0.159,
+      14,
+      0.169,
       0.143
      ],
      "0.2": [
-      4,
-      0.221,
+      8,
+      0.238,
       0.25
      ],
      "0.3": [
       1,
       0.329,
+      1.0
+     ],
+     "0.5": [
+      2,
+      0.52,
       1.0
      ]
     }

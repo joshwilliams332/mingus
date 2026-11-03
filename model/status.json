@@ -1,19 +1,23 @@
 {
- "checked": "2026-11-03T04:01+00:00",
+ "checked": "2026-11-03T20:01+00:00",
  "snapshot": {
-  "week": 8,
-  "state": "all started"
+  "week": 9,
+  "state": "saved",
+  "games": 15,
+  "rows": 375
  },
  "scored_weeks": [
   "8"
  ],
  "tuning": {
-  "week": 7,
+  "week": 8,
   "state": "done",
-  "decision": "adopted"
+  "decision": "kept",
+  "new": true
  },
  "report": {
-  "week": 7,
-  "state": "no scored projections"
+  "week": 8,
+  "state": "done",
+  "new": true
  }
 }
