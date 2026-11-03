@@ -59,8 +59,8 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
 - Phones: player names wrap instead of overlapping tags; grid children have `min-width: 0` so wide tables scroll
   inside their card; team schedule hides O/U, Total and Pts vs implied on small screens.
-- **Fantasy only (Josh, Nov 3, 2026).** Mingus Football is the fantasy project Josh shows on his resume: no betting
-  content here. Picks, odds pulls, grading, the prop tool and the game simulator moved to `joshwilliams332/mingus-picks`
+- **Fantasy only (Josh, Nov 3, 2026).** Mingus Football is a fantasy site: no betting content
+  here. Picks, odds pulls, grading, the prop tool and the game simulator moved to `joshwilliams332/mingus-picks`
   (which copies the projection model from this repo and reads this site's data and tuned settings). Don't add betting
   features or wording here; Vegas lines are only an input (implied team totals).
 - **Projection model** (`scripts/projections.py`, tested in `tests/test_projections.py`): passing / rushing / receiving
