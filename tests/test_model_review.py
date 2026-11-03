@@ -11,8 +11,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import model_review as R  # noqa: E402
-import nfl_picks as N  # noqa: E402
-from test_nfl_picks import make_data  # noqa: E402
+import projections as N  # noqa: E402
+from test_projections import make_data  # noqa: E402
 
 
 def write_stats(path, rows):
@@ -53,8 +53,6 @@ class ReviewTest(unittest.TestCase):
 
     def test_score_after_box_score(self):
         R.snapshot(self.data, self.store, self.at("2026-11-08T10:00"))
-        N.write(self.store / "odds" / "props" / "2026_09_PHI_WAS.json",
-                {"rows": [{"pid": "TE1", "stat": "rec_yds", "line": 45.5, "fair_o": 0.52}]})
         stats = self.dir / "stats.csv"
         write_stats(stats, [{"player_id": "TE1", "week": 9, "team": "PHI", "receiving_yards": 60, "receptions": 6},
                             {"player_id": "QB1", "week": 9, "team": "WAS", "passing_yards": 250, "rushing_yards": 30}])
@@ -62,8 +60,6 @@ class ReviewTest(unittest.TestCase):
         wk = card["weeks"]["9"]
         self.assertEqual(wk["n"], 4)                       # TE rec yds + catches, QB pass + rush yds
         self.assertIn("rec_yds", wk["by_stat"])
-        self.assertEqual(wk["books"]["n"], 1)              # the one prop with a real line
-        self.assertAlmostEqual(wk["books"]["books"], (0.52 - 1) ** 2, places=4)
         self.assertFalse(wk["complete"])                   # DAL @ NYG has no box score yet
 
     def test_td_chances_saved_and_scored(self):

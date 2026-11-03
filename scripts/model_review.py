@@ -7,14 +7,13 @@ Runs in .github/workflows/model-review.yml. Every step is idempotent, so the wor
    catches) is (re)saved to store/model/projections/<season>-wNN.json. Once a game starts its entry is frozen, so we
    always judge what the model said before kickoff.
 2. Score. Every saved game whose box score nflverse has published is scored: average miss, bias (running high or low),
-   Brier score of the chance of the over at the typical line (his average so far, as in the backtest), and, for night
-   games where we pulled sportsbook lines, our chance vs the books' no-vig chance at the real line.
+   and Brier score of the chance he beats his typical game (his average so far, as in the backtest).
    -> store/model/scorecard.json (by week, by game day, by stat; plus the biggest misses).
 3. Retune, once per finished week W (every game final with stats). Candidate settings are searched starting from the
    current ones (a step either way on each setting, twice over) on 2021-2025 plus this season's weeks before W, with
    this season counted THIS_SEASON_WEIGHT times as much. The candidate is adopted only if it also beats the current
    settings on week W itself, which it never saw (by at least ADOPT_MARGIN). Decision -> store/model/tuning/wNN.json;
-   adopted settings -> store/model/settings.json (read by nfl_picks.apply_settings) and settings-history.json.
+   adopted settings -> store/model/settings.json (read by projections.apply_settings) and settings-history.json.
 4. Report. After the retune, store/model/report-wNN.json (+ report-latest.json) with a ready-to-send email.
 
 Usage: python3 scripts/model_review.py --data DIR --store DIR --hist DIR [--now ISO] [--no-tune]
@@ -36,7 +35,7 @@ from pathlib import Path
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "backtest"))
-import nfl_picks as N  # noqa: E402
+import projections as N  # noqa: E402
 
 PAST_SEASONS = (2021, 2022, 2023, 2024, 2025)
 THIS_SEASON_WEIGHT = 4.0
@@ -86,7 +85,7 @@ def week_projections(data, games, week):
 
 
 def week_td(data, games):
-    """Anytime-TD chance (nfl_picks.td_chance) for everyone with enough games, per game id."""
+    """Anytime-TD chance (projections.td_chance) for everyone with enough games, per game id."""
     out = {}
     for g in games:
         rows = []
@@ -149,12 +148,6 @@ def summarize_rows(rs):
                   "bias_pct": round(100 * sum(r["err"] for r in x) / max(sum(r["mean"] for r in x), 1e-9), 1),
                   "brier": round(brier([(r["p_over"], r["hit"]) for r in x]), 4),
                   "coin": round(brier([(0.5, r["hit"]) for r in x]), 4)}
-    bk = [r for r in rs if r.get("book")]
-    books = None
-    if bk:
-        books = {"n": len(bk), "ours": round(brier([(r["book"]["ours"], r["book"]["hit"]) for r in bk]), 4),
-                 "books": round(brier([(r["book"]["market"], r["book"]["hit"]) for r in bk]), 4),
-                 "blend": round(brier([(0.3 * r["book"]["ours"] + 0.7 * r["book"]["market"], r["book"]["hit"]) for r in bk]), 4)}
     both = [r for r in rs if r.get("sleeper") is not None and r.get("mingus") is not None]
     sources = None
     if both:
@@ -164,7 +157,7 @@ def summarize_rows(rs):
         miss = lambda k: round(100 * sum(abs(r[k] - r["actual"]) for r in both) / tot, 1)
         sources = {"n": len(both), "ours": miss("mingus"), "sleeper": miss("sleeper"), "blend": miss("mean")}
     return {"n": len(rs), "brier": round(brier([(r["p_over"], r["hit"]) for r in rs]), 4) if rs else None,
-            "coin": round(brier([(0.5, r["hit"]) for r in rs]), 4) if rs else None, "by_stat": by, "books": books,
+            "coin": round(brier([(0.5, r["hit"]) for r in rs]), 4) if rs else None, "by_stat": by,
             "sources": sources}
 
 
@@ -200,7 +193,6 @@ def score(data, store, stats_by_week):
             teams = {g["home"], g["away"]}
             if not any(r.get("team") in teams for r in played.values()):
                 continue                      # box score not published yet
-            props = {(r["pid"], r["stat"]): r for r in (N.read(Path(store) / "odds" / "props" / f"{gid}.json", {}) or {}).get("rows", [])}
             for row in entry["rows"]:
                 a = played.get(row["pid"])
                 if not a:
@@ -208,11 +200,6 @@ def score(data, store, stats_by_week):
                 actual = float(a.get(CSV_COL[row["st"]]) or 0)
                 s = {**row, "gid": gid, "actual": actual, "err": round(row["mean"] - actual, 2), "hit": 1.0 if actual > row["line"] else 0.0,
                      "z": round((actual - row["mean"]) / row["sd"], 2) if row["sd"] else 0}
-                bk = props.get((row["pid"], row["st"]))
-                if bk:
-                    proj = {"mean": row["mean"], "sd": row["sd"], "stat": row["st"]}
-                    s["book"] = {"line": bk["line"], "ours": round(N.chance_over(proj, bk["line"]), 4), "market": bk["fair_o"],
-                                 "hit": 1.0 if actual > bk["line"] else 0.0}
                 scored.append(s)
                 days.setdefault(g["date"], []).append(s)
             for t in entry.get("td", []):
@@ -391,10 +378,6 @@ def report(data, store, card, tuning, now):
     lines.append("By game day:")
     for d, s in wk["days"].items():
         lines.append(f"- {s['slot']} ({s['games']} game{'s' if s['games'] != 1 else ''}): Brier {s['brier']:.3f} vs coin {s['coin']:.3f}, {s['n']} projections.")
-    if wk.get("books"):
-        b = wk["books"]
-        lines += ["", f"Against real sportsbook lines (night games, {b['n']} props): ours {b['ours']:.3f}, the books' {b['books']:.3f}, "
-                      f"our 30/70 blend {b['blend']:.3f} (lower is better)."]
     if wk.get("sources"):
         so = wk["sources"]
         lines += ["", f"Ours vs Sleeper ({so['n']} projections with both): average miss ours {so['ours']:g}%, Sleeper's {so['sleeper']:g}%, "

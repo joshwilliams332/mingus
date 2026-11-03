@@ -34,7 +34,7 @@ projections, start/sit calls and matchup notes.
 ## How the projections work
 - **Sleeper's projection** for the week is the starting point (pulled from `api.sleeper.app` by `build_data.py`, shown in your scoring format).
 - **Mingus estimate** when Sleeper doesn't have one: recent fantasy scoring (season average and last 3), adjusted for how the defense does against the position and for the team's expected points from the Vegas total.
-- **Keeping them honest:** `scripts/model_review.py` saves projections before every kickoff and scores them once the box scores are out, week by week, and only changes the model's settings when the change would have done better on games it hadn't seen. The same loop tracks each player's chance to score a touchdown. `scripts/backtest/` holds the multi-season tests (2021-2025, then checked on 2026) behind those settings.
+- **Keeping them honest:** `scripts/model_review.py` (with the model itself in `scripts/projections.py`) saves projections before every kickoff and scores them once the box scores are out, week by week, and only changes the model's settings when the change would have done better on games it hadn't seen. The same loop tracks each player's chance to score a touchdown. `scripts/backtest/` holds the multi-season tests (2021-2025, then checked on 2026) behind those settings.
 
 If Sleeper can't be reached during a data update, the build keeps going and the rankings fall back to fantasy points per game.
 
@@ -80,4 +80,3 @@ The pages load JSON with `fetch`, so they need a local server; opening the HTML 
 
 One-time setup: in the repository go to **Settings → Pages** and set **Source** to **GitHub Actions**.
 
-A few other scripts and workflows in this repo run on their own, separate from the site; `CLAUDE.md` describes them.
