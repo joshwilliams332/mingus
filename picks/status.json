@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-03T17:13:55.039092+00:00",
+ "checked": "2026-11-03T23:34:07.910874+00:00",
  "today": "2026-11-03",
  "lock": {
   "day": "2026-11-03",
@@ -8,15 +8,11 @@
  },
  "recap": {
   "week": 8,
-  "state": "done",
-  "new": true,
-  "record": "1-1 (-0.3u)"
+  "state": "done"
  },
  "results": {
   "day": "2026-11-02",
-  "state": "done",
-  "new": true,
-  "record": "0-1 (-1.0u)"
+  "state": "done"
  },
  "sunday": {
   "early": {
