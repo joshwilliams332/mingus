@@ -59,91 +59,46 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
 - Phones: player names wrap instead of overlapping tags; grid children have `min-width: 0` so wide tables scroll
   inside their card; team schedule hides O/U, Total and Pts vs implied on small screens.
-- **Night-game best bets** (`scripts/nfl_picks.py`, tested in `tests/test_nfl_picks.py`, run by
-  `.github/workflows/nfl-picks.yml`, separate from the deploy; it downloads the live site's data JSON instead of
-  rebuilding). Night games only (kickoff 7 PM ET+: TNF, SNF, MNF, late-season Saturdays), Josh's choice so football
-  uses little of the Odds API key it shares with Hoop Lab. Props pulled once per night game (4 markets: pass / rush /
-  rec yds, receptions; 4 credits; event list free; never pulls below `CREDIT_RESERVE`), on the first run within 4 h of
-  kickoff, into `data` branch `odds/props/<game id>.json`. Picks lock once into `picks/YYYY-MM-DD.json` (never
-  rewritten). Same rules as Hoop Lab: chance = 30% projection + 70% books' no-vig consensus at the most-posted line,
-  skip if they differ by 20+ points, >= 54% and >= 3% edge at the best price, prices -200 to +180, one per player, up to
-  2 per game, skip anyone Questionable / Doubtful / Out / DNP, regulars only (20 att / 8 car / 3.5 tgt a game), line
-  quoted by 2+ books. Projection = opportunities x efficiency, settings tuned Oct 31 on 2021-2025 (Josh's request:
-  train on past seasons, test on this one): att / car / tgt per game as a recency-weighted average (4-game half-life)
-  x defense allowed to the position (quarter strength, 0.9-1.1) x team implied vs week average (quarter strength,
-  0.9-1.1) x injury openings (60% of Out/Doubtful teammates' recent volume, by share, max +25%; not backtestable);
-  efficiency = his recency-weighted rate (6-game half-life) steadied toward the position's league rate (20
-  opportunities); x `MEAN_ADJ` (1.03; passing yards 0.93). Game script and the defense's per-play effect were tested
-  and dropped (no help). So was discounting low-snap games (early injury exits; Nov 1, nflverse snap counts: dropping or
-  scaling games under 40-80% of his usual snap share, also only dips he bounced back from) - worse on 2021-2025 and 2026,
-  because low-snap games are mostly real role changes and future games carry the same exit risk (`snap` option in
-  `scripts/backtest/engine.py`, off). Averaged 50/50 with Sleeper's stat line when players.json has it. Spread = his game-to-game
-  spread blended with `PRIOR_CV` (counted as 8 games) x1.15. Chance of the over: log-normal for rush / rec yds and
-  catches (yardage is skewed), bell curve for passing yards. Backtest (each game projected only from earlier games,
-  vs a "typical" line = floor(his average) + 0.5, since no historical book lines exist): 2021-2025 Brier 0.240
-  (21,949 predictions; coin 0.250); held-out 2026 Weeks 5-8 0.238-0.240 (first version 0.259). Over leans (60%+)
-  hit 60%, under leans (40%-) 63%. Receiving yards strongest; passing yards about even with a coin. Typical lines
-  are easier than real book lines, so real edges are smaller. Backtest scripts: `scripts/backtest/`; the standalone
-  over/under tool ("Mingus Prop Model" artifact, not on the site): `scripts/prop_tool/`.
-  Each pick's "why" (one post reply) leads with projection vs
-  line, then the strongest of matchup rank, injury openings, target share / carries, team total, last-5 hits and a
-  top-5 Next Gen Stat; the email adds a not-for-posting "Deep dive" with every factor.
-  Grading reads nflverse `stats_player_week` (void if the game's stats exist but he has no row). The morning after each
-  night, `picks/YYYY-MM-DD-results.json` (that night's graded picks + season record, written once; Josh wanted results
-  the next morning like Hoop Lab, not just weekly). `week-NN-recap.json` is written once a week's night games are all graded; `record.json` holds the season record. Week 8 is a test run
-  (`RECORD_START_WEEK = 9`): emailed, graded, marked TEST, not counted. Every post carries the 21+ line.
-  Delivery: scheduled Claude tasks email Josh (joshwilliams332@comcast.net) at 6:00 PM ET Thu/Sat/Sun/Mon (picks),
-  8:41 AM ET Fri/Sun/Mon/Tue (last night's results) and Tue 1:41 PM ET (weekly recap); they only fetch `picks/` from the `data` branch and send it as written. No model
-  backtest exists yet (no historical lines); the public record is the test.
-- **Sunday daytime slates** (Josh, Nov 1, 2026: model picks for the 1 PM and 4 PM games, emailed 9 AM and 2 PM ET,
-  "for tracking"; same script, `SLATES` in nfl_picks.py). "early" = Sunday kickoffs noon-3:59 PM ET, locked on the first
-  run within 5 h (from 8 AM); "late" = 4-6:59 PM, within 3 h (from ~1 PM). Not London 9:30 AM or Thanksgiving. Sunday
-  crons every 30 min 12-19 UTC. Files `picks/sun-early/` and `picks/sun-late/` (picks + morning-after results); both
-  count in one `picks/sunday-record.json`, never mixed into the night record. Only receiving + rushing yards
-  (`DAY_MARKETS`, 2 credits a game, ~22 a Sunday, ~110 a month) to stay inside the ~200/month football budget; same
-  pick rules, best 5 by edge per slate (`DAY_MAX_PICKS`). Counts from Week 8 (`DAY_RECORD_START_WEEK`). Locks come
-  before inactives (inactive = void). Scheduled Claude tasks email each slate at 9:00 AM / 2:00 PM ET Sundays; the
-  Monday 8:41 AM results email adds both.
-  Same-day unofficial results (Josh, Nov 1: wanted the 1 PM results that evening): `quick_results` grades a Sunday slate
-  from ESPN's box scores (site.api.espn.com, free; reachable from Actions, not from the cloud sandbox) once every game is
-  final -> `picks/sun-*/YYYY-MM-DD-quick.json`, written once, marked unofficial, never counted; a player missing from
-  ESPN's box score shows as "check". The record still comes from nflverse the next morning. Emailed ~5:15 PM (1 PM games)
-  and ~8:15 PM ET (4 PM games) by scheduled tasks.
-- **Anytime-TD model** (`td_chance` in nfl_picks.py; Josh, Nov 1: tested TD numbers instead of rough reads). Logistic on
-  2021-2025 player games from earlier games only: recency-weighted (4-game half-life) carries, targets, red-zone carries
-  and targets, TDs per game, his share of the team's red-zone carries / targets, team implied points vs the week average,
-  position. Platt-calibrated out of season; chances over 50% pulled in 20%. Brier 0.1674 (2021-25 held out by season) /
-  0.1790 (2026), vs 0.1738 / 0.1919 for his own TD rate. Defense TDs allowed to the position and inside-10/5 usage added
-  nothing (dropped). Rushing + receiving TDs only (anytime-TD rules). Doesn't know depth-chart news (e.g. a goal-line
-  back returning) beyond the injury report. Saved before kickoff and scored weekly by the model review (`td` in each
-  game's projections and in the scorecard / report). Backtest: `scripts/backtest/td/`. Not used for locked picks yet
-  (no TD odds pulled).
-
+- **Fantasy only (Josh, Nov 3, 2026).** Mingus Football is the fantasy project Josh shows on his resume: no betting
+  content here. Picks, odds pulls, grading, the prop tool and the game simulator moved to `joshwilliams332/mingus-picks`
+  (which copies the projection model from this repo and reads this site's data and tuned settings). Don't add betting
+  features or wording here; Vegas lines are only an input (implied team totals).
+- **Projection model** (`scripts/projections.py`, tested in `tests/test_projections.py`): passing / rushing / receiving
+  yards and catches for every regular as opportunities x efficiency, with a game-to-game spread. att / car / tgt per
+  game as a recency-weighted average (4-game half-life) x defense allowed to the position (quarter strength, 0.9-1.1)
+  x team implied points vs week average (quarter strength, 0.9-1.1) x injury openings (60% of Out/Doubtful teammates'
+  recent volume, by share, max +25%); efficiency = his recency-weighted rate (6-game half-life) steadied toward the
+  position's league rate (20 opportunities); x `MEAN_ADJ` (1.03; passing yards 0.93). Averaged 50/50 with Sleeper's
+  stat line when players.json has it. Spread = his game-to-game spread blended with `PRIOR_CV` (counted as 8 games)
+  x1.15; log-normal for rushing / receiving yards and catches, bell curve for passing yards. Tested and dropped: game
+  script, the defense's per-play effect, discounting low-snap games (Nov 1; `snap` option in
+  `scripts/backtest/engine.py`, off). Backtest (each game projected only from earlier games; scored on whether he beats
+  a "typical" mark = floor(his average) + 0.5): 2021-2025 Brier 0.240 (21,949 projections; coin 0.250); held-out 2026
+  0.238-0.240 (first version 0.259). Receiving yards strongest; passing yards about a coin flip.
+- **Chance to score** (`td_chance` in projections.py; Josh, Nov 1). Logistic on 2021-2025 player games from earlier
+  games only: recency-weighted (4-game half-life) carries, targets, red-zone carries and targets, TDs per game, his share
+  of the team's red-zone carries / targets, team implied points vs the week average, position. Calibrated out of season;
+  chances over 50% pulled in 20%. Brier 0.1674 (2021-25 held out by season) / 0.1790 (2026), vs 0.1738 / 0.1919 for his
+  own TD rate. Defense TDs allowed to the position and inside-10/5 usage added nothing (dropped). Rushing + receiving TDs
+  only. Doesn't know depth-chart news (e.g. a goal-line back returning) or injured-reserve players (open gap: mark
+  nflverse roster status RES/IR as Out in build_data). Backtest: `scripts/backtest/td/`. Not on the site yet.
 - **Model review loop** (`scripts/model_review.py`, `.github/workflows/model-review.yml`, tested in
-  `tests/test_model_review.py`; Josh, Oct 31: "improving after every single game"). Separate from the deploy; shares the
-  `data-branch` concurrency group with nfl-picks.yml. Every run: (1) snapshot every regular's projection for games not
-  yet kicked off into `data` branch `model/projections/<season>-wNN.json` (frozen at kickoff); (2) score every saved game
-  with a published box score into `model/scorecard.json` (by week / game day / stat: average miss, bias %, Brier at
-  the typical line vs coin, and on night games ours vs the books' no-vig chance at the real line; biggest misses);
-  (3) once per finished week W (all games' stats out, W >= 6): local search from the current settings (one grid step
-  either way per setting, twice) on 2021-2025 + this season's weeks < W counted x4 (`THIS_SEASON_WEIGHT`), adopted only
-  if it also beats the current settings on week W itself by `ADOPT_MARGIN` -> `model/tuning/wNN.json`, and if adopted
-  `model/settings.json` (read by `nfl_picks.apply_settings`, so picks and the tool use it) + `settings-history.json`;
-  (4) `model/report-wNN.json` / `report-latest.json` with a ready-to-send email (also ours vs Sleeper vs the 50/50 average,
-  as average miss %, and the anytime-TD scorecard; Josh, Nov 1). Scored weekly, not per game, because
-  one game is ~40 noisy projections. Retuning needs past seasons in `hist/` (Actions cache) and this season's
-  `stats_<season>.csv`, plus `games.csv`; `scripts/backtest/engine.py` must keep mirroring `projection()`.
-  The weekly prop tool page (`scripts/prop_tool/`, private claude.ai artifact "Mingus Prop Model", NOT on the site; Josh
-  asked to keep it off the website) is rebuilt by the same workflow into `model/prop-tool.html` when the week, scored
-  weeks or settings change; a scheduled Claude task republishes it and emails the weekly model report.
+  `tests/test_model_review.py`; Josh, Oct 31: "improving after every single game"). Separate from the deploy. Every run:
+  (1) snapshot every regular's projection and chance to score for games not yet kicked off into `data` branch
+  `model/projections/<season>-wNN.json` (frozen at kickoff); (2) score every saved game with a published box score into
+  `model/scorecard.json` (by week / game day / stat: average miss, bias %, Brier vs coin, ours vs Sleeper vs the 50/50
+  average, the chance-to-score scorecard, biggest misses); (3) once per finished week W (all games' stats out, W >= 6):
+  local search from the current settings (one grid step either way per setting, twice) on 2021-2025 + this season's
+  weeks < W counted x4 (`THIS_SEASON_WEIGHT`), adopted only if it also beats the current settings on week W itself by
+  `ADOPT_MARGIN` -> `model/tuning/wNN.json`, and if adopted `model/settings.json` (read by `projections.apply_settings`
+  and by mingus-picks) + `settings-history.json`; (4) `model/report-wNN.json` / `report-latest.json` with a
+  ready-to-send email. Retuning needs past seasons in `hist/` (Actions cache), this season's `stats_<season>.csv` and
+  `games.csv`; `scripts/backtest/engine.py` must keep mirroring `projection()`.
 
 ## Open threads
 - `espn-sync` branch: My League page + `scripts/espn_sync.py` (ESPN leagues). Not merged into `main` yet.
   `scripts/espn_config.json` holds Josh's ESPN cookies and must never be committed (it's ignored on that branch;
   add the same `.gitignore` lines to `main` before merging).
-- Odds API key: `ODDS_API_KEY` repo secret, the same free key Hoop Lab uses (500 credits/month shared). Night games
-  only ≈ 50-60 credits/month. Hoop Lab's budget spends whatever is left, so it should hold back ~60/month for football.
-  If Josh upgrades ($30/month = 20,000 credits), all slates and a pre-kickoff closing-line pull become affordable.
 - Deploy schedule: daily 23:17 UTC plus post-game runs (Sun 22:47, Mon 01:47, Mon/Tue/Fri 05:47 UTC). GitHub often
   starts scheduled runs an hour or two late; "Run workflow" in Actions updates immediately.
 - Josh's laptop copy (`C:\Users\joshw\OneDrive\Desktop\mingus`) was last on `analytics-chart-builder` with

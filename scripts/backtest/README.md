@@ -1,8 +1,7 @@
 # Football model backtest
 
 Replays past seasons through the projection model. Each game is projected only from earlier games that season, and
-the chance of the over is scored against a "typical" line (floor of his average so far + 0.5), because historical
-sportsbook prop lines aren't available. Used Oct 31, 2026 to tune the settings in `scripts/nfl_picks.py`
+the chance he beats his "typical" mark (floor of his average so far + 0.5) is scored. Used Oct 31, 2026 to tune the settings in `scripts/projections.py`
 (2021-2025 to tune, 2026 held out). Results are in CLAUDE.md.
 
 ```sh
@@ -18,12 +17,12 @@ python3 scripts/backtest/build_features.py   # hist/features.pkl + the pre-tunin
 python3 scripts/backtest/tune.py             # coordinate search on 2021-2025 -> hist/tuned.json
 ```
 
-`engine.py` mirrors `projection()` and `chance_over()` in nfl_picks.py with every setting exposed (`CURRENT` = the
+`engine.py` mirrors `projection()` and `chance_over()` in projections.py with every setting exposed (`CURRENT` = the
 settings before tuning). If the model changes there, change it here too, or the backtest stops describing the real
 model. Not backtested: the Sleeper blend and injury openings (no historical Sleeper projections or injury reports).
 
 ## Anytime touchdowns (`td/`)
-The TD model in `nfl_picks.td_chance` (Nov 1, 2026). Offline only (needs numpy + scikit-learn). Folder layout: `ROOT/hist/`
+The TD model in `projections.td_chance` (Nov 1, 2026). Offline only (needs numpy + scikit-learn). Folder layout: `ROOT/hist/`
 (stats + games.csv as above), `ROOT/pbp/pbp_<season>.csv.gz` (nflverse `pbp/play_by_play_<season>.csv.gz`), `ROOT/td/`.
 
 ```sh
