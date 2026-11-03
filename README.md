@@ -4,9 +4,9 @@ An all-in-one fantasy football site: who's been producing, who's projected to pr
 Rankings, projections, usage trends and matchup help in one place, built from [nflverse](https://github.com/nflverse/nflverse-data)
 data and Sleeper projections.
 
-**This is a fantasy site, not a betting site.** We do use Vegas lines, because the market knows a lot: a team expected
+**This is a fantasy site** We use Vegas lines, because the market knows a lot: a team expected
 to score 28 points gives its players more chances than a team expected to score 17. So implied team totals feed the
-projections, start/sit calls and matchup notes, but we don't make picks here.
+projections, start/sit calls and matchup notes.
 
 ## What it helps you answer
 
