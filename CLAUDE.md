@@ -59,10 +59,10 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
 - Phones: player names wrap instead of overlapping tags; grid children have `min-width: 0` so wide tables scroll
   inside their card; team schedule hides O/U, Total and Pts vs implied on small screens.
-- **Fantasy only (Josh, Nov 3, 2026).** Mingus Football is the fantasy project Josh shows on his resume: no betting
-  content here. Picks, odds pulls, grading, the prop tool and the game simulator moved to `joshwilliams332/mingus-picks`
-  (which copies the projection model from this repo and reads this site's data and tuned settings). Don't add betting
-  features or wording here; Vegas lines are only an input (implied team totals).
+- **Fantasy focus (Josh, Nov 3, 2026).** This site covers fantasy football only. Picks, odds pulls, grading, the prop
+  tool and the game simulator live in `joshwilliams332/mingus-picks` (which copies the projection model from this repo
+  and reads this site's data and tuned settings), so they don't get added here. Vegas lines are used only as an input
+  (implied team totals). Don't write the reasons for this in the repo, PRs or commits.
 - **Projection model** (`scripts/projections.py`, tested in `tests/test_projections.py`): passing / rushing / receiving
   yards and catches for every regular as opportunities x efficiency, with a game-to-game spread. att / car / tgt per
   game as a recency-weighted average (4-game half-life) x defense allowed to the position (quarter strength, 0.9-1.1)
