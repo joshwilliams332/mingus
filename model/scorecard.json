@@ -203,6 +203,171 @@
      "opp": "NE"
     }
    ]
+  },
+  "9": {
+   "n": 20,
+   "brier": 0.173,
+   "coin": 0.25,
+   "by_stat": {
+    "pass_yds": {
+     "n": 1,
+     "mae": 5.8,
+     "bias_pct": -2.5,
+     "brier": 0.2677,
+     "coin": 0.25
+    },
+    "rush_yds": {
+     "n": 3,
+     "mae": 17.7,
+     "bias_pct": 33.6,
+     "brier": 0.107,
+     "coin": 0.25
+    },
+    "rec_yds": {
+     "n": 8,
+     "mae": 22.49,
+     "bias_pct": 43.4,
+     "brier": 0.1597,
+     "coin": 0.25
+    },
+    "rec": {
+     "n": 8,
+     "mae": 1.56,
+     "bias_pct": 37.3,
+     "brier": 0.1992,
+     "coin": 0.25
+    }
+   },
+   "sources": {
+    "n": 20,
+    "ours": 51.5,
+    "sleeper": 41.0,
+    "blend": 45.7
+   },
+   "days": {
+    "2026-11-05": {
+     "n": 20,
+     "brier": 0.173,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 1,
+       "mae": 5.8,
+       "bias_pct": -2.5,
+       "brier": 0.2677,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 3,
+       "mae": 17.7,
+       "bias_pct": 33.6,
+       "brier": 0.107,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 8,
+       "mae": 22.49,
+       "bias_pct": 43.4,
+       "brier": 0.1597,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 8,
+       "mae": 1.56,
+       "bias_pct": 37.3,
+       "brier": 0.1992,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 20,
+      "ours": 51.5,
+      "sleeper": 41.0,
+      "blend": 45.7
+     },
+     "slot": "TNF",
+     "games": 1
+    }
+   },
+   "complete": false,
+   "td": {
+    "n": 14,
+    "brier": 0.1816,
+    "flat": 0.2041,
+    "avg_p": 0.205,
+    "rate": 0.286,
+    "calib": {
+     "0.0": [
+      1,
+      0.1,
+      0.0
+     ],
+     "0.1": [
+      6,
+      0.116,
+      0.167
+     ],
+     "0.2": [
+      5,
+      0.231,
+      0.4
+     ],
+     "0.4": [
+      1,
+      0.4,
+      0.0
+     ],
+     "0.5": [
+      1,
+      0.517,
+      1.0
+     ]
+    }
+   },
+   "misses": [
+    {
+     "name": "Ja'Kobi Lane",
+     "st": "rec",
+     "mean": 2.2,
+     "actual": 0.0,
+     "opp": "JAX"
+    },
+    {
+     "name": "Ja'Kobi Lane",
+     "st": "rec_yds",
+     "mean": 25.0,
+     "actual": 0.0,
+     "opp": "JAX"
+    },
+    {
+     "name": "Zay Flowers",
+     "st": "rec_yds",
+     "mean": 75.9,
+     "actual": 6.0,
+     "opp": "JAX"
+    },
+    {
+     "name": "Bhayshul Tuten",
+     "st": "rush_yds",
+     "mean": 68.2,
+     "actual": 29.0,
+     "opp": "BAL"
+    },
+    {
+     "name": "Rashod Bateman",
+     "st": "rec_yds",
+     "mean": 28.3,
+     "actual": 6.0,
+     "opp": "JAX"
+    },
+    {
+     "name": "Parker Washington",
+     "st": "rec",
+     "mean": 4.2,
+     "actual": 2.0,
+     "opp": "BAL"
+    }
+   ]
   }
  }
 }

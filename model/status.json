@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-06T03:39+00:00",
+ "checked": "2026-11-06T19:54+00:00",
  "snapshot": {
   "week": 9,
   "state": "saved",
@@ -7,7 +7,8 @@
   "rows": 354
  },
  "scored_weeks": [
-  "8"
+  "8",
+  "9"
  ],
  "tuning": {
   "week": 8,

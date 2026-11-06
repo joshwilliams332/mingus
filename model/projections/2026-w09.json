@@ -479,7 +479,7 @@
    ]
   },
   "2026_09_CIN_ATL": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -504,12 +504,12 @@
      "team": "CIN",
      "opp": "ATL",
      "st": "rec_yds",
-     "mean": 37.6,
+     "mean": 37.7,
      "sd": 33.6,
      "mingus": 36.0,
      "sleeper": 39.3,
      "line": 40.5,
-     "p_over": 0.3156,
+     "p_over": 0.317,
      "inj": null
     },
     {
@@ -534,12 +534,12 @@
      "team": "CIN",
      "opp": "ATL",
      "st": "rec_yds",
-     "mean": 96.9,
+     "mean": 97.0,
      "sd": 75.2,
      "mingus": 107.2,
      "sleeper": 86.7,
      "line": 103.5,
-     "p_over": 0.3302,
+     "p_over": 0.3309,
      "inj": null
     },
     {
@@ -564,12 +564,12 @@
      "team": "CIN",
      "opp": "ATL",
      "st": "pass_yds",
-     "mean": 291.7,
+     "mean": 291.8,
      "sd": 159.3,
-     "mingus": 310.1,
+     "mingus": 310.3,
      "sleeper": 273.3,
      "line": 302.5,
-     "p_over": 0.473,
+     "p_over": 0.4732,
      "inj": null
     },
     {
@@ -581,7 +581,7 @@
      "st": "rec_yds",
      "mean": 83.1,
      "sd": 63.9,
-     "mingus": 85.1,
+     "mingus": 85.2,
      "sleeper": 81.0,
      "line": 70.5,
      "p_over": 0.4604,
@@ -611,7 +611,7 @@
      "st": "rec_yds",
      "mean": 37.5,
      "sd": 29.7,
-     "mingus": 34.8,
+     "mingus": 34.9,
      "sleeper": 40.1,
      "line": 24.5,
      "p_over": 0.603,
@@ -641,7 +641,7 @@
      "st": "rec_yds",
      "mean": 91.1,
      "sd": 73.8,
-     "mingus": 76.6,
+     "mingus": 76.7,
      "sleeper": 105.6,
      "line": 78.5,
      "p_over": 0.4421,
@@ -714,12 +714,12 @@
      "team": "ATL",
      "opp": "CIN",
      "st": "rush_yds",
-     "mean": 101.5,
+     "mean": 101.4,
      "sd": 67.1,
      "mingus": 93.6,
      "sleeper": 109.3,
      "line": 97.5,
-     "p_over": 0.4074,
+     "p_over": 0.4066,
      "inj": null
     },
     {
@@ -834,12 +834,12 @@
      "team": "ATL",
      "opp": "CIN",
      "st": "pass_yds",
-     "mean": 232.5,
+     "mean": 232.6,
      "sd": 120.0,
-     "mingus": 203.0,
+     "mingus": 203.1,
      "sleeper": 262.0,
      "line": 213.5,
-     "p_over": 0.5629,
+     "p_over": 0.5632,
      "inj": null
     }
    ],
@@ -859,7 +859,7 @@
      "pos": "RB",
      "team": "CIN",
      "opp": "ATL",
-     "p": 0.4803,
+     "p": 0.4804,
      "inj": null
     },
     {
@@ -868,7 +868,7 @@
      "pos": "WR",
      "team": "CIN",
      "opp": "ATL",
-     "p": 0.457,
+     "p": 0.4571,
      "inj": null
     },
     {
@@ -895,7 +895,7 @@
      "pos": "WR",
      "team": "ATL",
      "opp": "CIN",
-     "p": 0.2974,
+     "p": 0.2975,
      "inj": null
     },
     {
@@ -931,7 +931,7 @@
      "pos": "WR",
      "team": "ATL",
      "opp": "CIN",
-     "p": 0.1985,
+     "p": 0.1986,
      "inj": null
     },
     {
@@ -958,7 +958,7 @@
      "pos": "WR",
      "team": "CIN",
      "opp": "ATL",
-     "p": 0.1835,
+     "p": 0.1836,
      "inj": null
     },
     {
@@ -973,7 +973,7 @@
    ]
   },
   "2026_09_DEN_CAR": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -983,12 +983,12 @@
      "team": "CAR",
      "opp": "DEN",
      "st": "rec_yds",
-     "mean": 28.7,
-     "sd": 23.5,
+     "mean": 28.5,
+     "sd": 23.4,
      "mingus": 28.3,
-     "sleeper": 29.1,
+     "sleeper": 28.8,
      "line": 29.5,
-     "p_over": 0.3459,
+     "p_over": 0.342,
      "inj": null
     },
     {
@@ -1013,12 +1013,12 @@
      "team": "DEN",
      "opp": "CAR",
      "st": "rec_yds",
-     "mean": 19.5,
+     "mean": 19.4,
      "sd": 19.9,
-     "mingus": 19.6,
-     "sleeper": 19.4,
+     "mingus": 19.7,
+     "sleeper": 19.2,
      "line": 17.5,
-     "p_over": 0.3843,
+     "p_over": 0.3812,
      "inj": null
     },
     {
@@ -1043,12 +1043,12 @@
      "team": "DEN",
      "opp": "CAR",
      "st": "rec_yds",
-     "mean": 34.8,
-     "sd": 26.5,
+     "mean": 34.6,
+     "sd": 26.4,
      "mingus": 34.8,
-     "sleeper": 34.7,
+     "sleeper": 34.3,
      "line": 27.5,
-     "p_over": 0.504,
+     "p_over": 0.5002,
      "inj": null
     },
     {
@@ -1058,12 +1058,12 @@
      "team": "DEN",
      "opp": "CAR",
      "st": "rec",
-     "mean": 2.8,
+     "mean": 2.7,
      "sd": 1.7,
      "mingus": 2.9,
-     "sleeper": 2.7,
+     "sleeper": 2.6,
      "line": 2.5,
-     "p_over": 0.469,
+     "p_over": 0.4381,
      "inj": null
     },
     {
@@ -1073,12 +1073,12 @@
      "team": "DEN",
      "opp": "CAR",
      "st": "rush_yds",
-     "mean": 43.2,
-     "sd": 27.3,
-     "mingus": 42.6,
-     "sleeper": 43.8,
+     "mean": 43.5,
+     "sd": 27.5,
+     "mingus": 42.5,
+     "sleeper": 44.4,
      "line": 38.5,
-     "p_over": 0.4637,
+     "p_over": 0.4684,
      "inj": null
     },
     {
@@ -1088,12 +1088,12 @@
      "team": "CAR",
      "opp": "DEN",
      "st": "rush_yds",
-     "mean": 78.7,
-     "sd": 51.8,
-     "mingus": 82.9,
-     "sleeper": 74.5,
+     "mean": 79.3,
+     "sd": 52.1,
+     "mingus": 82.8,
+     "sleeper": 75.7,
      "line": 77.5,
-     "p_over": 0.3919,
+     "p_over": 0.397,
      "inj": null
     },
     {
@@ -1103,12 +1103,12 @@
      "team": "CAR",
      "opp": "DEN",
      "st": "rec_yds",
-     "mean": 23.0,
+     "mean": 22.9,
      "sd": 18.8,
      "mingus": 26.4,
-     "sleeper": 19.7,
+     "sleeper": 19.5,
      "line": 21.5,
-     "p_over": 0.3961,
+     "p_over": 0.3932,
      "inj": null
     },
     {
@@ -1133,12 +1133,12 @@
      "team": "DEN",
      "opp": "CAR",
      "st": "rec_yds",
-     "mean": 49.9,
-     "sd": 45.3,
+     "mean": 49.6,
+     "sd": 45.2,
      "mingus": 46.2,
-     "sleeper": 53.6,
+     "sleeper": 53.0,
      "line": 39.5,
-     "p_over": 0.4657,
+     "p_over": 0.4618,
      "inj": null
     },
     {
@@ -1166,7 +1166,7 @@
      "mean": 20.6,
      "sd": 17.9,
      "mingus": 25.0,
-     "sleeper": 16.2,
+     "sleeper": 16.1,
      "line": 22.5,
      "p_over": 0.3111,
      "inj": null
@@ -1193,12 +1193,12 @@
      "team": "CAR",
      "opp": "DEN",
      "st": "pass_yds",
-     "mean": 236.6,
-     "sd": 124.3,
-     "mingus": 254.3,
-     "sleeper": 218.9,
+     "mean": 235.5,
+     "sd": 123.8,
+     "mingus": 254.5,
+     "sleeper": 216.5,
      "line": 274.5,
-     "p_over": 0.3802,
+     "p_over": 0.3764,
      "inj": null
     },
     {
@@ -1208,12 +1208,12 @@
      "team": "CAR",
      "opp": "DEN",
      "st": "rec_yds",
-     "mean": 61.1,
-     "sd": 53.5,
+     "mean": 60.7,
+     "sd": 53.3,
      "mingus": 57.1,
-     "sleeper": 65.0,
+     "sleeper": 64.2,
      "line": 60.5,
-     "p_over": 0.3579,
+     "p_over": 0.3543,
      "inj": null
     },
     {
@@ -1238,12 +1238,12 @@
      "team": "DEN",
      "opp": "CAR",
      "st": "pass_yds",
-     "mean": 190.9,
-     "sd": 101.1,
-     "mingus": 181.2,
-     "sleeper": 200.6,
+     "mean": 189.9,
+     "sd": 100.7,
+     "mingus": 181.4,
+     "sleeper": 198.4,
      "line": 186.5,
-     "p_over": 0.5174,
+     "p_over": 0.5135,
      "inj": null
     },
     {
@@ -1253,12 +1253,12 @@
      "team": "CAR",
      "opp": "DEN",
      "st": "rec_yds",
-     "mean": 78.1,
-     "sd": 65.9,
+     "mean": 77.7,
+     "sd": 65.7,
      "mingus": 81.6,
-     "sleeper": 74.6,
+     "sleeper": 73.8,
      "line": 81.5,
-     "p_over": 0.3355,
+     "p_over": 0.3328,
      "inj": null
     },
     {
@@ -1283,12 +1283,12 @@
      "team": "DEN",
      "opp": "CAR",
      "st": "rec_yds",
-     "mean": 31.3,
+     "mean": 31.4,
      "sd": 26.8,
-     "mingus": 31.3,
+     "mingus": 31.4,
      "sleeper": null,
      "line": 36.5,
-     "p_over": 0.2816,
+     "p_over": 0.2832,
      "inj": null
     },
     {
@@ -1313,12 +1313,12 @@
      "team": "DEN",
      "opp": "CAR",
      "st": "rush_yds",
-     "mean": 48.5,
-     "sd": 33.3,
+     "mean": 48.9,
+     "sd": 33.5,
      "mingus": 39.1,
-     "sleeper": 57.9,
+     "sleeper": 58.8,
      "line": 33.5,
-     "p_over": 0.612,
+     "p_over": 0.6177,
      "inj": null
     },
     {
@@ -1328,12 +1328,12 @@
      "team": "CAR",
      "opp": "DEN",
      "st": "rec_yds",
-     "mean": 19.7,
+     "mean": 19.6,
      "sd": 15.8,
      "mingus": 25.1,
-     "sleeper": 14.2,
+     "sleeper": 14.0,
      "line": 19.5,
-     "p_over": 0.3677,
+     "p_over": 0.3645,
      "inj": null
     },
     {
@@ -1359,7 +1359,7 @@
      "pos": "RB",
      "team": "CAR",
      "opp": "DEN",
-     "p": 0.5475,
+     "p": 0.5476,
      "inj": null
     },
     {
@@ -1368,7 +1368,7 @@
      "pos": "RB",
      "team": "DEN",
      "opp": "CAR",
-     "p": 0.3068,
+     "p": 0.3069,
      "inj": null
     },
     {
@@ -1377,7 +1377,7 @@
      "pos": "WR",
      "team": "CAR",
      "opp": "DEN",
-     "p": 0.3012,
+     "p": 0.3013,
      "inj": null
     },
     {
@@ -1386,7 +1386,7 @@
      "pos": "RB",
      "team": "DEN",
      "opp": "CAR",
-     "p": 0.278,
+     "p": 0.2781,
      "inj": null
     },
     {
@@ -1404,7 +1404,7 @@
      "pos": "WR",
      "team": "CAR",
      "opp": "DEN",
-     "p": 0.2524,
+     "p": 0.2525,
      "inj": null
     },
     {
@@ -1422,7 +1422,7 @@
      "pos": "WR",
      "team": "DEN",
      "opp": "CAR",
-     "p": 0.1909,
+     "p": 0.191,
      "inj": null
     },
     {
@@ -1467,7 +1467,7 @@
      "pos": "WR",
      "team": "DEN",
      "opp": "CAR",
-     "p": 0.1644,
+     "p": 0.1645,
      "inj": null
     },
     {
@@ -1518,7 +1518,7 @@
    ]
   },
   "2026_09_DAL_IND": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -1590,7 +1590,7 @@
      "st": "pass_yds",
      "mean": 262.7,
      "sd": 131.4,
-     "mingus": 242.7,
+     "mingus": 242.9,
      "sleeper": 282.6,
      "line": 255.5,
      "p_over": 0.5218,
@@ -1603,12 +1603,12 @@
      "team": "IND",
      "opp": "DAL",
      "st": "pass_yds",
-     "mean": 199.7,
+     "mean": 199.8,
      "sd": 104.6,
-     "mingus": 183.4,
+     "mingus": 183.6,
      "sleeper": 216.0,
      "line": 192.5,
-     "p_over": 0.5274,
+     "p_over": 0.5278,
      "inj": null
     },
     {
@@ -1620,7 +1620,7 @@
      "st": "rush_yds",
      "mean": 79.4,
      "sd": 49.6,
-     "mingus": 78.1,
+     "mingus": 78.0,
      "sleeper": 80.7,
      "line": 76.5,
      "p_over": 0.4121,
@@ -1648,12 +1648,12 @@
      "team": "IND",
      "opp": "DAL",
      "st": "rec",
-     "mean": 2.4,
+     "mean": 2.5,
      "sd": 1.6,
      "mingus": 3.0,
      "sleeper": 1.9,
      "line": 2.5,
-     "p_over": 0.3555,
+     "p_over": 0.3848,
      "inj": null
     },
     {
@@ -1665,7 +1665,7 @@
      "st": "rec_yds",
      "mean": 95.9,
      "sd": 76.8,
-     "mingus": 92.6,
+     "mingus": 92.7,
      "sleeper": 99.2,
      "line": 88.5,
      "p_over": 0.406,
@@ -1679,11 +1679,11 @@
      "opp": "IND",
      "st": "rec",
      "mean": 7.3,
-     "sd": 5.2,
+     "sd": 5.3,
      "mingus": 7.8,
      "sleeper": 6.8,
      "line": 7.5,
-     "p_over": 0.3585,
+     "p_over": 0.3569,
      "inj": null
     },
     {
@@ -1695,7 +1695,7 @@
      "st": "rush_yds",
      "mean": 73.6,
      "sd": 51.6,
-     "mingus": 79.9,
+     "mingus": 79.8,
      "sleeper": 67.4,
      "line": 66.5,
      "p_over": 0.4381,
@@ -1739,11 +1739,11 @@
      "opp": "IND",
      "st": "rec_yds",
      "mean": 25.8,
-     "sd": 20.0,
+     "sd": 20.1,
      "mingus": 21.3,
      "sleeper": 30.3,
      "line": 16.5,
-     "p_over": 0.6212,
+     "p_over": 0.6197,
      "inj": "DNP"
     },
     {
@@ -1830,7 +1830,7 @@
      "st": "rec_yds",
      "mean": 48.0,
      "sd": 37.8,
-     "mingus": 48.8,
+     "mingus": 48.9,
      "sleeper": 47.1,
      "line": 38.5,
      "p_over": 0.4881,
@@ -1907,7 +1907,7 @@
      "pos": "WR",
      "team": "DAL",
      "opp": "IND",
-     "p": 0.5301,
+     "p": 0.5302,
      "inj": null
     },
     {
@@ -1961,7 +1961,7 @@
      "pos": "TE",
      "team": "DAL",
      "opp": "IND",
-     "p": 0.2283,
+     "p": 0.2284,
      "inj": "DNP"
     },
     {
@@ -1970,7 +1970,7 @@
      "pos": "RB",
      "team": "DAL",
      "opp": "IND",
-     "p": 0.2064,
+     "p": 0.2065,
      "inj": null
     },
     {
@@ -2006,7 +2006,7 @@
      "pos": "QB",
      "team": "IND",
      "opp": "DAL",
-     "p": 0.141,
+     "p": 0.1411,
      "inj": null
     },
     {
@@ -2021,7 +2021,7 @@
    ]
   },
   "2026_09_NYJ_KC": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -2033,11 +2033,11 @@
      "st": "rec_yds",
      "mean": 58.4,
      "sd": 43.7,
-     "mingus": 57.7,
+     "mingus": 57.8,
      "sleeper": 59.0,
      "line": 58.5,
      "p_over": 0.3684,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0030506",
@@ -2052,7 +2052,7 @@
      "sleeper": 4.5,
      "line": 4.5,
      "p_over": 0.3901,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0030565",
@@ -2061,12 +2061,12 @@
      "team": "NYJ",
      "opp": "KC",
      "st": "pass_yds",
-     "mean": 228.0,
+     "mean": 228.1,
      "sd": 118.2,
-     "mingus": 225.4,
+     "mingus": 225.6,
      "sleeper": 230.7,
      "line": 239.5,
-     "p_over": 0.4612,
+     "p_over": 0.4616,
      "inj": null
     },
     {
@@ -2078,7 +2078,7 @@
      "st": "pass_yds",
      "mean": 245.9,
      "sd": 130.7,
-     "mingus": 245.9,
+     "mingus": 246.1,
      "sleeper": 245.8,
      "line": 256.5,
      "p_over": 0.4677,
@@ -2151,12 +2151,12 @@
      "team": "KC",
      "opp": "NYJ",
      "st": "rush_yds",
-     "mean": 105.1,
+     "mean": 105.0,
      "sd": 71.8,
-     "mingus": 112.2,
+     "mingus": 112.1,
      "sleeper": 97.9,
      "line": 110.5,
-     "p_over": 0.3481,
+     "p_over": 0.3475,
      "inj": null
     },
     {
@@ -2202,7 +2202,7 @@
      "sleeper": 67.0,
      "line": 60.5,
      "p_over": 0.3993,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0039067",
@@ -2217,7 +2217,7 @@
      "sleeper": 5.1,
      "line": 5.5,
      "p_over": 0.3328,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0039794",
@@ -2242,11 +2242,11 @@
      "opp": "KC",
      "st": "rec_yds",
      "mean": 14.9,
-     "sd": 12.9,
+     "sd": 13.0,
      "mingus": 16.0,
      "sleeper": 13.8,
      "line": 10.5,
-     "p_over": 0.5374,
+     "p_over": 0.5355,
      "inj": null
     },
     {
@@ -2273,7 +2273,7 @@
      "st": "rec_yds",
      "mean": 53.6,
      "sd": 50.4,
-     "mingus": 63.7,
+     "mingus": 63.8,
      "sleeper": 43.4,
      "line": 66.5,
      "p_over": 0.2518,
@@ -2333,11 +2333,11 @@
      "st": "rec_yds",
      "mean": 32.3,
      "sd": 27.1,
-     "mingus": 35.4,
+     "mingus": 35.5,
      "sleeper": 29.1,
      "line": 27.5,
      "p_over": 0.4425,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0040736",
@@ -2352,7 +2352,7 @@
      "sleeper": 3.5,
      "line": 3.5,
      "p_over": 0.4198,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0041032",
@@ -2392,7 +2392,7 @@
      "pos": "RB",
      "team": "KC",
      "opp": "NYJ",
-     "p": 0.6785,
+     "p": 0.6786,
      "inj": null
     },
     {
@@ -2410,8 +2410,8 @@
      "pos": "RB",
      "team": "NYJ",
      "opp": "KC",
-     "p": 0.3869,
-     "inj": "Limited"
+     "p": 0.387,
+     "inj": null
     },
     {
      "pid": "00-0039067",
@@ -2420,7 +2420,7 @@
      "team": "KC",
      "opp": "NYJ",
      "p": 0.3289,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0030506",
@@ -2428,8 +2428,8 @@
      "pos": "TE",
      "team": "KC",
      "opp": "NYJ",
-     "p": 0.2912,
-     "inj": "Limited"
+     "p": 0.2913,
+     "inj": null
     },
     {
      "pid": "00-0039894",
@@ -2446,7 +2446,7 @@
      "pos": "WR",
      "team": "KC",
      "opp": "NYJ",
-     "p": 0.2631,
+     "p": 0.2632,
      "inj": null
     },
     {
@@ -2483,7 +2483,7 @@
      "team": "NYJ",
      "opp": "KC",
      "p": 0.1991,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0041511",
@@ -2500,7 +2500,7 @@
      "pos": "RB",
      "team": "KC",
      "opp": "NYJ",
-     "p": 0.1884,
+     "p": 0.1885,
      "inj": null
     },
     {
@@ -2518,7 +2518,7 @@
      "pos": "TE",
      "team": "NYJ",
      "opp": "KC",
-     "p": 0.1375,
+     "p": 0.1376,
      "inj": null
     },
     {
@@ -2542,7 +2542,7 @@
    ]
   },
   "2026_09_DET_MIA": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -2554,8 +2554,8 @@
      "st": "pass_yds",
      "mean": 274.1,
      "sd": 143.9,
-     "mingus": 260.4,
-     "sleeper": 287.8,
+     "mingus": 260.2,
+     "sleeper": 288.1,
      "line": 280.5,
      "p_over": 0.4823,
      "inj": null
@@ -2569,8 +2569,8 @@
      "st": "rec_yds",
      "mean": 85.1,
      "sd": 67.1,
-     "mingus": 84.3,
-     "sleeper": 85.9,
+     "mingus": 84.2,
+     "sleeper": 86.0,
      "line": 81.5,
      "p_over": 0.3876,
      "inj": "Limited"
@@ -2600,7 +2600,7 @@
      "mean": 62.2,
      "sd": 46.0,
      "mingus": 62.1,
-     "sleeper": 62.2,
+     "sleeper": 62.3,
      "line": 62.5,
      "p_over": 0.3679,
      "inj": null
@@ -2627,12 +2627,12 @@
      "team": "MIA",
      "opp": "DET",
      "st": "rec_yds",
-     "mean": 43.8,
+     "mean": 43.9,
      "sd": 34.9,
-     "mingus": 49.2,
+     "mingus": 49.3,
      "sleeper": 38.4,
      "line": 42.5,
-     "p_over": 0.3792,
+     "p_over": 0.3807,
      "inj": null
     },
     {
@@ -2657,12 +2657,12 @@
      "team": "MIA",
      "opp": "DET",
      "st": "pass_yds",
-     "mean": 204.8,
-     "sd": 105.6,
-     "mingus": 183.1,
-     "sleeper": 226.5,
+     "mean": 205.1,
+     "sd": 105.7,
+     "mingus": 183.4,
+     "sleeper": 226.7,
      "line": 181.5,
-     "p_over": 0.5873,
+     "p_over": 0.5883,
      "inj": null
     },
     {
@@ -2674,8 +2674,8 @@
      "st": "rush_yds",
      "mean": 29.7,
      "sd": 25.5,
-     "mingus": 29.6,
-     "sleeper": 29.7,
+     "mingus": 29.7,
+     "sleeper": 29.8,
      "line": 32.5,
      "p_over": 0.3111,
      "inj": null
@@ -2717,12 +2717,12 @@
      "team": "DET",
      "opp": "MIA",
      "st": "rush_yds",
-     "mean": 107.4,
-     "sd": 70.6,
-     "mingus": 125.7,
-     "sleeper": 89.1,
+     "mean": 107.2,
+     "sd": 70.5,
+     "mingus": 125.4,
+     "sleeper": 89.0,
      "line": 110.5,
-     "p_over": 0.3642,
+     "p_over": 0.363,
      "inj": null
     },
     {
@@ -2732,12 +2732,12 @@
      "team": "DET",
      "opp": "MIA",
      "st": "rec_yds",
-     "mean": 40.5,
-     "sd": 30.7,
+     "mean": 40.6,
+     "sd": 30.8,
      "mingus": 40.8,
-     "sleeper": 40.3,
+     "sleeper": 40.4,
      "line": 40.5,
-     "p_over": 0.3681,
+     "p_over": 0.3694,
      "inj": null
     },
     {
@@ -2762,12 +2762,12 @@
      "team": "MIA",
      "opp": "DET",
      "st": "rec_yds",
-     "mean": 49.7,
-     "sd": 35.0,
+     "mean": 49.8,
+     "sd": 35.1,
      "mingus": 51.6,
-     "sleeper": 47.9,
+     "sleeper": 48.0,
      "line": 47.5,
-     "p_over": 0.4029,
+     "p_over": 0.404,
      "inj": null
     },
     {
@@ -2778,11 +2778,11 @@
      "opp": "DET",
      "st": "rec",
      "mean": 4.3,
-     "sd": 2.6,
+     "sd": 2.7,
      "mingus": 4.7,
      "sleeper": 4.0,
      "line": 4.5,
-     "p_over": 0.3592,
+     "p_over": 0.3568,
      "inj": null
     },
     {
@@ -2792,12 +2792,12 @@
      "team": "DET",
      "opp": "MIA",
      "st": "rec_yds",
-     "mean": 27.5,
+     "mean": 27.6,
      "sd": 31.8,
-     "mingus": 30.8,
-     "sleeper": 24.3,
+     "mingus": 30.7,
+     "sleeper": 24.4,
      "line": 32.5,
-     "p_over": 0.2604,
+     "p_over": 0.2619,
      "inj": null
     },
     {
@@ -2824,8 +2824,8 @@
      "st": "rec_yds",
      "mean": 46.8,
      "sd": 38.8,
-     "mingus": 50.4,
-     "sleeper": 43.1,
+     "mingus": 50.5,
+     "sleeper": 43.2,
      "line": 56.5,
      "p_over": 0.267,
      "inj": null
@@ -2854,7 +2854,7 @@
      "st": "rec_yds",
      "mean": 31.8,
      "sd": 27.4,
-     "mingus": 28.5,
+     "mingus": 28.6,
      "sleeper": 35.0,
      "line": 21.5,
      "p_over": 0.5607,
@@ -2899,7 +2899,7 @@
      "st": "rec",
      "mean": 1.5,
      "sd": 1.2,
-     "mingus": 2.0,
+     "mingus": 2.1,
      "sleeper": 0.9,
      "line": 1.5,
      "p_over": 0.3625,
@@ -2912,12 +2912,12 @@
      "team": "MIA",
      "opp": "DET",
      "st": "rush_yds",
-     "mean": 66.2,
-     "sd": 46.6,
-     "mingus": 73.7,
-     "sleeper": 58.7,
+     "mean": 66.3,
+     "sd": 46.7,
+     "mingus": 73.8,
+     "sleeper": 58.9,
      "line": 68.5,
-     "p_over": 0.3553,
+     "p_over": 0.3561,
      "inj": null
     }
    ],
@@ -2928,7 +2928,7 @@
      "pos": "RB",
      "team": "DET",
      "opp": "MIA",
-     "p": 0.7666,
+     "p": 0.7653,
      "inj": null
     },
     {
@@ -2937,7 +2937,7 @@
      "pos": "WR",
      "team": "DET",
      "opp": "MIA",
-     "p": 0.4621,
+     "p": 0.459,
      "inj": "Limited"
     },
     {
@@ -2946,7 +2946,7 @@
      "pos": "RB",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.4242,
+     "p": 0.4269,
      "inj": null
     },
     {
@@ -2955,7 +2955,7 @@
      "pos": "WR",
      "team": "DET",
      "opp": "MIA",
-     "p": 0.3637,
+     "p": 0.3609,
      "inj": null
     },
     {
@@ -2964,7 +2964,7 @@
      "pos": "TE",
      "team": "DET",
      "opp": "MIA",
-     "p": 0.3169,
+     "p": 0.3143,
      "inj": null
     },
     {
@@ -2973,7 +2973,7 @@
      "pos": "RB",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.2907,
+     "p": 0.293,
      "inj": null
     },
     {
@@ -2982,7 +2982,7 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.2446,
+     "p": 0.2466,
      "inj": null
     },
     {
@@ -2991,7 +2991,7 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.2166,
+     "p": 0.2184,
      "inj": null
     },
     {
@@ -3000,7 +3000,7 @@
      "pos": "TE",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.1972,
+     "p": 0.1989,
      "inj": null
     },
     {
@@ -3009,7 +3009,7 @@
      "pos": "WR",
      "team": "DET",
      "opp": "MIA",
-     "p": 0.1949,
+     "p": 0.193,
      "inj": null
     },
     {
@@ -3018,7 +3018,7 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.1802,
+     "p": 0.1818,
      "inj": null
     },
     {
@@ -3027,7 +3027,7 @@
      "pos": "QB",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.1706,
+     "p": 0.1722,
      "inj": null
     },
     {
@@ -3036,7 +3036,7 @@
      "pos": "QB",
      "team": "DET",
      "opp": "MIA",
-     "p": 0.1611,
+     "p": 0.1595,
      "inj": null
     },
     {
@@ -3045,7 +3045,7 @@
      "pos": "RB",
      "team": "DET",
      "opp": "MIA",
-     "p": 0.1603,
+     "p": 0.1587,
      "inj": null
     },
     {
@@ -3054,7 +3054,7 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.1498,
+     "p": 0.1512,
      "inj": null
     },
     {
@@ -3063,7 +3063,7 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.1341,
+     "p": 0.1354,
      "inj": null
     },
     {
@@ -3072,8 +3072,8 @@
      "pos": "RB",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.1141,
-     "inj": "DNP"
+     "p": 0.1152,
+     "inj": "Limited"
     },
     {
      "pid": "00-0041096",
@@ -3081,13 +3081,13 @@
      "pos": "RB",
      "team": "MIA",
      "opp": "DET",
-     "p": 0.1023,
+     "p": 0.1033,
      "inj": "Limited"
     }
    ]
   },
   "2026_09_CLE_NO": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -3097,12 +3097,12 @@
      "team": "CLE",
      "opp": "NO",
      "st": "pass_yds",
-     "mean": 224.4,
-     "sd": 117.9,
-     "mingus": 224.4,
+     "mean": 224.6,
+     "sd": 118.0,
+     "mingus": 224.6,
      "sleeper": null,
      "line": 225.5,
-     "p_over": 0.4963,
+     "p_over": 0.497,
      "inj": "DNP"
     },
     {
@@ -3129,7 +3129,7 @@
      "st": "rec_yds",
      "mean": 36.8,
      "sd": 31.5,
-     "mingus": 34.5,
+     "mingus": 34.6,
      "sleeper": 39.0,
      "line": 36.5,
      "p_over": 0.3596,
@@ -3263,12 +3263,12 @@
      "opp": "NO",
      "st": "rec_yds",
      "mean": 53.9,
-     "sd": 51.0,
-     "mingus": 63.1,
+     "sd": 51.1,
+     "mingus": 63.2,
      "sleeper": 44.6,
      "line": 51.5,
-     "p_over": 0.3659,
-     "inj": null
+     "p_over": 0.3656,
+     "inj": "Limited"
     },
     {
      "pid": "00-0040663",
@@ -3283,7 +3283,7 @@
      "sleeper": 4.3,
      "line": 4.5,
      "p_over": 0.4062,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0040743",
@@ -3294,7 +3294,7 @@
      "st": "pass_yds",
      "mean": 215.5,
      "sd": 126.3,
-     "mingus": 220.7,
+     "mingus": 220.9,
      "sleeper": 210.2,
      "line": 245.5,
      "p_over": 0.4061,
@@ -3308,11 +3308,11 @@
      "opp": "NO",
      "st": "rush_yds",
      "mean": 56.2,
-     "sd": 37.7,
+     "sd": 37.6,
      "mingus": 57.0,
      "sleeper": 55.4,
      "line": 48.5,
-     "p_over": 0.4749,
+     "p_over": 0.4753,
      "inj": null
     },
     {
@@ -3444,7 +3444,7 @@
      "st": "rush_yds",
      "mean": 27.8,
      "sd": 18.5,
-     "mingus": 25.0,
+     "mingus": 24.9,
      "sleeper": 30.6,
      "line": 20.5,
      "p_over": 0.5794,
@@ -3488,7 +3488,7 @@
      "pos": "RB",
      "team": "CLE",
      "opp": "NO",
-     "p": 0.3909,
+     "p": 0.391,
      "inj": null
     },
     {
@@ -3542,7 +3542,7 @@
      "pos": "WR",
      "team": "CLE",
      "opp": "NO",
-     "p": 0.2429,
+     "p": 0.243,
      "inj": "Limited"
     },
     {
@@ -3552,7 +3552,7 @@
      "team": "CLE",
      "opp": "NO",
      "p": 0.2427,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0036040",
@@ -3569,7 +3569,7 @@
      "pos": "WR",
      "team": "CLE",
      "opp": "NO",
-     "p": 0.1981,
+     "p": 0.1982,
      "inj": null
     },
     {
@@ -3587,7 +3587,7 @@
      "pos": "WR",
      "team": "NO",
      "opp": "CLE",
-     "p": 0.1602,
+     "p": 0.1603,
      "inj": null
     },
     {
@@ -3596,7 +3596,7 @@
      "pos": "QB",
      "team": "NO",
      "opp": "CLE",
-     "p": 0.1549,
+     "p": 0.155,
      "inj": null
     },
     {
@@ -3633,7 +3633,7 @@
      "team": "NO",
      "opp": "CLE",
      "p": 0.1214,
-     "inj": "Limited"
+     "inj": "DNP"
     },
     {
      "pid": "00-0040782",
@@ -3665,7 +3665,7 @@
    ]
   },
   "2026_09_NYG_PHI": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -3675,12 +3675,12 @@
      "team": "PHI",
      "opp": "NYG",
      "st": "rec_yds",
-     "mean": 40.6,
-     "sd": 32.8,
-     "mingus": 43.1,
+     "mean": 40.7,
+     "sd": 32.9,
+     "mingus": 43.2,
      "sleeper": 38.2,
      "line": 43.5,
-     "p_over": 0.3257,
+     "p_over": 0.3269,
      "inj": null
     },
     {
@@ -3711,7 +3711,7 @@
      "sleeper": 77.7,
      "line": 45.5,
      "p_over": 0.5556,
-     "inj": "DNP"
+     "inj": "Limited"
     },
     {
      "pid": "00-0036309",
@@ -3750,12 +3750,12 @@
      "team": "PHI",
      "opp": "NYG",
      "st": "pass_yds",
-     "mean": 171.0,
+     "mean": 171.1,
      "sd": 96.3,
-     "mingus": 171.0,
+     "mingus": 171.1,
      "sleeper": null,
      "line": 186.5,
-     "p_over": 0.4361,
+     "p_over": 0.4365,
      "inj": null
     },
     {
@@ -3795,12 +3795,12 @@
      "team": "NYG",
      "opp": "PHI",
      "st": "rec_yds",
-     "mean": 51.7,
+     "mean": 51.8,
      "sd": 43.5,
      "mingus": 57.7,
      "sleeper": 45.8,
      "line": 56.5,
-     "p_over": 0.3131,
+     "p_over": 0.3141,
      "inj": null
     },
     {
@@ -3810,12 +3810,12 @@
      "team": "NYG",
      "opp": "PHI",
      "st": "rec",
-     "mean": 4.9,
+     "mean": 5.0,
      "sd": 3.7,
      "mingus": 5.8,
      "sleeper": 4.1,
      "line": 5.5,
-     "p_over": 0.3058,
+     "p_over": 0.3175,
      "inj": null
     },
     {
@@ -3872,11 +3872,11 @@
      "st": "rec_yds",
      "mean": 92.2,
      "sd": 74.3,
-     "mingus": 104.7,
+     "mingus": 104.8,
      "sleeper": 79.7,
      "line": 86.5,
      "p_over": 0.3961,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0039337",
@@ -3891,7 +3891,7 @@
      "sleeper": 5.4,
      "line": 6.5,
      "p_over": 0.3942,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0040024",
@@ -3931,11 +3931,11 @@
      "opp": "PHI",
      "st": "rush_yds",
      "mean": 69.9,
-     "sd": 46.3,
+     "sd": 46.2,
      "mingus": 79.3,
      "sleeper": 60.5,
      "line": 69.5,
-     "p_over": 0.3851,
+     "p_over": 0.3853,
      "inj": "DNP"
     },
     {
@@ -4005,12 +4005,12 @@
      "team": "NYG",
      "opp": "PHI",
      "st": "pass_yds",
-     "mean": 146.4,
+     "mean": 146.5,
      "sd": 104.0,
-     "mingus": 146.4,
+     "mingus": 146.5,
      "sleeper": null,
      "line": 159.5,
-     "p_over": 0.4499,
+     "p_over": 0.4503,
      "inj": null
     },
     {
@@ -4046,7 +4046,7 @@
      "team": "NYG",
      "opp": "PHI",
      "p": 0.359,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0037838",
@@ -4054,7 +4054,7 @@
      "pos": "TE",
      "team": "NYG",
      "opp": "PHI",
-     "p": 0.357,
+     "p": 0.3571,
      "inj": null
     },
     {
@@ -4072,7 +4072,7 @@
      "pos": "WR",
      "team": "PHI",
      "opp": "NYG",
-     "p": 0.3273,
+     "p": 0.3274,
      "inj": "DNP"
     },
     {
@@ -4082,7 +4082,7 @@
      "team": "PHI",
      "opp": "NYG",
      "p": 0.1955,
-     "inj": "DNP"
+     "inj": "Limited"
     },
     {
      "pid": "00-0034351",
@@ -4135,7 +4135,7 @@
      "pos": "RB",
      "team": "NYG",
      "opp": "PHI",
-     "p": 0.1561,
+     "p": 0.1562,
      "inj": null
     },
     {
@@ -4207,7 +4207,7 @@
      "pos": "QB",
      "team": "PHI",
      "opp": "NYG",
-     "p": 0.1252,
+     "p": 0.1253,
      "inj": null
     },
     {
@@ -4235,12 +4235,12 @@
      "team": "PHI",
      "opp": "NYG",
      "p": 0.0892,
-     "inj": null
+     "inj": "Limited"
     }
    ]
   },
   "2026_09_LA_WAS": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -4250,12 +4250,12 @@
      "team": "LA",
      "opp": "WAS",
      "st": "pass_yds",
-     "mean": 263.6,
-     "sd": 143.6,
-     "mingus": 253.6,
+     "mean": 263.7,
+     "sd": 143.7,
+     "mingus": 253.8,
      "sleeper": 273.6,
      "line": 268.5,
-     "p_over": 0.4864,
+     "p_over": 0.4867,
      "inj": null
     },
     {
@@ -4281,11 +4281,11 @@
      "opp": "WAS",
      "st": "rec",
      "mean": 5.3,
-     "sd": 3.4,
+     "sd": 3.5,
      "mingus": 5.3,
      "sleeper": null,
      "line": 5.5,
-     "p_over": 0.3607,
+     "p_over": 0.3585,
      "inj": null
     },
     {
@@ -4387,7 +4387,7 @@
      "st": "rec_yds",
      "mean": 23.6,
      "sd": 20.5,
-     "mingus": 27.1,
+     "mingus": 27.2,
      "sleeper": 20.1,
      "line": 17.5,
      "p_over": 0.5095,
@@ -4492,7 +4492,7 @@
      "st": "rush_yds",
      "mean": 74.2,
      "sd": 45.1,
-     "mingus": 70.4,
+     "mingus": 70.3,
      "sleeper": 78.0,
      "line": 68.5,
      "p_over": 0.4452,
@@ -4537,7 +4537,7 @@
      "st": "rec_yds",
      "mean": 104.7,
      "sd": 75.7,
-     "mingus": 101.7,
+     "mingus": 101.8,
      "sleeper": 107.6,
      "line": 94.5,
      "p_over": 0.434,
@@ -4567,7 +4567,7 @@
      "st": "rush_yds",
      "mean": 47.5,
      "sd": 35.2,
-     "mingus": 51.7,
+     "mingus": 51.6,
      "sleeper": 43.3,
      "line": 48.5,
      "p_over": 0.3586,
@@ -4581,11 +4581,11 @@
      "opp": "LA",
      "st": "pass_yds",
      "mean": 185.7,
-     "sd": 105.3,
-     "mingus": 189.5,
+     "sd": 105.4,
+     "mingus": 189.6,
      "sleeper": 181.9,
      "line": 195.5,
-     "p_over": 0.4629,
+     "p_over": 0.463,
      "inj": null
     },
     {
@@ -4597,7 +4597,7 @@
      "st": "rush_yds",
      "mean": 41.3,
      "sd": 34.1,
-     "mingus": 37.9,
+     "mingus": 38.0,
      "sleeper": 44.6,
      "line": 47.5,
      "p_over": 0.2896,
@@ -4713,7 +4713,7 @@
      "pos": "RB",
      "team": "LA",
      "opp": "WAS",
-     "p": 0.3294,
+     "p": 0.3295,
      "inj": null
     },
     {
@@ -4821,7 +4821,7 @@
      "pos": "QB",
      "team": "WAS",
      "opp": "LA",
-     "p": 0.1762,
+     "p": 0.1763,
      "inj": null
     },
     {
@@ -4830,7 +4830,7 @@
      "pos": "WR",
      "team": "LA",
      "opp": "WAS",
-     "p": 0.1728,
+     "p": 0.1729,
      "inj": null
     },
     {
@@ -4863,7 +4863,7 @@
    ]
   },
   "2026_09_HOU_LAC": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -4875,7 +4875,7 @@
      "st": "rec_yds",
      "mean": 41.2,
      "sd": 40.7,
-     "mingus": 43.2,
+     "mingus": 43.3,
      "sleeper": 39.1,
      "line": 46.5,
      "p_over": 0.288,
@@ -4918,12 +4918,12 @@
      "team": "LAC",
      "opp": "HOU",
      "st": "pass_yds",
-     "mean": 209.2,
-     "sd": 105.8,
-     "mingus": 193.2,
+     "mean": 209.3,
+     "sd": 105.9,
+     "mingus": 193.3,
      "sleeper": 225.3,
      "line": 199.5,
-     "p_over": 0.5365,
+     "p_over": 0.5369,
      "inj": null
     },
     {
@@ -5098,12 +5098,12 @@
      "team": "HOU",
      "opp": "LAC",
      "st": "pass_yds",
-     "mean": 245.0,
+     "mean": 245.1,
      "sd": 131.5,
-     "mingus": 235.7,
+     "mingus": 235.8,
      "sleeper": 254.3,
      "line": 266.5,
-     "p_over": 0.4351,
+     "p_over": 0.4354,
      "inj": null
     },
     {
@@ -5203,12 +5203,12 @@
      "team": "LAC",
      "opp": "HOU",
      "st": "rec_yds",
-     "mean": 23.0,
+     "mean": 23.1,
      "sd": 20.5,
      "mingus": 26.0,
      "sleeper": 20.1,
      "line": 22.5,
-     "p_over": 0.3618,
+     "p_over": 0.3645,
      "inj": null
     },
     {
@@ -5233,12 +5233,12 @@
      "team": "HOU",
      "opp": "LAC",
      "st": "rush_yds",
-     "mean": 53.5,
+     "mean": 53.4,
      "sd": 35.2,
      "mingus": 50.5,
      "sleeper": 56.4,
      "line": 38.5,
-     "p_over": 0.5982,
+     "p_over": 0.5965,
      "inj": null
     },
     {
@@ -5309,7 +5309,7 @@
      "pos": "RB",
      "team": "HOU",
      "opp": "LAC",
-     "p": 0.3247,
+     "p": 0.3248,
      "inj": null
     },
     {
@@ -5318,7 +5318,7 @@
      "pos": "WR",
      "team": "HOU",
      "opp": "LAC",
-     "p": 0.2756,
+     "p": 0.2757,
      "inj": null
     },
     {
@@ -5327,7 +5327,7 @@
      "pos": "RB",
      "team": "HOU",
      "opp": "LAC",
-     "p": 0.25,
+     "p": 0.2501,
      "inj": "DNP"
     },
     {
@@ -5408,7 +5408,7 @@
      "pos": "TE",
      "team": "LAC",
      "opp": "HOU",
-     "p": 0.1476,
+     "p": 0.1477,
      "inj": null
     },
     {
@@ -5435,7 +5435,7 @@
      "pos": "QB",
      "team": "HOU",
      "opp": "LAC",
-     "p": 0.1332,
+     "p": 0.1333,
      "inj": null
     },
     {
@@ -5477,7 +5477,7 @@
    ]
   },
   "2026_09_LV_SF": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -5487,12 +5487,12 @@
      "team": "LV",
      "opp": "SF",
      "st": "pass_yds",
-     "mean": 251.2,
-     "sd": 126.9,
-     "mingus": 254.7,
+     "mean": 251.3,
+     "sd": 127.0,
+     "mingus": 254.9,
      "sleeper": 247.6,
      "line": 265.5,
-     "p_over": 0.4551,
+     "p_over": 0.4555,
      "inj": null
     },
     {
@@ -5534,11 +5534,11 @@
      "st": "rush_yds",
      "mean": 72.2,
      "sd": 44.1,
-     "mingus": 62.7,
+     "mingus": 62.6,
      "sleeper": 81.7,
      "line": 55.5,
      "p_over": 0.5736,
-     "inj": "DNP"
+     "inj": "Limited"
     },
     {
      "pid": "00-0033280",
@@ -5548,12 +5548,12 @@
      "opp": "LV",
      "st": "rec_yds",
      "mean": 35.5,
-     "sd": 27.2,
+     "sd": 27.3,
      "mingus": 40.5,
      "sleeper": 30.4,
      "line": 35.5,
-     "p_over": 0.367,
-     "inj": "DNP"
+     "p_over": 0.3666,
+     "inj": "Limited"
     },
     {
      "pid": "00-0033280",
@@ -5568,7 +5568,7 @@
      "sleeper": 3.9,
      "line": 4.5,
      "p_over": 0.3936,
-     "inj": "DNP"
+     "inj": "Limited"
     },
     {
      "pid": "00-0033288",
@@ -5579,7 +5579,7 @@
      "st": "rec_yds",
      "mean": 67.2,
      "sd": 50.3,
-     "mingus": 67.5,
+     "mingus": 67.6,
      "sleeper": 66.8,
      "line": 60.5,
      "p_over": 0.4301,
@@ -5667,12 +5667,12 @@
      "team": "SF",
      "opp": "LV",
      "st": "pass_yds",
-     "mean": 264.7,
+     "mean": 264.8,
      "sd": 132.5,
-     "mingus": 250.4,
+     "mingus": 250.6,
      "sleeper": 279.0,
      "line": 249.5,
-     "p_over": 0.5457,
+     "p_over": 0.546,
      "inj": null
     },
     {
@@ -5714,7 +5714,7 @@
      "st": "rec_yds",
      "mean": 38.8,
      "sd": 34.2,
-     "mingus": 44.0,
+     "mingus": 44.1,
      "sleeper": 33.5,
      "line": 43.5,
      "p_over": 0.2981,
@@ -5804,7 +5804,7 @@
      "st": "rush_yds",
      "mean": 39.1,
      "sd": 27.5,
-     "mingus": 40.1,
+     "mingus": 40.0,
      "sleeper": 38.2,
      "line": 33.5,
      "p_over": 0.4708,
@@ -5817,12 +5817,12 @@
      "team": "LV",
      "opp": "SF",
      "st": "rec_yds",
-     "mean": 82.4,
+     "mean": 82.5,
      "sd": 59.0,
      "mingus": 85.3,
      "sleeper": 79.6,
      "line": 91.5,
-     "p_over": 0.314,
+     "p_over": 0.3147,
      "inj": null
     },
     {
@@ -5848,8 +5848,8 @@
      "pos": "RB",
      "team": "SF",
      "opp": "LV",
-     "p": 0.6179,
-     "inj": "DNP"
+     "p": 0.618,
+     "inj": "Limited"
     },
     {
      "pid": "00-0040122",
@@ -5884,7 +5884,7 @@
      "pos": "WR",
      "team": "SF",
      "opp": "LV",
-     "p": 0.3385,
+     "p": 0.3386,
      "inj": "DNP"
     },
     {
@@ -5920,7 +5920,7 @@
      "pos": "RB",
      "team": "LV",
      "opp": "SF",
-     "p": 0.205,
+     "p": 0.2051,
      "inj": null
     },
     {
@@ -5938,7 +5938,7 @@
      "pos": "WR",
      "team": "SF",
      "opp": "LV",
-     "p": 0.1946,
+     "p": 0.1947,
      "inj": null
     },
     {
@@ -5983,7 +5983,7 @@
      "pos": "WR",
      "team": "LV",
      "opp": "SF",
-     "p": 0.1495,
+     "p": 0.1496,
      "inj": null
     },
     {
@@ -5998,7 +5998,7 @@
    ]
   },
   "2026_09_GB_NE": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -6010,7 +6010,7 @@
      "st": "rec_yds",
      "mean": 33.7,
      "sd": 27.0,
-     "mingus": 37.5,
+     "mingus": 37.6,
      "sleeper": 29.9,
      "line": 40.5,
      "p_over": 0.2699,
@@ -6068,12 +6068,12 @@
      "team": "GB",
      "opp": "NE",
      "st": "pass_yds",
-     "mean": 260.6,
+     "mean": 260.7,
      "sd": 136.7,
-     "mingus": 265.6,
+     "mingus": 265.8,
      "sleeper": 255.7,
      "line": 280.5,
-     "p_over": 0.4421,
+     "p_over": 0.4424,
      "inj": null
     },
     {
@@ -6083,12 +6083,12 @@
      "team": "NE",
      "opp": "GB",
      "st": "rush_yds",
-     "mean": 45.5,
+     "mean": 45.4,
      "sd": 29.8,
      "mingus": 52.4,
      "sleeper": 38.5,
      "line": 45.5,
-     "p_over": 0.3826,
+     "p_over": 0.381,
      "inj": null
     },
     {
@@ -6128,12 +6128,12 @@
      "team": "NE",
      "opp": "GB",
      "st": "rec_yds",
-     "mean": 39.7,
+     "mean": 39.8,
      "sd": 35.3,
-     "mingus": 39.7,
+     "mingus": 39.8,
      "sleeper": null,
      "line": 43.5,
-     "p_over": 0.308,
+     "p_over": 0.3094,
      "inj": null
     },
     {
@@ -6218,12 +6218,12 @@
      "team": "GB",
      "opp": "NE",
      "st": "rec_yds",
-     "mean": 49.0,
+     "mean": 49.1,
      "sd": 35.0,
      "mingus": 47.1,
      "sleeper": 51.0,
      "line": 43.5,
-     "p_over": 0.4461,
+     "p_over": 0.4477,
      "inj": null
     },
     {
@@ -6254,7 +6254,7 @@
      "sleeper": 15.5,
      "line": 18.5,
      "p_over": 0.3652,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0039851",
@@ -6263,12 +6263,12 @@
      "team": "NE",
      "opp": "GB",
      "st": "pass_yds",
-     "mean": 241.2,
+     "mean": 241.3,
      "sd": 124.8,
-     "mingus": 236.7,
+     "mingus": 236.8,
      "sleeper": 245.7,
      "line": 247.5,
-     "p_over": 0.4799,
+     "p_over": 0.4802,
      "inj": null
     },
     {
@@ -6280,7 +6280,7 @@
      "st": "rush_yds",
      "mean": 30.8,
      "sd": 21.1,
-     "mingus": 26.1,
+     "mingus": 26.2,
      "sleeper": 35.5,
      "line": 27.5,
      "p_over": 0.4493,
@@ -6308,12 +6308,12 @@
      "team": "GB",
      "opp": "NE",
      "st": "rec_yds",
-     "mean": 80.0,
-     "sd": 58.9,
+     "mean": 80.1,
+     "sd": 59.0,
      "mingus": 84.1,
      "sleeper": 76.0,
      "line": 77.5,
-     "p_over": 0.3894,
+     "p_over": 0.3901,
      "inj": null
     },
     {
@@ -6340,7 +6340,7 @@
      "st": "rec_yds",
      "mean": 26.5,
      "sd": 24.2,
-     "mingus": 24.3,
+     "mingus": 24.4,
      "sleeper": 28.6,
      "line": 24.5,
      "p_over": 0.3864,
@@ -6400,7 +6400,7 @@
      "st": "rush_yds",
      "mean": 27.6,
      "sd": 22.4,
-     "mingus": 32.4,
+     "mingus": 32.3,
      "sleeper": 22.8,
      "line": 33.5,
      "p_over": 0.265,
@@ -6441,7 +6441,7 @@
      "pos": "TE",
      "team": "GB",
      "opp": "NE",
-     "p": 0.2618,
+     "p": 0.2619,
      "inj": null
     },
     {
@@ -6450,7 +6450,7 @@
      "pos": "WR",
      "team": "NE",
      "opp": "GB",
-     "p": 0.2423,
+     "p": 0.2424,
      "inj": "DNP"
     },
     {
@@ -6477,7 +6477,7 @@
      "pos": "WR",
      "team": "NE",
      "opp": "GB",
-     "p": 0.2129,
+     "p": 0.213,
      "inj": null
     },
     {
@@ -6504,8 +6504,8 @@
      "pos": "RB",
      "team": "GB",
      "opp": "NE",
-     "p": 0.1911,
-     "inj": null
+     "p": 0.1912,
+     "inj": "Limited"
     },
     {
      "pid": "00-0041395",
@@ -6549,7 +6549,7 @@
      "pos": "RB",
      "team": "NE",
      "opp": "GB",
-     "p": 0.1467,
+     "p": 0.1468,
      "inj": null
     },
     {
@@ -6567,7 +6567,7 @@
      "pos": "WR",
      "team": "GB",
      "opp": "NE",
-     "p": 0.1319,
+     "p": 0.132,
      "inj": null
     },
     {
@@ -6576,7 +6576,7 @@
      "pos": "RB",
      "team": "GB",
      "opp": "NE",
-     "p": 0.1241,
+     "p": 0.1242,
      "inj": "Limited"
     },
     {
@@ -6591,7 +6591,7 @@
    ]
   },
   "2026_09_ARI_SEA": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -6601,12 +6601,12 @@
      "team": "ARI",
      "opp": "SEA",
      "st": "pass_yds",
-     "mean": 188.2,
-     "sd": 105.9,
-     "mingus": 188.2,
+     "mean": 188.3,
+     "sd": 106.0,
+     "mingus": 188.3,
      "sleeper": null,
      "line": 214.5,
-     "p_over": 0.4019,
+     "p_over": 0.4024,
      "inj": null
     },
     {
@@ -6648,7 +6648,7 @@
      "st": "rec_yds",
      "mean": 31.2,
      "sd": 23.7,
-     "mingus": 29.4,
+     "mingus": 29.3,
      "sleeper": 33.0,
      "line": 25.5,
      "p_over": 0.4846,
@@ -6676,13 +6676,13 @@
      "team": "SEA",
      "opp": "ARI",
      "st": "pass_yds",
-     "mean": 209.5,
+     "mean": 209.6,
      "sd": 128.3,
-     "mingus": 209.5,
+     "mingus": 209.6,
      "sleeper": null,
      "line": 211.5,
-     "p_over": 0.4938,
-     "inj": null
+     "p_over": 0.4941,
+     "inj": "DNP"
     },
     {
      "pid": "00-0037263",
@@ -6694,7 +6694,7 @@
      "mean": 44.4,
      "sd": 42.9,
      "mingus": 44.3,
-     "sleeper": 44.6,
+     "sleeper": 44.5,
      "line": 40.5,
      "p_over": 0.3848,
      "inj": null
@@ -6742,7 +6742,7 @@
      "sleeper": 23.4,
      "line": 23.5,
      "p_over": 0.4278,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0037545",
@@ -6757,7 +6757,7 @@
      "sleeper": 1.6,
      "line": 2.5,
      "p_over": 0.2756,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0037744",
@@ -6768,7 +6768,7 @@
      "st": "rec_yds",
      "mean": 61.7,
      "sd": 45.3,
-     "mingus": 67.9,
+     "mingus": 68.0,
      "sleeper": 55.4,
      "line": 68.5,
      "p_over": 0.3129,
@@ -6796,12 +6796,12 @@
      "team": "SEA",
      "opp": "ARI",
      "st": "rec_yds",
-     "mean": 116.9,
-     "sd": 79.8,
-     "mingus": 122.6,
+     "mean": 117.0,
+     "sd": 79.9,
+     "mingus": 122.7,
      "sleeper": 111.2,
      "line": 123.5,
-     "p_over": 0.3453,
+     "p_over": 0.3458,
      "inj": null
     },
     {
@@ -6856,12 +6856,12 @@
      "team": "SEA",
      "opp": "ARI",
      "st": "rush_yds",
-     "mean": 38.0,
-     "sd": 34.1,
+     "mean": 37.9,
+     "sd": 34.0,
      "mingus": 71.0,
      "sleeper": 4.9,
      "line": 57.5,
-     "p_over": 0.178,
+     "p_over": 0.177,
      "inj": null
     },
     {
@@ -6873,7 +6873,7 @@
      "st": "rec_yds",
      "mean": 31.3,
      "sd": 25.6,
-     "mingus": 30.8,
+     "mingus": 30.9,
      "sleeper": 31.8,
      "line": 25.5,
      "p_over": 0.4715,
@@ -6918,7 +6918,7 @@
      "st": "rush_yds",
      "mean": 46.7,
      "sd": 31.3,
-     "mingus": 40.1,
+     "mingus": 40.0,
      "sleeper": 53.4,
      "line": 37.5,
      "p_over": 0.5222,
@@ -6932,7 +6932,7 @@
      "opp": "SEA",
      "st": "rush_yds",
      "mean": 23.9,
-     "sd": 23.5,
+     "sd": 23.4,
      "mingus": 29.0,
      "sleeper": 18.8,
      "line": 33.5,
@@ -6946,12 +6946,12 @@
      "team": "ARI",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 22.4,
+     "mean": 22.3,
      "sd": 18.8,
-     "mingus": 22.4,
+     "mingus": 22.3,
      "sleeper": null,
      "line": 13.5,
-     "p_over": 0.6287,
+     "p_over": 0.625,
      "inj": null
     },
     {
@@ -7007,7 +7007,7 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "ARI",
-     "p": 0.4961,
+     "p": 0.4962,
      "inj": null
     },
     {
@@ -7016,7 +7016,7 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "ARI",
-     "p": 0.4405,
+     "p": 0.4406,
      "inj": null
     },
     {
@@ -7079,8 +7079,8 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "ARI",
-     "p": 0.1991,
-     "inj": null
+     "p": 0.1992,
+     "inj": "DNP"
     },
     {
      "pid": "00-0033908",
@@ -7097,7 +7097,7 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "ARI",
-     "p": 0.1708,
+     "p": 0.1709,
      "inj": null
     },
     {
@@ -7106,7 +7106,7 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "ARI",
-     "p": 0.1676,
+     "p": 0.1677,
      "inj": null
     },
     {
@@ -7115,7 +7115,7 @@
      "pos": "WR",
      "team": "ARI",
      "opp": "SEA",
-     "p": 0.1293,
+     "p": 0.1294,
      "inj": null
     },
     {
@@ -7125,7 +7125,7 @@
      "team": "SEA",
      "opp": "ARI",
      "p": 0.1233,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0037157",
@@ -7133,7 +7133,7 @@
      "pos": "RB",
      "team": "ARI",
      "opp": "SEA",
-     "p": 0.1219,
+     "p": 0.122,
      "inj": "DNP"
     },
     {
@@ -7151,7 +7151,7 @@
      "pos": "WR",
      "team": "ARI",
      "opp": "SEA",
-     "p": 0.1038,
+     "p": 0.1039,
      "inj": null
     },
     {
@@ -7166,7 +7166,7 @@
    ]
   },
   "2026_09_TB_CHI": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -7283,11 +7283,11 @@
      "st": "rush_yds",
      "mean": 36.6,
      "sd": 42.1,
-     "mingus": 47.3,
+     "mingus": 47.2,
      "sleeper": 25.9,
      "line": 36.5,
      "p_over": 0.3242,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0038129",
@@ -7298,7 +7298,7 @@
      "st": "rec_yds",
      "mean": 30.3,
      "sd": 24.7,
-     "mingus": 25.0,
+     "mingus": 25.1,
      "sleeper": 35.5,
      "line": 26.5,
      "p_over": 0.4328,
@@ -7341,12 +7341,12 @@
      "team": "TB",
      "opp": "CHI",
      "st": "rush_yds",
-     "mean": 90.3,
+     "mean": 90.2,
      "sd": 63.8,
      "mingus": 98.0,
      "sleeper": 82.5,
      "line": 91.5,
-     "p_over": 0.3673,
+     "p_over": 0.3666,
      "inj": null
     },
     {
@@ -7356,12 +7356,12 @@
      "team": "CHI",
      "opp": "TB",
      "st": "pass_yds",
-     "mean": 240.4,
-     "sd": 130.4,
-     "mingus": 246.0,
+     "mean": 240.5,
+     "sd": 130.5,
+     "mingus": 246.1,
      "sleeper": 234.9,
      "line": 253.5,
-     "p_over": 0.46,
+     "p_over": 0.4603,
      "inj": null
     },
     {
@@ -7401,12 +7401,12 @@
      "team": "CHI",
      "opp": "TB",
      "st": "rec_yds",
-     "mean": 49.2,
-     "sd": 38.8,
+     "mean": 49.3,
+     "sd": 38.9,
      "mingus": 53.5,
      "sleeper": 45.0,
      "line": 38.5,
-     "p_over": 0.502,
+     "p_over": 0.503,
      "inj": null
     },
     {
@@ -7437,7 +7437,7 @@
      "sleeper": 48.2,
      "line": 40.5,
      "p_over": 0.5025,
-     "inj": "DNP"
+     "inj": null
     },
     {
      "pid": "00-0040129",
@@ -7452,7 +7452,7 @@
      "sleeper": 3.6,
      "line": 4.5,
      "p_over": 0.3678,
-     "inj": "DNP"
+     "inj": null
     },
     {
      "pid": "00-0040236",
@@ -7467,7 +7467,7 @@
      "sleeper": 32.0,
      "line": 81.5,
      "p_over": 0.1963,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0040735",
@@ -7478,7 +7478,7 @@
      "st": "rec_yds",
      "mean": 70.2,
      "sd": 51.6,
-     "mingus": 71.4,
+     "mingus": 71.5,
      "sleeper": 68.9,
      "line": 68.5,
      "p_over": 0.3854,
@@ -7493,7 +7493,7 @@
      "st": "rec",
      "mean": 5.2,
      "sd": 3.3,
-     "mingus": 5.4,
+     "mingus": 5.5,
      "sleeper": 5.0,
      "line": 5.5,
      "p_over": 0.3493,
@@ -7507,11 +7507,11 @@
      "opp": "CHI",
      "st": "rec_yds",
      "mean": 24.0,
-     "sd": 20.3,
+     "sd": 20.2,
      "mingus": 23.4,
      "sleeper": 24.5,
      "line": 24.5,
-     "p_over": 0.3463,
+     "p_over": 0.3468,
      "inj": null
     },
     {
@@ -7556,7 +7556,7 @@
      "team": "CHI",
      "opp": "TB",
      "p": 0.4667,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0040735",
@@ -7564,7 +7564,7 @@
      "pos": "WR",
      "team": "CHI",
      "opp": "TB",
-     "p": 0.3462,
+     "p": 0.3463,
      "inj": null
     },
     {
@@ -7574,7 +7574,7 @@
      "team": "TB",
      "opp": "CHI",
      "p": 0.3388,
-     "inj": "DNP"
+     "inj": null
     },
     {
      "pid": "00-0040126",
@@ -7610,7 +7610,7 @@
      "team": "TB",
      "opp": "CHI",
      "p": 0.2027,
-     "inj": "Limited"
+     "inj": null
     },
     {
      "pid": "00-0032464",
@@ -7645,7 +7645,7 @@
      "pos": "WR",
      "team": "TB",
      "opp": "CHI",
-     "p": 0.161,
+     "p": 0.1611,
      "inj": null
     },
     {
@@ -7672,7 +7672,7 @@
      "pos": "WR",
      "team": "TB",
      "opp": "CHI",
-     "p": 0.1415,
+     "p": 0.1416,
      "inj": null
     },
     {
@@ -7681,7 +7681,7 @@
      "pos": "QB",
      "team": "TB",
      "opp": "CHI",
-     "p": 0.1309,
+     "p": 0.131,
      "inj": null
     },
     {
@@ -7714,7 +7714,7 @@
    ]
   },
   "2026_09_BUF_MIN": {
-   "saved": "2026-11-06T03:39+00:00",
+   "saved": "2026-11-06T19:54+00:00",
    "settings": "2026-10-31T14:34+00:00",
    "rows": [
     {
@@ -7775,7 +7775,7 @@
      "sleeper": 64.6,
      "line": 52.5,
      "p_over": 0.3975,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0034827",
@@ -7790,7 +7790,7 @@
      "sleeper": 4.0,
      "line": 3.5,
      "p_over": 0.3998,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0034857",
@@ -7801,7 +7801,7 @@
      "st": "pass_yds",
      "mean": 238.2,
      "sd": 120.0,
-     "mingus": 229.6,
+     "mingus": 229.8,
      "sleeper": 246.7,
      "line": 256.5,
      "p_over": 0.4394,
@@ -7816,7 +7816,7 @@
      "st": "rush_yds",
      "mean": 37.4,
      "sd": 36.6,
-     "mingus": 35.3,
+     "mingus": 35.4,
      "sleeper": 39.4,
      "line": 38.5,
      "p_over": 0.3281,
@@ -7829,13 +7829,13 @@
      "team": "MIN",
      "opp": "BUF",
      "st": "pass_yds",
-     "mean": 177.8,
+     "mean": 178.0,
      "sd": 103.9,
-     "mingus": 177.8,
+     "mingus": 178.0,
      "sleeper": null,
      "line": 170.5,
-     "p_over": 0.528,
-     "inj": null
+     "p_over": 0.5288,
+     "inj": "DNP"
     },
     {
      "pid": "00-0035228",
@@ -7850,7 +7850,7 @@
      "sleeper": null,
      "line": 27.5,
      "p_over": 0.3497,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0035229",
@@ -7861,7 +7861,7 @@
      "st": "rec_yds",
      "mean": 43.6,
      "sd": 39.5,
-     "mingus": 45.2,
+     "mingus": 45.3,
      "sleeper": 41.9,
      "line": 42.5,
      "p_over": 0.3617,
@@ -7966,11 +7966,11 @@
      "st": "rec_yds",
      "mean": 48.4,
      "sd": 46.3,
-     "mingus": 46.3,
+     "mingus": 46.4,
      "sleeper": 50.5,
      "line": 57.5,
      "p_over": 0.2687,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0038933",
@@ -7985,7 +7985,7 @@
      "sleeper": 3.6,
      "line": 3.5,
      "p_over": 0.381,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0038994",
@@ -8030,7 +8030,7 @@
      "sleeper": 36.4,
      "line": 41.5,
      "p_over": 0.2848,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0039901",
@@ -8045,7 +8045,7 @@
      "sleeper": 2.4,
      "line": 2.5,
      "p_over": 0.3767,
-     "inj": null
+     "inj": "Limited"
     }
    ],
    "td": [
@@ -8064,7 +8064,7 @@
      "pos": "RB",
      "team": "MIN",
      "opp": "BUF",
-     "p": 0.3656,
+     "p": 0.3657,
      "inj": null
     },
     {
@@ -8091,8 +8091,8 @@
      "pos": "WR",
      "team": "BUF",
      "opp": "MIN",
-     "p": 0.2572,
-     "inj": null
+     "p": 0.2573,
+     "inj": "Limited"
     },
     {
      "pid": "00-0037525",
@@ -8110,7 +8110,7 @@
      "team": "BUF",
      "opp": "MIN",
      "p": 0.2409,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0035229",
@@ -8118,7 +8118,7 @@
      "pos": "TE",
      "team": "MIN",
      "opp": "BUF",
-     "p": 0.2347,
+     "p": 0.2348,
      "inj": null
     },
     {
@@ -8137,7 +8137,7 @@
      "team": "BUF",
      "opp": "MIN",
      "p": 0.2056,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0038994",
@@ -8145,7 +8145,7 @@
      "pos": "WR",
      "team": "MIN",
      "opp": "BUF",
-     "p": 0.1938,
+     "p": 0.1939,
      "inj": null
     },
     {
@@ -8154,8 +8154,8 @@
      "pos": "WR",
      "team": "BUF",
      "opp": "MIN",
-     "p": 0.1525,
-     "inj": null
+     "p": 0.1526,
+     "inj": "DNP"
     },
     {
      "pid": "00-0035537",
@@ -8164,7 +8164,7 @@
      "team": "BUF",
      "opp": "MIN",
      "p": 0.1427,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0040215",
@@ -8172,7 +8172,7 @@
      "pos": "TE",
      "team": "MIN",
      "opp": "BUF",
-     "p": 0.1362,
+     "p": 0.1363,
      "inj": null
     },
     {
@@ -8182,7 +8182,7 @@
      "team": "MIN",
      "opp": "BUF",
      "p": 0.1351,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0039875",
