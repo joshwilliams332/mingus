@@ -27,7 +27,7 @@
       const dvp = defenseVsPos(players, games, sc);
       // Game designations first (Out, Doubtful, Questionable), then practice-only tags; best players first within each.
       const SEVERITY = { Out: 0, Doubtful: 1, Questionable: 2, DNP: 3, Limited: 4 };
-      const injured = ranked.filter(r => r.p.injury).slice(0, 10)
+      const injured = ranked.filter(r => r.p.injury && !r.p.injury.reserve).slice(0, 10)
         .sort((a, b) => (SEVERITY[a.p.injury.status] ?? 5) - (SEVERITY[b.p.injury.status] ?? 5));
       const injuryCounts = Object.entries(injured.reduce((c, { p }) => ({ ...c, [p.injury.status]: (c[p.injury.status] || 0) + 1 }), {}))
         .sort((a, b) => (SEVERITY[a[0]] ?? 5) - (SEVERITY[b[0]] ?? 5)).map(([k, n]) => `${n} ${k}`).join(" · ");

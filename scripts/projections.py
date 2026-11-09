@@ -158,14 +158,24 @@ def team_context(data, team, game):
 
 def openings(data, player, game, opp_key):
     """Volume freed up by teammates ruled out (Out / Doubtful) who've been getting the same kind of work.
-    Returns (boost factor, [names]). Only 60% of their volume is assumed to move, spread over who's left by share."""
+    Returns (boost factor, [names]). Only 60% of their volume is assumed to move, spread over who's left by share.
+    Only a new absence counts: the teammate must have played in his team's last game. Someone who's been out longer
+    (e.g. on injured reserve) has already been missing from the games the others' recent averages come from, so
+    counting him again would double his work (Nov 9, 2026)."""
     if opp_key == "att":
         return 1.0, []
     mates = [p for p in data.players if p["team"] == player["team"] and p["id"] != player["id"] and p["pos"] in ("RB", "WR", "TE", "QB")]
+    def mine(p):
+        return [e for e in p["log"] if e["week"] < game["week"] and (e.get("team") or p["team"]) == p["team"]]
     def recent(p):
-        log = [e for e in p["log"] if e["week"] < game["week"] and (e.get("team") or p["team"]) == p["team"]][-3:]
+        log = mine(p)[-3:]
         return statistics.mean(e.get(opp_key) or 0 for e in log) if log else 0
-    out = [p for p in mates if (p.get("injury") or {}).get("status") in ("Out", "Doubtful") and recent(p) >= (4 if opp_key == "tgt" else 6)]
+    team_last = max((e["week"] for p in mates + [player] for e in mine(p)), default=None)
+    def new_absence(p):
+        log = mine(p)
+        return bool(log) and log[-1]["week"] == team_last
+    out = [p for p in mates if (p.get("injury") or {}).get("status") in ("Out", "Doubtful") and new_absence(p)
+           and recent(p) >= (4 if opp_key == "tgt" else 6)]
     if not out:
         return 1.0, []
     missing = sum(recent(p) for p in out)

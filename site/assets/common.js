@@ -289,7 +289,7 @@ function posBadge(pos) {
 function injuryTag(inj) {
   if (!inj) return "";
   const cls = { Questionable: "q", Doubtful: "d", Out: "out", DNP: "d", Limited: "q" }[inj.status] || "q";
-  const short = { Questionable: "Q", Doubtful: "D", Out: "OUT" }[inj.status] || inj.status;
+  const short = inj.reserve ? (inj.injury === "Released" ? "CUT" : "IR") : ({ Questionable: "Q", Doubtful: "D", Out: "OUT" }[inj.status] || inj.status);
   const title = `${inj.status}${inj.injury ? ` — ${inj.injury}` : ""}`;
   return `<span class="inj inj-${cls}" title="${esc(title)}">${esc(short)}</span>`;
 }
