@@ -72,6 +72,16 @@ class Projection(unittest.TestCase):
             self.assertLessEqual(boost, 1.25)
             self.assertEqual(names, ["Out Receiver"])
 
+    def test_long_absence_doesnt_open_volume_again(self):
+        with tempfile.TemporaryDirectory() as d:
+            data = make_data(d)
+            # Out since Week 4: the others' recent games already happened without him.
+            mate = {"id": "WR9", "name": "IR Receiver", "pos": "WR", "team": "PHI", "injury": {"status": "Out"},
+                    "log": log(range(1, 4), "NYG", tgt=8, rec=5, rec_yds=60)}
+            data.players.append(mate)
+            data.by_id["WR9"] = mate
+            self.assertEqual(N.openings(data, data.by_id["TE1"], data.game["2026_09_PHI_WAS"], "tgt"), (1.0, []))
+
     def test_sleeper_blended_when_present(self):
         with tempfile.TemporaryDirectory() as d:
             data = make_data(d, sleeper=61.0)

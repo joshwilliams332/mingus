@@ -174,7 +174,7 @@
             <div class="profile-main">
               <h1>${esc(p.name)} ${injuryTag(inj)}</h1>
               <div class="profile-meta">${posBadge(p.pos)} <a class="team-link" href="${teamUrl(p.team)}">${esc(p.team)}</a>${p.number != null ? `<span>#${p.number}</span>` : ""}</div>
-              ${inj ? `<p class="profile-note"><strong>${esc(inj.status)}</strong>${inj.injury ? ` · ${esc(inj.injury)}` : ""} — Week ${inj.week} injury report${inj.practice ? ` (${esc(inj.practice.toLowerCase())})` : ""}.</p>` : ""}
+              ${inj ? `<p class="profile-note"><strong>${esc(inj.status)}</strong>${inj.injury ? ` · ${esc(inj.injury)}` : ""} — ${inj.reserve ? `Week ${inj.week} roster` : `Week ${inj.week} injury report${inj.practice ? ` (${esc(inj.practice.toLowerCase())})` : ""}`}.</p>` : ""}
               ${notes.players?.[p.id] ? `<p class="profile-note mingus-note">${esc(notes.players[p.id])}</p>` : ""}
             </div>
             <div class="profile-rank">

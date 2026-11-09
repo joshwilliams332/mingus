@@ -229,6 +229,23 @@ def build_injuries(season):
     return out, latest
 
 
+# nflverse roster status codes for players who can't play: reserve lists (injured reserve, PUP, NFI, suspended...),
+# released, retired, exempt. Injured-reserve players drop off the weekly injury report, so without this they looked
+# healthy (Josh, Nov 9, 2026). Practice squad (DEV) and game-day inactive (INA) aren't counted.
+NOT_PLAYING = {"RES", "CUT", "RET", "EXE", "SUS"}
+RESERVE_LABEL = {"R01": "Injured reserve", "R48": "Injured reserve (designated to return)", "R04": "PUP list",
+                 "R49": "Injured reserve", "R02": "Retired"}
+
+
+def reserve_status(ros, injury):
+    """The injury entry to show: this week's injury report wins (he's on the active roster if he's on it);
+    otherwise a reserve / released / retired roster status counts as Out."""
+    if injury or (ros.get("status") or "") not in NOT_PLAYING:
+        return injury
+    label = {"CUT": "Released", "RET": "Retired"}.get(ros["status"]) or RESERVE_LABEL.get(ros.get("status_description_abbr")) or "Reserve list"
+    return {"status": "Out", "injury": label, "practice": None, "week": num(ros.get("week")), "reserve": True}
+
+
 def build_roster(season):
     """One row per player: the latest week's roster entry."""
     best = {}
@@ -411,7 +428,7 @@ def build_players(season, games, roster, injuries, today, usage):
                 "weight": num(ros.get("weight")),
                 "college": ros.get("college") or None,
                 "exp": num(ros.get("years_exp")),
-                "injury": injuries.get(pid),
+                "injury": reserve_status(ros, injuries.get(pid)),
                 "log": [],
             }
         week = int(r["week"])

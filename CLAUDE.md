@@ -80,8 +80,11 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   of the team's red-zone carries / targets, team implied points vs the week average, position. Calibrated out of season;
   chances over 50% pulled in 20%. Brier 0.1674 (2021-25 held out by season) / 0.1790 (2026), vs 0.1738 / 0.1919 for his
   own TD rate. Defense TDs allowed to the position and inside-10/5 usage added nothing (dropped). Rushing + receiving TDs
-  only. Doesn't know depth-chart news (e.g. a goal-line back returning) or injured-reserve players (open gap: mark
-  nflverse roster status RES/IR as Out in build_data). Backtest: `scripts/backtest/td/`. Not on the site yet.
+  only. Doesn't know depth-chart news (e.g. a goal-line back returning). Backtest: `scripts/backtest/td/`. Not on the site yet.
+- **Reserve list = Out** (Nov 9, 2026): `reserve_status` in build_data.py marks players whose latest nflverse roster
+  status is RES / CUT / RET / EXE / SUS as Out (`injury.reserve`, label like "Injured reserve"; tag "IR" / "CUT") unless
+  this week's injury report lists them. They're left off the home page injury report. `openings()` only passes volume
+  on for a new absence (he played in the team's last game), so long-term absences aren't counted twice.
 - **Model review loop** (`scripts/model_review.py`, `.github/workflows/model-review.yml`, tested in
   `tests/test_model_review.py`; Josh, Oct 31: "improving after every single game"). Separate from the deploy. Every run:
   (1) snapshot every regular's projection and chance to score for games not yet kicked off into `data` branch
