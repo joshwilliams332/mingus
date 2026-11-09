@@ -65,9 +65,9 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   (implied team totals). Don't write the reasons for this in the repo, PRs or commits.
 - **Projection model** (`scripts/projections.py`, tested in `tests/test_projections.py`): passing / rushing / receiving
   yards and catches for every regular as opportunities x efficiency, with a game-to-game spread. att / car / tgt per
-  game as a recency-weighted average (4-game half-life) x defense allowed to the position (quarter strength) x team
-  implied points vs week average (eighth strength), each capped at 0.95-1.05, x injury openings (60% of Out/Doubtful
-  teammates' recent volume, new absences only, max +25%); efficiency = his recency-weighted rate (6-game half-life)
+  game as a recency-weighted average (4-game half-life) blended with team-first volume (below, which also carries
+  injury openings) x defense allowed to the position (quarter strength) x team implied points vs week average (eighth
+  strength), each capped at 0.95-1.05; efficiency = his recency-weighted rate (6-game half-life)
   steadied toward the position's league rate (`RATE_PAD` 20 opportunities; `RATE_PAD_BY`: passing 100, TE catches 50)
   x the defense's per-play rate (quarter strength); x `MEAN_ADJ` (1.06; passing yards x0.93). Averaged 50/50 with
   Sleeper's stat line when players.json has it. Spread = his game-to-game spread blended with `PRIOR_CV` (counted as 12
@@ -81,6 +81,15 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   0.2119 -> 0.2113; 2016-2025 0.2138 -> 0.2130). Gains from settings alone are small; bigger gains need new
   information (team volume shares, depth chart / QB changes). Stronger pulls toward the league average (100-800) did
   not help on 10 seasons except for passing. Tested and dropped earlier: game script, discounting low-snap games.
+- **Team-first volume** (Josh, Nov 9, 2026; `team_first` in projections.py, `tfa/tfc/tft/thl/tgap` in the engine).
+  Volume = his own recent average blended with the team's recent volume (16-game half-life) x his recent share of it,
+  re-scaled among teammates who may play (not Out / Doubtful / reserve, missed at most one team game since their last).
+  Weights `TEAM_FIRST`: pass attempts 0.25, carries 0.5, targets 0.5. Replaces the old `openings()` boost: a ruled-out
+  teammate leaves the share split, so his work moves to who's left (`parts.f_inj` / `parts.out` still show it).
+  Backtested with nflverse weekly rosters + injury reports (only what was known before kickoff): multi Brier 2016-2025
+  0.2130 -> 0.2117, better in all 10 seasons; 2026 0.2113 -> 0.2109. The old openings boost on top made it worse.
+  Knowing exactly who played (hindsight) would be worth about twice that, mostly from backup QBs and depth-chart
+  changes, which is what depth-chart / QB-change flags would add. `SETTINGS_VERSION` 3.
 - **Chance to score** (`td_chance` in projections.py; Josh, Nov 1). Logistic on 2021-2025 player games from earlier
   games only: recency-weighted (4-game half-life) carries, targets, red-zone carries and targets, TDs per game, his share
   of the team's red-zone carries / targets, team implied points vs the week average, position. Calibrated out of season;
@@ -89,8 +98,8 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   only. Doesn't know depth-chart news (e.g. a goal-line back returning). Backtest: `scripts/backtest/td/`. Not on the site yet.
 - **Reserve list = Out** (Nov 9, 2026): `reserve_status` in build_data.py marks players whose latest nflverse roster
   status is RES / CUT / RET / EXE / SUS as Out (`injury.reserve`, label like "Injured reserve"; tag "IR" / "CUT") unless
-  this week's injury report lists them. They're left off the home page injury report. `openings()` only passes volume
-  on for a new absence (he played in the team's last game), so long-term absences aren't counted twice.
+  this week's injury report lists them. They're left off the home page injury report. Team first only counts teammates
+  who missed at most one team game, so long-term absences aren't counted twice.
 - **Model review loop** (`scripts/model_review.py`, `.github/workflows/model-review.yml`, tested in
   `tests/test_model_review.py`; Josh, Oct 31: "improving after every single game"). Separate from the deploy. Every run:
   (1) snapshot every regular's projection and chance to score for games not yet kicked off into `data` branch

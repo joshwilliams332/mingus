@@ -42,7 +42,7 @@ VOL_HALF_LIFE = 4          # games
 RATE_HALF_LIFE = 6         # games
 RATE_PAD = 20              # opportunities of league-average efficiency blended in
 RATE_PAD_BY = {"pass_yds": 100, "rec:TE": 50}   # per stat (or "stat:position"); others use RATE_PAD (Nov 9 retune)
-SETTINGS_VERSION = 2       # model/settings.json from an older version is replaced by these defaults (model_review)
+SETTINGS_VERSION = 3       # model/settings.json from an older version is replaced by these defaults (model_review)
 DEF_VOL_STRENGTH = 0.25
 DEF_EFF_STRENGTH = 0.25
 DEF_CAP = (0.95, 1.05)
@@ -53,6 +53,11 @@ PRIOR_WEIGHT = 12  # the spread estimate counts the typical spread as this many 
 MEAN_ADJ = {"pass_yds": 1.06 * 0.93, "rush_yds": 1.06, "rec_yds": 1.06, "rec": 1.06}
 SPREAD_ADJ = 1.225
 SKEWED = {"rush_yds", "rec_yds", "rec"}
+# Team first (Nov 9, 2026): blend his own recent volume with his team's recent volume x his share of it among the
+# teammates who may play (not Out / Doubtful / reserve, played in one of the team's last two games). Weight by type:
+TEAM_FIRST = {"att": 0.25, "car": 0.5, "tgt": 0.5}
+TEAM_HALF_LIFE = 16        # games, for the team's volume (team volume is steady; his share moves)
+TEAM_GAP = 1               # a teammate counts if he's missed at most this many of the team's games since his last
 
 
 # ---------------------------------------------------------------- small helpers
@@ -114,6 +119,19 @@ class Data:
         self.game = {g["id"]: g for g in self.games}
         self.full_name = {abbr: f"{t['city']} {t['nickname']}" for abbr, t in self.teams.items()}
         self._dvp = None
+        self._team = None
+
+    def team_totals(self):
+        """{(team, week): {"att", "car", "tgt"}}: every QB / RB / WR / TE game summed, by the team he played for."""
+        if self._team is None:
+            self._team = {}
+            for p in self.players:
+                if p["pos"] in ("QB", "RB", "WR", "TE"):
+                    for e in p["log"]:
+                        t = self._team.setdefault((e.get("team") or p["team"], e["week"]), {"att": 0, "car": 0, "tgt": 0})
+                        for k in t:
+                            t[k] += e.get(k) or 0
+        return self._team
 
     def dvp(self):
         """Per game allowed by each defense to each position: {team: {pos: {stat: per game}}}, and league averages."""
@@ -158,31 +176,42 @@ def team_context(data, team, game):
     return {"implied": imp, "avg": statistics.mean(imps) if imps else None, "rank": rank, "of": len(imps), "fav_by": fav_by}
 
 
-def openings(data, player, game, opp_key):
-    """Volume freed up by teammates ruled out (Out / Doubtful) who've been getting the same kind of work.
-    Returns (boost factor, [names]). Only 60% of their volume is assumed to move, spread over who's left by share.
-    Only a new absence counts: the teammate must have played in his team's last game. Someone who's been out longer
-    (e.g. on injured reserve) has already been missing from the games the others' recent averages come from, so
-    counting him again would double his work (Nov 9, 2026)."""
-    if opp_key == "att":
-        return 1.0, []
-    mates = [p for p in data.players if p["team"] == player["team"] and p["id"] != player["id"] and p["pos"] in ("RB", "WR", "TE", "QB")]
-    def mine(p):
-        return [e for e in p["log"] if e["week"] < game["week"] and (e.get("team") or p["team"]) == p["team"]]
-    def recent(p):
-        log = mine(p)[-3:]
-        return statistics.mean(e.get(opp_key) or 0 for e in log) if log else 0
-    team_last = max((e["week"] for p in mates + [player] for e in mine(p)), default=None)
-    def new_absence(p):
-        log = mine(p)
-        return bool(log) and log[-1]["week"] == team_last
-    out = [p for p in mates if (p.get("injury") or {}).get("status") in ("Out", "Doubtful") and new_absence(p)
-           and recent(p) >= (4 if opp_key == "tgt" else 6)]
-    if not out:
-        return 1.0, []
-    missing = sum(recent(p) for p in out)
-    active = recent(player) + sum(recent(p) for p in mates if p not in out)
-    return (min(1.25, 1 + 0.6 * missing / active) if active else 1.0), [p["name"] for p in out]
+def team_first(data, player, week, ok):
+    """Team-first volume (see TEAM_FIRST): his team's recent per-game attempts / carries / targets x his recent share of
+    them, re-scaled among the teammates who may play this game. Returns {"vol", "vol_all", "out"} or None (no history):
+    vol_all is the same without leaving out the teammates ruled out, so vol / vol_all is the injury opening, and out
+    names the ruled-out teammates who had been getting this work. Mirrors project() in scripts/backtest/engine.py."""
+    tot, team = data.team_totals(), player["team"]
+    tw = sorted(w for (t, w) in tot if t == team and w < week)
+    def shares(log):
+        return [(e.get(ok) or 0) / tot[(e.get("team") or team, e["week"])][ok] for e in log
+                if tot.get((e.get("team") or team, e["week"]), {}).get(ok)]
+    def wmean(xs, hl):
+        w = decay_weights(len(xs), hl)
+        return sum(a * b for a, b in zip(w, xs)) / sum(w)
+    mine = shares([e for e in player["log"] if e["week"] < week])
+    if not tw or not mine:
+        return None
+    mine = wmean(mine, VOL_HALF_LIFE)
+    if not mine:
+        return None
+    playing, ruled_out, out = 0.0, 0.0, []
+    for p in data.players:
+        if p["team"] != team or p["id"] == player["id"] or p["pos"] not in ("QB", "RB", "WR", "TE"):
+            continue
+        here = [e for e in p["log"] if (e.get("team") or team) == team and e["week"] < week]
+        sh = shares(here)
+        if not sh or sum(1 for w in tw if w > here[-1]["week"]) > TEAM_GAP:
+            continue
+        x = wmean(sh, VOL_HALF_LIFE)
+        if (p.get("injury") or {}).get("status") in ("Out", "Doubtful"):
+            ruled_out += x
+            if x >= 0.1:
+                out.append(p["name"])
+        else:
+            playing += x
+    team_vol = wmean([tot[(team, w)][ok] for w in tw], TEAM_HALF_LIFE)
+    return {"vol": team_vol * mine / (mine + playing), "vol_all": team_vol * mine / (mine + playing + ruled_out), "out": out}
 
 
 def model_settings():
@@ -190,14 +219,15 @@ def model_settings():
     return {"vol": "exp", "hl": VOL_HALF_LIFE, "rate_hl": RATE_HALF_LIFE, "K": RATE_PAD, "Ks": dict(RATE_PAD_BY), "ds": DEF_VOL_STRENGTH,
             "de": DEF_EFF_STRENGTH, "cap": round(DEF_CAP[1] - 1, 4), "is": IMP_STRENGTH, "sc": SCRIPT_PER_POINT,
             "c": round(MEAN_ADJ["rec_yds"], 4), "cs": {k: round(v / MEAN_ADJ["rec_yds"], 4) for k, v in MEAN_ADJ.items() if abs(v - MEAN_ADJ["rec_yds"]) > 1e-9},
-            "k": SPREAD_ADJ, "cv": dict(PRIOR_CV), "pw": PRIOR_WEIGHT, "skew": sorted(SKEWED)}
+            "k": SPREAD_ADJ, "cv": dict(PRIOR_CV), "pw": PRIOR_WEIGHT, "skew": sorted(SKEWED),
+            "tfa": TEAM_FIRST["att"], "tfc": TEAM_FIRST["car"], "tft": TEAM_FIRST["tgt"], "thl": TEAM_HALF_LIFE, "tgap": TEAM_GAP}
 
 
 def apply_settings(store):
     """Use the settings the weekly model review adopted (store/model/settings.json on the data branch), if any.
     The file holds the engine's format plus a note of when and why it was adopted; anything missing keeps the default."""
     global VOL_HALF_LIFE, RATE_HALF_LIFE, RATE_PAD, RATE_PAD_BY, DEF_VOL_STRENGTH, DEF_EFF_STRENGTH, DEF_CAP, IMP_STRENGTH
-    global SCRIPT_PER_POINT, MEAN_ADJ, SPREAD_ADJ, PRIOR_CV, PRIOR_WEIGHT, SKEWED
+    global SCRIPT_PER_POINT, MEAN_ADJ, SPREAD_ADJ, PRIOR_CV, PRIOR_WEIGHT, SKEWED, TEAM_FIRST, TEAM_HALF_LIFE, TEAM_GAP
     doc = read(Path(store) / "model" / "settings.json")
     P = (doc or {}).get("settings")
     if not P or (doc.get("version") or 1) < SETTINGS_VERSION:    # older than the code's defaults: keep the defaults
@@ -219,6 +249,9 @@ def apply_settings(store):
     PRIOR_WEIGHT = P.get("pw", PRIOR_WEIGHT)
     if "skew" in P:
         SKEWED = set(P["skew"])
+    TEAM_FIRST = {k: P.get(f"tf{k[0]}", v) for k, v in TEAM_FIRST.items()}
+    TEAM_HALF_LIFE = P.get("thl", TEAM_HALF_LIFE)
+    TEAM_GAP = P.get("tgap", TEAM_GAP)
     return doc
 
 
@@ -231,11 +264,11 @@ def projection(data, player, stat, game, week):
     """Our expected value and spread for a player's stat in this game, or None without enough history.
 
     The Mingus model: opportunities x efficiency, with the settings tuned on 2021-2025 (see VOL_HALF_LIFE).
-      Opportunities (his pass attempts, carries or targets): a recency-weighted average (4-game half-life), then
+      Opportunities (his pass attempts, carries or targets): a recency-weighted average (4-game half-life), blended
+        with team first (TEAM_FIRST: the team's volume x his share among teammates who may play), then
         x the defense: how many of those it allows to his position vs the league (quarter strength, 0.9-1.1)
         x the game: the team's implied points vs the week's average (quarter strength, 0.9-1.1)
-        x injury openings: a share of the work teammates ruled out leave behind (see openings(); not backtested,
-          since past injury reports aren't in the data).
+        (injury openings come through the share: teammates ruled out leave it, see team_first()).
       Efficiency (yards per attempt / carry / target, or catch rate): his recency-weighted rate (6-game half-life)
         steadied toward the position's league rate (counted as 20 opportunities).
     Times MEAN_ADJ (calibration). When the site has Sleeper's projection for the stat, the mean is half Sleeper, half
@@ -258,8 +291,17 @@ def projection(data, player, stat, game, week):
     f_imp = adj(ctx["implied"] / ctx["avg"], IMP_STRENGTH) if ctx["implied"] and ctx["avg"] else 1.0
     lean = max(-0.06, min(0.06, SCRIPT_PER_POINT * ctx["fav_by"]))
     f_script = 1 + lean if ok == "car" else 1 - lean if ok in ("att", "tgt") else 1.0
-    f_inj, out_names = openings(data, player, game, ok)
-    vol = vol_base * f_def_vol * f_imp * f_script * f_inj
+    tf, team = TEAM_FIRST.get(ok, 0), None
+    if tf:
+        team = team_first(data, player, week, ok)
+    if team:
+        # Injury openings come through the share: teammates ruled out drop out of it (backtested 2016-2025 with the
+        # weekly injury reports, Nov 9, 2026; the old separate openings() boost added nothing on top).
+        f_inj, out_names = team["vol"] / team["vol_all"], team["out"]
+        vol_base = tf * team["vol"] + (1 - tf) * vol_base
+    else:
+        f_inj, out_names = 1.0, []
+    vol = vol_base * f_def_vol * f_imp * f_script
 
     wr = decay_weights(len(vals), RATE_HALF_LIFE)
     w_val, w_opp = sum(w * v for w, v in zip(wr, vals)), sum(w * o for w, o in zip(wr, opps))
@@ -292,7 +334,7 @@ def projection(data, player, stat, game, week):
             "parts": {"opp_key": ok, "vol_base": round(vol_base, 1), "vol": round(vol, 1), "eff": round(eff, 3 if stat == "rec" else 2),
                       "rate": round(rate, 3 if stat == "rec" else 2), "f_def_vol": round(f_def_vol, 3), "f_imp": round(f_imp, 3),
                       "f_script": round(f_script, 3), "f_inj": round(f_inj, 3), "f_def_eff": round(f_def_eff, 3),
-                      "mean_adj": MEAN_ADJ[stat], "mingus": round(mingus, 1), "sleeper": sleeper, "out": out_names,
+                      "mean_adj": MEAN_ADJ[stat], "mingus": round(mingus, 1), "sleeper": sleeper, "out": out_names, "team_vol": round(team["vol"], 1) if team else None,
                       "share3": round(statistics.mean(shares), 3) if shares else None},
             "ctx": ctx}
 
