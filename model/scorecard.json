@@ -205,44 +205,44 @@
    ]
   },
   "9": {
-   "n": 20,
-   "brier": 0.173,
+   "n": 277,
+   "brier": 0.2321,
    "coin": 0.25,
    "by_stat": {
     "pass_yds": {
-     "n": 1,
-     "mae": 5.8,
-     "bias_pct": -2.5,
-     "brier": 0.2677,
+     "n": 21,
+     "mae": 55.24,
+     "bias_pct": -1.2,
+     "brier": 0.2719,
      "coin": 0.25
     },
     "rush_yds": {
-     "n": 3,
-     "mae": 17.7,
-     "bias_pct": 33.6,
-     "brier": 0.107,
+     "n": 38,
+     "mae": 19.21,
+     "bias_pct": 11.7,
+     "brier": 0.2189,
      "coin": 0.25
     },
     "rec_yds": {
-     "n": 8,
-     "mae": 22.49,
-     "bias_pct": 43.4,
-     "brier": 0.1597,
+     "n": 109,
+     "mae": 23.27,
+     "bias_pct": 4.4,
+     "brier": 0.2332,
      "coin": 0.25
     },
     "rec": {
-     "n": 8,
-     "mae": 1.56,
-     "bias_pct": 37.3,
-     "brier": 0.1992,
+     "n": 109,
+     "mae": 1.47,
+     "bias_pct": 7.1,
+     "brier": 0.2279,
      "coin": 0.25
     }
    },
    "sources": {
-    "n": 20,
-    "ours": 51.5,
-    "sleeper": 41.0,
-    "blend": 45.7
+    "n": 276,
+    "ours": 39.4,
+    "sleeper": 39.7,
+    "blend": 39.0
    },
    "days": {
     "2026-11-05": {
@@ -287,15 +287,58 @@
      },
      "slot": "TNF",
      "games": 1
+    },
+    "2026-11-08": {
+     "n": 257,
+     "brier": 0.2367,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 20,
+       "mae": 57.71,
+       "bias_pct": -1.2,
+       "brier": 0.2722,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 35,
+       "mae": 19.34,
+       "bias_pct": 9.8,
+       "brier": 0.2285,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 101,
+       "mae": 23.33,
+       "bias_pct": 1.5,
+       "brier": 0.239,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 101,
+       "mae": 1.46,
+       "bias_pct": 5.0,
+       "brier": 0.2302,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 256,
+      "ours": 38.8,
+      "sleeper": 39.7,
+      "blend": 38.6
+     },
+     "slot": "Sunday",
+     "games": 12
     }
    },
    "complete": false,
    "td": {
-    "n": 14,
-    "brier": 0.1816,
-    "flat": 0.2041,
-    "avg_p": 0.205,
-    "rate": 0.286,
+    "n": 177,
+    "brier": 0.1822,
+    "flat": 0.195,
+    "avg_p": 0.241,
+    "rate": 0.266,
     "calib": {
      "0.0": [
       1,
@@ -303,69 +346,84 @@
       0.0
      ],
      "0.1": [
-      6,
-      0.116,
-      0.167
+      86,
+      0.155,
+      0.209
      ],
      "0.2": [
-      5,
-      0.231,
-      0.4
+      51,
+      0.241,
+      0.235
+     ],
+     "0.3": [
+      18,
+      0.346,
+      0.333
      ],
      "0.4": [
-      1,
-      0.4,
-      0.0
+      10,
+      0.436,
+      0.3
      ],
      "0.5": [
+      8,
+      0.544,
+      0.625
+     ],
+     "0.6": [
+      2,
+      0.649,
+      1.0
+     ],
+     "0.7": [
       1,
-      0.517,
+      0.763,
       1.0
      ]
     }
    },
    "misses": [
     {
-     "name": "Ja'Kobi Lane",
-     "st": "rec",
-     "mean": 2.2,
-     "actual": 0.0,
-     "opp": "JAX"
-    },
-    {
-     "name": "Ja'Kobi Lane",
+     "name": "Kayshon Boutte",
      "st": "rec_yds",
-     "mean": 25.0,
-     "actual": 0.0,
-     "opp": "JAX"
+     "mean": 23.3,
+     "actual": 125.0,
+     "opp": "LAC"
     },
     {
-     "name": "Zay Flowers",
-     "st": "rec_yds",
-     "mean": 75.9,
-     "actual": 6.0,
-     "opp": "JAX"
-    },
-    {
-     "name": "Bhayshul Tuten",
+     "name": "Tyler Goodson",
      "st": "rush_yds",
-     "mean": 68.2,
-     "actual": 29.0,
-     "opp": "BAL"
+     "mean": 22.8,
+     "actual": 77.0,
+     "opp": "IND"
     },
     {
-     "name": "Rashod Bateman",
-     "st": "rec_yds",
-     "mean": 28.3,
-     "actual": 6.0,
-     "opp": "JAX"
-    },
-    {
-     "name": "Parker Washington",
+     "name": "Darren Waller",
      "st": "rec",
-     "mean": 4.2,
-     "actual": 2.0,
-     "opp": "BAL"
+     "mean": 2.4,
+     "actual": 8.0,
+     "opp": "DEN"
+    },
+    {
+     "name": "Darren Waller",
+     "st": "rec_yds",
+     "mean": 27.4,
+     "actual": 90.0,
+     "opp": "DEN"
+    },
+    {
+     "name": "Darnell Mooney",
+     "st": "rec_yds",
+     "mean": 19.8,
+     "actual": 54.0,
+     "opp": "PHI"
+    },
+    {
+     "name": "Kayshon Boutte",
+     "st": "rec",
+     "mean": 1.8,
+     "actual": 4.0,
+     "opp": "LAC"
     }
    ]
   }
