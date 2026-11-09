@@ -182,7 +182,8 @@ def project(r, P):
     n = len(vals)
     w = [0.5 ** ((n - 1 - i) / hl) for i in range(n)] if hl else [1.0] * n
     wv, wo = sum(a * b for a, b in zip(w, vals)), sum(a * b for a, b in zip(w, opps))
-    rate = (wv + P["K"] * lg_rate) / (wo + P["K"])
+    K = P.get("Ks", {}).get(f'{r["st"]}:{r["pos"]}', P.get("Ks", {}).get(r["st"], P["K"]))   # per stat / position
+    rate = (wv + K * lg_rate) / (wo + K)
     d_rate = r["d_val"] / r["d_opp"] if r["d_opp"] else lg_rate
     f_de = clamp(1 + P["de"] * (d_rate / lg_rate - 1), 1 - P["cap"], 1 + P["cap"]) if lg_rate else 1
     mean = vol * f_dv * f_imp * f_sc * rate * f_de * P["c"] * P["cs"].get(r["st"], 1.0)
@@ -204,6 +205,38 @@ def prob_over(st, mean, sd, line, P):
         s2 = math.log(1 + (sd / m) ** 2)
         return 1 - ncdf((math.log(line) - (math.log(m) - s2 / 2)) / math.sqrt(s2))
     return 1 - ncdf((line - m) / sd)
+
+
+SPREAD_LINES = (0.6, 0.8, 1.0, 1.2, 1.4)   # x his average so far, each rounded to a .5 line
+
+
+def multi_lines(r):
+    """Five lines around his average (Nov 9, 2026). One line at floor(average) + 0.5 mostly tests the shape of the
+    range and rewards projecting high (the weekly tuner pushed the overall multiplier to 1.06 that way); scoring the
+    over at several lines grades the whole projected range, like a CRPS."""
+    a = statistics.mean(r["vals"])
+    return sorted({math.floor(a * f) + 0.5 for f in SPREAD_LINES})
+
+
+def evaluate_multi(rows, P):
+    """Average Brier of the over at the multi_lines() lines, plus the projection's average miss (RMSE) and bias % by
+    stat. Lower Brier / RMSE is better; bias 0 is unbiased."""
+    b = wsum = 0.0
+    per = defaultdict(lambda: [0, 0.0, 0.0, 0.0, 0.0])        # n, brier sum, sq err, projected, actual
+    for r in rows:
+        w = r.get("w", 1.0)
+        m, sd = project(r, P)
+        lines = multi_lines(r)
+        s = sum((min(max(prob_over(r["st"], m, sd, ln, P), 1e-4), 1 - 1e-4) - (1.0 if r["actual"] > ln else 0.0)) ** 2
+                for ln in lines) / len(lines)
+        b += w * s
+        wsum += w
+        x = per[r["st"]]; x[0] += 1; x[1] += s; x[2] += (m - r["actual"]) ** 2; x[3] += m; x[4] += r["actual"]
+    if not rows:
+        return {"n": 0, "brier": None, "by_stat": {}}
+    return {"n": len(rows), "brier": b / wsum,
+            "by_stat": {k: {"n": v[0], "brier": v[1] / v[0], "rmse": math.sqrt(v[2] / v[0]),
+                            "bias_pct": 100 * (v[3] / v[4] - 1) if v[4] else 0.0} for k, v in per.items()}}
 
 
 def evaluate(rows, P, detail=False):

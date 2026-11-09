@@ -37,7 +37,8 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "backtest"))
 import projections as N  # noqa: E402
 
-PAST_SEASONS = (2021, 2022, 2023, 2024, 2025)
+PAST_SEASONS = tuple(range(2016, 2026))     # 10 seasons (Josh, Nov 9, 2026)
+SEASON_WINS = 0.7                            # a candidate must beat the current settings in 70% of past seasons
 THIS_SEASON_WEIGHT = 4.0
 ADOPT_MARGIN = 0.0005
 MIN_VOL = {"att": 20, "car": 5, "tgt": 3}
@@ -256,25 +257,25 @@ def neighbors(grid, v):
 def search(rows, P, rounds=2):
     """Local search from P: one step either way on each setting, kept when the weighted Brier improves."""
     import engine as E
-    best_p, best = copy.deepcopy(P), E.evaluate(rows, P)["brier"]
+    best_p, best = copy.deepcopy(P), E.evaluate_multi(rows, P)["brier"]
     for _ in range(rounds):
         moved = False
         for name, grid in GRID.items():
             for v in neighbors(grid, best_p.get(name)):
                 Q = copy.deepcopy(best_p)
                 Q[name] = v
-                s = E.evaluate(rows, Q)["brier"]
+                s = E.evaluate_multi(rows, Q)["brier"]
                 if s < best - 1e-6:
                     best_p, best, moved = Q, s, True
         for st in STATS:
             for v in neighbors(CV_GRID, round(best_p["cv"][st], 2)):
                 Q = copy.deepcopy(best_p); Q["cv"][st] = v
-                s = E.evaluate(rows, Q)["brier"]
+                s = E.evaluate_multi(rows, Q)["brier"]
                 if s < best - 1e-6:
                     best_p, best, moved = Q, s, True
             for v in neighbors(CS_GRID, round((best_p.get("cs") or {}).get(st, 1.0), 2)):
                 Q = copy.deepcopy(best_p); Q.setdefault("cs", {})[st] = v
-                s = E.evaluate(rows, Q)["brier"]
+                s = E.evaluate_multi(rows, Q)["brier"]
                 if s < best - 1e-6:
                     best_p, best, moved = Q, s, True
         if not moved:
@@ -282,9 +283,43 @@ def search(rows, P, rounds=2):
     return best_p, best
 
 
-def should_adopt(changes, valid_current, valid_candidate):
-    """Adopt only real changes that beat the current settings on the week the search never saw."""
-    return bool(changes) and valid_candidate is not None and valid_current is not None and valid_candidate < valid_current - ADOPT_MARGIN
+def should_adopt(changes, seasons, valid_current, valid_candidate):
+    """Adopt only real changes that beat the current settings in most past seasons on their own (SEASON_WINS; one
+    week of ~300 projections is mostly noise, Nov 9, 2026) and aren't worse on the week the search never saw."""
+    return (bool(changes) and seasons["seasons"] > 0 and seasons["wins"] >= SEASON_WINS * seasons["seasons"]
+            and valid_candidate is not None and valid_current is not None and valid_candidate <= valid_current + ADOPT_MARGIN)
+
+
+def season_wins(rows, cur, cand):
+    """In how many past seasons the candidate scores better than the current settings."""
+    import engine as E
+    by = {}
+    for r in rows:
+        by.setdefault(r["season"], []).append(r)
+    wins = sum(E.evaluate_multi(rs, cand)["brier"] < E.evaluate_multi(rs, cur)["brier"] for rs in by.values())
+    return {"wins": wins, "seasons": len(by)}
+
+
+def migrate_settings(store, now):
+    """Replace a model/settings.json older than projections.SETTINGS_VERSION with the code's defaults (Nov 9, 2026:
+    retuned on 2016-2025 with the five-line test; the old file came from the one-line test that pushed projections
+    high). Logged in settings-history.json like any adoption."""
+    f = Path(store) / "model" / "settings.json"
+    doc = N.read(f)
+    if doc and (doc.get("version") or 1) >= N.SETTINGS_VERSION:
+        return {"state": "current"}
+    new = N.model_settings()
+    why = ("retuned on 2016-2025 (43,442 projections) scored at five lines around each player's average; better than "
+           "the old settings in all 10 seasons and on 2026 so far")
+    out = {"settings": new, "adopted_at": now.isoformat(timespec="minutes"), "week": None, "why": why,
+           "version": N.SETTINGS_VERSION}
+    N.write(f, out)
+    hist_file = Path(store) / "model" / "settings-history.json"
+    h = N.read(hist_file, [])
+    h.append({"adopted_at": out["adopted_at"], "week": None, "why": why,
+              "changes": diff(engine_p((doc or {}).get("settings") or {}), engine_p(new))})
+    N.write(hist_file, h)
+    return {"state": "replaced"}
 
 
 def engine_p(P):
@@ -297,7 +332,7 @@ def engine_p(P):
 
 def diff(old, new):
     out = []
-    for k in list(GRID) + ["cv", "cs"]:
+    for k in list(GRID) + ["cv", "cs", "Ks"]:
         if old.get(k) != new.get(k):
             out.append({"setting": k, "from": old.get(k), "to": new.get(k)})
     return out
@@ -323,22 +358,27 @@ def retune(data, store, hist, stats_by_week, now, season_csv):
     train = past_features(hist) + [r for r in now_rows if r["week"] < week]
     valid = [r for r in now_rows if r["week"] == week]
     cand, train_score = search(train, cur)
-    cur_train = E.evaluate(train, cur)["brier"]
-    v_cur, v_cand = E.evaluate(valid, cur)["brier"], E.evaluate(valid, cand)["brier"]
+    cur_train = E.evaluate_multi(train, cur)["brier"]
+    v_cur, v_cand = E.evaluate_multi(valid, cur)["brier"], E.evaluate_multi(valid, cand)["brier"]
     changes = diff(cur, cand)
-    adopt = should_adopt(changes, v_cur, v_cand)
+    seasons = season_wins(past_features(hist), cur, cand) if changes else {"wins": 0, "seasons": 0}
+    adopt = should_adopt(changes, seasons, v_cur, v_cand)
     why = ("no setting change improved the training seasons" if not changes else
-           f"adopted: better on week {week} ({v_cand:.4f} vs {v_cur:.4f}), which it never saw" if adopt else
-           f"kept the current settings: the candidate wasn't better on week {week} ({v_cand:.4f} vs {v_cur:.4f})")
+           f"adopted: better in {seasons['wins']} of {seasons['seasons']} past seasons and not worse on week {week} "
+           f"({v_cand:.4f} vs {v_cur:.4f})" if adopt else
+           f"kept the current settings: the candidate was better in only {seasons['wins']} of {seasons['seasons']} past "
+           f"seasons, or worse on week {week} ({v_cand:.4f} vs {v_cur:.4f})")
     out_cand = {**cand, "skew": sorted(cand["skew"])}
     log = {"week": week, "tuned_at": now.isoformat(timespec="minutes"), "train_rows": len(train), "valid_rows": len(valid),
            "this_season_weight": THIS_SEASON_WEIGHT, "train": {"current": round(cur_train, 5), "candidate": round(train_score, 5)},
            "valid": {"current": round(v_cur, 5) if v_cur else None, "candidate": round(v_cand, 5) if v_cand else None,
-                     "coin": round(sum((0.5 - (r["actual"] > r["line"])) ** 2 for r in valid) / len(valid), 5) if valid else None},
-           "changes": changes, "decision": "adopted" if adopt else "kept", "why": why, "candidate": out_cand}
+                     "coin": 0.25 if valid else None},
+           "season_wins": seasons, "changes": changes, "decision": "adopted" if adopt else "kept", "why": why,
+           "candidate": out_cand}
     N.write(log_file, log)
     if adopt:
-        doc = {"settings": out_cand, "adopted_at": now.isoformat(timespec="minutes"), "week": week, "why": why}
+        doc = {"settings": out_cand, "adopted_at": now.isoformat(timespec="minutes"), "week": week, "why": why,
+               "version": N.SETTINGS_VERSION}
         N.write(Path(store) / "model" / "settings.json", doc)
         hist_file = Path(store) / "model" / "settings-history.json"
         h = N.read(hist_file, [])
@@ -418,6 +458,7 @@ def main(argv=None):
     now = datetime.fromisoformat(a.now) if a.now else now_utc()
     if now.tzinfo is None:
         now = now.replace(tzinfo=N.ET)
+    migrated = migrate_settings(a.store, now)
     N.apply_settings(a.store)
     data = N.Data(a.data)
     season = data.meta.get("season")
@@ -427,7 +468,7 @@ def main(argv=None):
     card = score(data, a.store, stats_by_week)
     tuning = {"state": "skipped"} if a.no_tune else retune(data, a.store, a.hist, stats_by_week, now, str(season_csv))
     rep = report(data, a.store, card, tuning, now) if tuning.get("state") == "done" else {"state": "waiting"}
-    status = {"checked": now.isoformat(timespec="minutes"), "snapshot": snap, "scored_weeks": list(card["weeks"]),
+    status = {"checked": now.isoformat(timespec="minutes"), "settings": migrated, "snapshot": snap, "scored_weeks": list(card["weeks"]),
               "tuning": tuning, "report": rep}
     N.write(Path(a.store) / "model" / "status.json", status)
     print(f"Model review: snapshot {snap}; scored weeks {list(card['weeks'])}; tuning {tuning}; report {rep}")

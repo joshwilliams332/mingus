@@ -41,15 +41,17 @@ MIN_GAMES = 4              # games played this season before we project him
 VOL_HALF_LIFE = 4          # games
 RATE_HALF_LIFE = 6         # games
 RATE_PAD = 20              # opportunities of league-average efficiency blended in
+RATE_PAD_BY = {"pass_yds": 100, "rec:TE": 50}   # per stat (or "stat:position"); others use RATE_PAD (Nov 9 retune)
+SETTINGS_VERSION = 2       # model/settings.json from an older version is replaced by these defaults (model_review)
 DEF_VOL_STRENGTH = 0.25
-DEF_EFF_STRENGTH = 0.0
-DEF_CAP = (0.9, 1.1)
-IMP_STRENGTH = 0.25
+DEF_EFF_STRENGTH = 0.25
+DEF_CAP = (0.95, 1.05)
+IMP_STRENGTH = 0.125
 SCRIPT_PER_POINT = 0.0     # tested 0.5-2% per point of spread: no help
-PRIOR_CV = {"pass_yds": 0.70, "rush_yds": 0.50, "rec_yds": 0.70, "rec": 0.60}  # typical game-to-game spread / mean
-PRIOR_WEIGHT = 8           # the spread estimate counts the typical spread as this many games
-MEAN_ADJ = {"pass_yds": 1.03 * 0.9, "rush_yds": 1.03, "rec_yds": 1.03, "rec": 1.03}
-SPREAD_ADJ = 1.15
+PRIOR_CV = {"pass_yds": 0.30, "rush_yds": 0.60, "rec_yds": 0.80, "rec": 0.70}  # typical game-to-game spread / mean
+PRIOR_WEIGHT = 12  # the spread estimate counts the typical spread as this many games
+MEAN_ADJ = {"pass_yds": 1.06 * 0.93, "rush_yds": 1.06, "rec_yds": 1.06, "rec": 1.06}
+SPREAD_ADJ = 1.225
 SKEWED = {"rush_yds", "rec_yds", "rec"}
 
 
@@ -185,7 +187,7 @@ def openings(data, player, game, opp_key):
 
 def model_settings():
     """The current settings in the backtest engine's format (scripts/backtest/engine.py), for saving and comparing."""
-    return {"vol": "exp", "hl": VOL_HALF_LIFE, "rate_hl": RATE_HALF_LIFE, "K": RATE_PAD, "ds": DEF_VOL_STRENGTH,
+    return {"vol": "exp", "hl": VOL_HALF_LIFE, "rate_hl": RATE_HALF_LIFE, "K": RATE_PAD, "Ks": dict(RATE_PAD_BY), "ds": DEF_VOL_STRENGTH,
             "de": DEF_EFF_STRENGTH, "cap": round(DEF_CAP[1] - 1, 4), "is": IMP_STRENGTH, "sc": SCRIPT_PER_POINT,
             "c": round(MEAN_ADJ["rec_yds"], 4), "cs": {k: round(v / MEAN_ADJ["rec_yds"], 4) for k, v in MEAN_ADJ.items() if abs(v - MEAN_ADJ["rec_yds"]) > 1e-9},
             "k": SPREAD_ADJ, "cv": dict(PRIOR_CV), "pw": PRIOR_WEIGHT, "skew": sorted(SKEWED)}
@@ -194,12 +196,13 @@ def model_settings():
 def apply_settings(store):
     """Use the settings the weekly model review adopted (store/model/settings.json on the data branch), if any.
     The file holds the engine's format plus a note of when and why it was adopted; anything missing keeps the default."""
-    global VOL_HALF_LIFE, RATE_HALF_LIFE, RATE_PAD, DEF_VOL_STRENGTH, DEF_EFF_STRENGTH, DEF_CAP, IMP_STRENGTH
+    global VOL_HALF_LIFE, RATE_HALF_LIFE, RATE_PAD, RATE_PAD_BY, DEF_VOL_STRENGTH, DEF_EFF_STRENGTH, DEF_CAP, IMP_STRENGTH
     global SCRIPT_PER_POINT, MEAN_ADJ, SPREAD_ADJ, PRIOR_CV, PRIOR_WEIGHT, SKEWED
     doc = read(Path(store) / "model" / "settings.json")
     P = (doc or {}).get("settings")
-    if not P:
+    if not P or (doc.get("version") or 1) < SETTINGS_VERSION:    # older than the code's defaults: keep the defaults
         return None
+    RATE_PAD_BY = dict(P.get("Ks") or {})
     VOL_HALF_LIFE = P.get("hl", VOL_HALF_LIFE)
     RATE_HALF_LIFE = P.get("rate_hl", RATE_HALF_LIFE)
     RATE_PAD = P.get("K", RATE_PAD)
@@ -261,7 +264,8 @@ def projection(data, player, stat, game, week):
     wr = decay_weights(len(vals), RATE_HALF_LIFE)
     w_val, w_opp = sum(w * v for w, v in zip(wr, vals)), sum(w * o for w, o in zip(wr, opps))
     lg_rate = (d_lg.get(stat, 0) / d_lg[ok]) if d_lg.get(ok) else (w_val / w_opp if w_opp else 0)
-    rate = (w_val + RATE_PAD * lg_rate) / (w_opp + RATE_PAD)
+    pad = RATE_PAD_BY.get(f"{stat}:{pos}", RATE_PAD_BY.get(stat, RATE_PAD))
+    rate = (w_val + pad * lg_rate) / (w_opp + pad)
     def_rate = (d_al.get(stat, 0) / d_al[ok]) if d_al.get(ok) else lg_rate
     f_def_eff = adj(def_rate / lg_rate, DEF_EFF_STRENGTH) if lg_rate else 1.0
     eff = rate * f_def_eff
@@ -276,7 +280,11 @@ def projection(data, player, stat, game, week):
     vol_rank = ranks.get((opp, pos, ok))
     shares = [e.get("tgt_sh") if ok == "tgt" else e.get("car_sh") for e in log[-3:]]
     shares = [x for x in shares if x is not None]
-    return {"mean": round(mean, 1), "sd": round(max(sd, 0.5), 1),
+    sd = max(sd, 0.5)
+    # His typical game: the middle of the projected range. For skewed stats a few big games lift the average above it;
+    # the backtest's middle lands right (2016-2025: the actual is above it 50-52% of the time), so quote this one.
+    median = max(mean, 0.1) / math.sqrt(1 + (sd / max(mean, 0.1)) ** 2) if stat in SKEWED else mean
+    return {"mean": round(mean, 1), "median": round(median, 1), "sd": round(sd, 1),
             "source": "Sleeper + Mingus model" if sleeper is not None else "Mingus model", "stat": stat,
             "season": round(statistics.mean(vals), 1), "last3": round(statistics.mean(vals[-3:]), 1), "vals": vals, "opp": opp,
             "opp_rank": {"rank": rank[0], "of": rank[1]} if rank else None,
