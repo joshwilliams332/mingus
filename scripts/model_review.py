@@ -17,7 +17,8 @@ Runs in .github/workflows/model-review.yml. Every step is idempotent, so the wor
 4. Report. After the retune, store/model/report-wNN.json (+ report-latest.json) with a ready-to-send email.
 
 Usage: python3 scripts/model_review.py --data DIR --store DIR --hist DIR [--now ISO] [--no-tune]
-  --hist: stats_<season>.csv for past seasons and this one, and games.csv (see scripts/backtest/README.md).
+  --hist: stats_<season>.csv, roster_weekly_<season>.csv and injuries_<season>.csv for past seasons and this one, and
+          games.csv (see scripts/backtest/README.md).
 """
 import argparse
 import copy
@@ -49,6 +50,7 @@ GRID = {
     "ds": [0, 0.125, 0.25, 0.375, 0.5, 0.75], "de": [0, 0.125, 0.25, 0.5], "cap": [0.05, 0.1, 0.15, 0.25],
     "is": [0, 0.125, 0.25, 0.5], "sc": [0, 0.005, 0.01], "c": [0.94, 0.97, 1.0, 1.03, 1.06, 1.09],
     "k": [1.0, 1.075, 1.15, 1.225, 1.3, 1.45], "pw": [2, 4, 8, 12],
+    "tfa": [0, 0.25, 0.5, 0.75], "tfc": [0, 0.25, 0.5, 0.75], "tft": [0, 0.25, 0.5, 0.75], "thl": [4, 8, 16, 32],
 }
 CV_GRID = [0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 CS_GRID = [0.85, 0.9, 0.95, 1.0, 1.05]
@@ -238,7 +240,7 @@ def week_complete(data, week, stats_by_week):
 
 def past_features(hist):
     import engine as E
-    cache = Path(hist) / "features_past.pkl"
+    cache = Path(hist) / f"features_past_v{N.SETTINGS_VERSION}.pkl"   # rebuilt when the features change
     if cache.exists():
         return pickle.load(open(cache, "rb"))
     rows = [r for s in PAST_SEASONS if (Path(hist) / f"stats_{s}.csv").exists() for r in E.features(s)]
@@ -393,7 +395,9 @@ def fmt_change(c):
     names = {"hl": "volume recency half-life (games)", "rate_hl": "efficiency recency half-life (games)",
              "K": "league padding (opportunities)", "ds": "defense volume strength", "de": "defense per-play strength",
              "cap": "defense cap (±)", "is": "team-total strength", "sc": "game script per point", "c": "overall calibration",
-             "k": "spread width", "pw": "typical-spread weight (games)", "cv": "typical spread by stat", "cs": "calibration by stat"}
+             "k": "spread width", "pw": "typical-spread weight (games)",
+             "tfa": "team-first weight, pass attempts", "tfc": "team-first weight, carries", "tft": "team-first weight, targets",
+             "thl": "team volume half-life (games)", "cv": "typical spread by stat", "cs": "calibration by stat"}
     return f"{names.get(c['setting'], c['setting'])}: {c['from']} → {c['to']}"
 
 

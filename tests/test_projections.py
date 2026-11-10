@@ -53,34 +53,60 @@ class Projection(unittest.TestCase):
             p = N.projection(data, data.by_id["TE1"], "rec_yds", data.game["2026_09_PHI_WAS"], 9)
             x = p["parts"]
             self.assertEqual(p["source"], "Mingus model")
-            self.assertAlmostEqual(p["mean"], x["vol"] * x["eff"] * N.MEAN_ADJ["rec_yds"], delta=0.2)
+            self.assertAlmostEqual(p["mean"], x["vol"] * x["eff"] * N.MEAN_ADJ["rec_yds"], delta=0.5)   # parts are rounded
             self.assertGreater(x["f_def_vol"], 1)                 # WAS gives TEs lots of targets...
             self.assertLessEqual(x["f_def_vol"], N.DEF_CAP[1])    # ...capped
             self.assertLess(x["f_imp"], 1)                        # PHI's 21 implied is below the week's average
             self.assertEqual(x["f_script"], 1)                    # game script tested as no help on 2021-2025
             self.assertEqual(p["opp_rank"]["rank"], 1)
 
-    def test_injury_opening_boosts_volume(self):
+    def add(self, data, **p):
+        p.setdefault("pos", "WR"); p.setdefault("team", "PHI"); p.setdefault("injury", None)
+        data.players.append(p)
+        data.by_id[p["id"]] = p
+        data._team = None
+        return p
+
+    def test_team_first_splits_team_volume_by_share(self):
         with tempfile.TemporaryDirectory() as d:
             data = make_data(d)
-            mate = {"id": "WR9", "name": "Out Receiver", "pos": "WR", "team": "PHI", "injury": {"status": "Out"},
-                    "log": log(range(1, 9), "NYG", tgt=8, rec=5, rec_yds=60)}
-            data.players.append(mate)
-            data.by_id["WR9"] = mate
-            boost, names = N.openings(data, data.by_id["TE1"], data.game["2026_09_PHI_WAS"], "tgt")
-            self.assertGreater(boost, 1)
-            self.assertLessEqual(boost, 1.25)
-            self.assertEqual(names, ["Out Receiver"])
+            self.add(data, id="WR9", name="Other Receiver", log=log(range(1, 9), "NYG", tgt=10, rec=6, rec_yds=70))
+            t = N.team_first(data, data.by_id["TE1"], 9, "tgt")
+            # Team: 5.5 + 10 targets a game; his share ~35%: about his own volume when everyone plays.
+            self.assertAlmostEqual(t["vol"], t["vol_all"])
+            self.assertAlmostEqual(t["vol"], 5.6, delta=0.3)
+            self.assertEqual(t["out"], [])
+
+    def test_ruled_out_teammate_opens_volume(self):
+        with tempfile.TemporaryDirectory() as d:
+            data = make_data(d)
+            self.add(data, id="WR9", name="Out Receiver", injury={"status": "Out"},
+                     log=log(range(1, 9), "NYG", tgt=10, rec=6, rec_yds=70))
+            t = N.team_first(data, data.by_id["TE1"], 9, "tgt")
+            self.assertAlmostEqual(t["vol"], 15.6, delta=0.3)       # all of the team's targets are left to him here
+            self.assertEqual(t["out"], ["Out Receiver"])
+            p = N.projection(data, data.by_id["TE1"], "rec_yds", data.game["2026_09_PHI_WAS"], 9)
+            self.assertGreater(p["parts"]["f_inj"], 2)
+            self.assertEqual(p["parts"]["out"], ["Out Receiver"])
+            # Blended by TEAM_FIRST with his own volume (5.6), so not the whole 15.6.
+            self.assertAlmostEqual(p["parts"]["vol_base"], 0.5 * 15.6 + 0.5 * 5.6, delta=0.4)
 
     def test_long_absence_doesnt_open_volume_again(self):
         with tempfile.TemporaryDirectory() as d:
             data = make_data(d)
-            # Out since Week 4: the others' recent games already happened without him.
-            mate = {"id": "WR9", "name": "IR Receiver", "pos": "WR", "team": "PHI", "injury": {"status": "Out"},
-                    "log": log(range(1, 4), "NYG", tgt=8, rec=5, rec_yds=60)}
-            data.players.append(mate)
-            data.by_id["WR9"] = mate
-            self.assertEqual(N.openings(data, data.by_id["TE1"], data.game["2026_09_PHI_WAS"], "tgt"), (1.0, []))
+            # Out since Week 4: he's missed more than TEAM_GAP team games, so his old share isn't counted either way.
+            self.add(data, id="WR9", name="IR Receiver", injury={"status": "Out"}, log=log(range(1, 4), "NYG", tgt=10, rec=5, rec_yds=60))
+            self.add(data, id="WR8", name="Healthy Receiver", log=log(range(1, 9), "NYG", tgt=5, rec=3, rec_yds=40))
+            t = N.team_first(data, data.by_id["TE1"], 9, "tgt")
+            self.assertAlmostEqual(t["vol"], t["vol_all"])
+            self.assertEqual(t["out"], [])
+
+    def test_back_from_one_missed_game_still_counts(self):
+        with tempfile.TemporaryDirectory() as d:
+            data = make_data(d)
+            self.add(data, id="WR9", name="Back Receiver", log=log([1, 2, 3, 4, 5, 6, 7], "NYG", tgt=10, rec=6, rec_yds=70))
+            t = N.team_first(data, data.by_id["TE1"], 9, "tgt")
+            self.assertLess(t["vol"], 8)                               # he takes his share back
 
     def test_sleeper_blended_when_present(self):
         with tempfile.TemporaryDirectory() as d:
