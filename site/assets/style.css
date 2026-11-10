@@ -498,16 +498,9 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
 }
 
 .nav .ns { display: none; }
-@media (max-width: 760px) {
+@media (max-width: 820px) {
   .nav .nl { display: none; }
   .nav .ns { display: inline; }
-}
-/* "Mingus Football" is short enough to keep on phones; the nav scrolls sideways after it. */
-@media (max-width: 420px) {
-  .header-inner { gap: 12px; }
-  .brand { gap: 7px; }
-  .brand-mark { width: 30px; height: 30px; font-size: 17px; }
-  .brand-name { font-size: 16px; }
 }
 @media (max-width: 600px) {
   .tile strong { font-size: 17px; }
@@ -663,13 +656,6 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
   .data-table .pcell a { white-space: normal; line-height: 1.25; }
 }
 
-/* ---------- Header: never wider than the screen ---------- */
-@media (max-width: 420px) {
-  .header-inner { gap: 8px; }
-  .nav { overflow-x: auto; scrollbar-width: none; min-width: 0; }
-  .nav::-webkit-scrollbar { display: none; }
-  .nav a { padding: 6px 5px; font-size: 13px; }
-}
 
 /* ---------- Team schedule on phones ---------- */
 .sched-when { display: inline-flex; flex-direction: column; line-height: 1.2; }
@@ -755,16 +741,6 @@ a.game-card:hover { border-color: var(--brand); transform: translateY(-2px); }
   .wk-table th, .wk-table td { padding: 7px 6px; }
   .wk-table th { font-size: 10px; letter-spacing: 0; }
 }
-/* Narrow phones: tighter header so all five links fit next to the logo. */
-@media (max-width: 420px) {
-  .header-inner { gap: 8px; padding-left: max(10px, env(safe-area-inset-left, 0px)); padding-right: max(10px, env(safe-area-inset-right, 0px)); }
-  .brand-mark { width: 30px; height: 30px; font-size: 17px; }
-  .nav a { font-size: 12.5px; padding: 6px 5px; }
-}
-@media (max-width: 370px) {
-  .nav a { font-size: 12px; padding: 6px 4px; letter-spacing: -.1px; }
-}
-@media (max-width: 340px) { .brand { display: none; } }
 
 /* ---------- Team page: week preview and position splits ---------- */
 .pv-matchup { display: flex; align-items: center; justify-content: center; gap: 14px; flex-wrap: wrap; margin: 4px 0 2px; }
@@ -796,13 +772,6 @@ a.pv-team:hover strong { text-decoration: underline; }
   .pv-team { font-size: 17px; }
 }
 
-/* Phones: six header links don't all fit, so the links scroll sideways (the current page is scrolled into view). */
-@media (max-width: 480px) {
-  .nav { overflow-x: auto; scrollbar-width: none; min-width: 0; flex: 1; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
-  .nav::-webkit-scrollbar { display: none; }
-  .nav a { flex: none; }
-  .header-week { display: none; }
-}
 
 /* ---------- Teams page ---------- */
 .divisions { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
@@ -915,3 +884,35 @@ a.mchip { text-decoration: none; }
   .ngs-wide { display: none; }
   .ngs-pick .cb-field { min-width: 0; flex: 1 1 100%; }
 }
+
+/* Wide screens: logo, seven tabs and the week on one row inside the 1080px column. */
+@media (min-width: 1201px) {
+  .header-inner { gap: 16px; }
+  .nav a { padding: 6px 9px; }
+}
+/* ---------- Header on phones and tablets: two rows (Nov 10, 2026) ----------
+   One row needs ~1200px (logo + seven tabs + week). Narrower: logo + week on top, the tabs on a full-width row below.
+   Only if a very narrow screen still can't fit them does the tab row scroll sideways (common.js scrolls the current
+   page into view). */
+@media (max-width: 1200px) {
+  .header-inner { height: auto; flex-wrap: wrap; gap: 0 12px; padding: 8px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+  .header-week { display: inline; }
+  .nav { order: 3; flex: 1 0 100%; gap: 2px; margin: 6px -8px 0; padding-bottom: 4px; min-width: 0; }
+  .nav > a, .nav-drop > a { flex: none; display: block; line-height: 1.25; padding: 8px 10px; border-radius: 8px 8px 0 0; }
+  .nav > .nav-drop { display: flex; }
+  .nav a[aria-current="page"] { background: none; color: #fff; box-shadow: inset 0 -3px 0 #2fbf8a; }
+}
+@media (max-width: 640px) {
+  .header-inner { padding-left: max(12px, env(safe-area-inset-left, 0px)); padding-right: max(12px, env(safe-area-inset-right, 0px)); }
+  .brand { gap: 8px; }
+  .brand-mark { width: 28px; height: 28px; font-size: 16px; border-radius: 8px; }
+  .brand-name { font-size: 17px; }
+  .header-week { font-size: 12px; }
+  .nav { justify-content: space-between; gap: 0; margin: 6px -6px 0; overflow-x: auto; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }   /* scrolling clips the dropdowns, so it's phones only (no carets there) */
+  .nav a { font-size: 14px; padding: 8px 6px; }
+  .nav .caret { display: none; }
+}
+@media (max-width: 440px) { .nav a { font-size: 13px; padding: 8px 4px; } }
+@media (max-width: 400px) { .nav a { font-size: 12.5px; } }
+@media (max-width: 380px) { .nav a { font-size: 12px; padding: 8px 3px; letter-spacing: -.1px; } }
