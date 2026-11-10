@@ -5,7 +5,7 @@ import json
 import sys
 import tempfile
 import unittest
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "scripts"))
@@ -80,24 +80,36 @@ class ReviewTest(unittest.TestCase):
         so = R.summarize_rows(rows)["sources"]
         self.assertEqual((so["ours"], so["sleeper"], so["blend"]), (20.0, 20.0, 0.0))
 
-    def test_adoption_rule(self):
-        change = [{"setting": "hl", "from": 4, "to": 6}]
-        self.assertTrue(R.should_adopt(change, 0.2400, 0.2390))
-        self.assertFalse(R.should_adopt(change, 0.2400, 0.2398))   # within the margin: keep
-        self.assertFalse(R.should_adopt(change, 0.2400, 0.2410))   # worse on the unseen week: keep
-        self.assertFalse(R.should_adopt([], 0.2400, 0.2300))       # nothing to change
-
     def test_settings_round_trip(self):
         P = N.model_settings()
-        N.write(self.store / "model" / "settings.json", {"settings": {**P, "hl": 6, "cs": {"pass_yds": 0.95}}, "adopted_at": "x"})
-        saved = (N.VOL_HALF_LIFE, dict(N.MEAN_ADJ))
+        N.write(self.store / "model" / "settings.json", {"settings": {**P, "hl": 6, "cs": {"pass_yds": 0.95}, "Ks": {"rush_yds": 300}},
+                                                          "adopted_at": "x", "version": N.SETTINGS_VERSION})
+        saved = (N.VOL_HALF_LIFE, dict(N.MEAN_ADJ), dict(N.RATE_PAD_BY))
         try:
             N.apply_settings(self.store)
             self.assertEqual(N.VOL_HALF_LIFE, 6)
             self.assertAlmostEqual(N.MEAN_ADJ["pass_yds"], P["c"] * 0.95)
             self.assertAlmostEqual(N.MEAN_ADJ["rec_yds"], P["c"])
+            self.assertEqual(N.RATE_PAD_BY, {"rush_yds": 300})
         finally:
-            N.VOL_HALF_LIFE, N.MEAN_ADJ = saved[0], saved[1]
+            N.VOL_HALF_LIFE, N.MEAN_ADJ, N.RATE_PAD_BY = saved
+
+    def test_older_settings_file_is_replaced(self):
+        old = {"settings": {**N.model_settings(), "c": 1.2}, "adopted_at": "2026-10-31T14:34+00:00", "week": 7}   # no version
+        N.write(self.store / "model" / "settings.json", old)
+        self.assertIsNone(N.apply_settings(self.store))                     # the code's defaults stay
+        r = R.migrate_settings(self.store, datetime(2026, 11, 9, tzinfo=timezone.utc))
+        self.assertEqual(r["state"], "replaced")
+        doc = N.read(self.store / "model" / "settings.json")
+        self.assertEqual((doc["version"], doc["settings"]["c"]), (N.SETTINGS_VERSION, N.model_settings()["c"]))
+        self.assertIn("2016-2025", N.read(self.store / "model" / "settings-history.json")[-1]["why"])
+        self.assertEqual(R.migrate_settings(self.store, datetime(2026, 11, 10, tzinfo=timezone.utc))["state"], "current")
+
+    def test_adoption_needs_most_past_seasons(self):
+        self.assertTrue(R.should_adopt([1], {"wins": 8, "seasons": 10}, 0.24, 0.239))
+        self.assertFalse(R.should_adopt([1], {"wins": 6, "seasons": 10}, 0.24, 0.239))    # not most seasons
+        self.assertFalse(R.should_adopt([1], {"wins": 9, "seasons": 10}, 0.24, 0.25))     # worse on the new week
+        self.assertFalse(R.should_adopt([], {"wins": 10, "seasons": 10}, 0.24, 0.239))    # nothing changed
 
     def test_neighbors(self):
         self.assertEqual(R.neighbors([1, 2, 3, 4], 2), [1, 3])

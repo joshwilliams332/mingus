@@ -1,12 +1,13 @@
 # Football model backtest
 
-Replays past seasons through the projection model. Each game is projected only from earlier games that season, and
+Replays past seasons through the projection model. Nov 9, 2026: retuned on 2016-2025 with `evaluate_multi` (the over
+at five lines around each player's average, plus average miss and bias); see CLAUDE.md. Each game is projected only from earlier games that season, and
 the chance he beats his "typical" mark (floor of his average so far + 0.5) is scored. Used Oct 31, 2026 to tune the settings in `scripts/projections.py`
 (2021-2025 to tune, 2026 held out). Results are in CLAUDE.md.
 
 ```sh
 mkdir hist && cd hist
-for s in 2021 2022 2023 2024 2025 2026; do
+for s in $(seq 2016 2026); do
   curl -fsSLo stats_$s.csv https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_$s.csv
 done
 # optional, for the snap-share test (P["snap"] in engine.py): snaps_<season>.csv and roster_<season>.csv

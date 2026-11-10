@@ -34,12 +34,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: hist
-          key: nflverse-hist-2021-2025-v1
+          key: nflverse-hist-2016-2025-v2
       - name: Download data
         run: |
           mkdir -p hist livedata
           B=https://github.com/nflverse/nflverse-data/releases/download/stats_player
-          for s in 2021 2022 2023 2024 2025; do
+          for s in 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025; do
             [ -f hist/stats_$s.csv ] || curl -fsSLo hist/stats_$s.csv "$B/stats_player_week_$s.csv"
           done
           curl -fsSLo hist/stats_2026.csv "$B/stats_player_week_2026.csv"      # this season, fresh every run

@@ -65,16 +65,22 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   (implied team totals). Don't write the reasons for this in the repo, PRs or commits.
 - **Projection model** (`scripts/projections.py`, tested in `tests/test_projections.py`): passing / rushing / receiving
   yards and catches for every regular as opportunities x efficiency, with a game-to-game spread. att / car / tgt per
-  game as a recency-weighted average (4-game half-life) x defense allowed to the position (quarter strength, 0.9-1.1)
-  x team implied points vs week average (quarter strength, 0.9-1.1) x injury openings (60% of Out/Doubtful teammates'
-  recent volume, by share, max +25%); efficiency = his recency-weighted rate (6-game half-life) steadied toward the
-  position's league rate (20 opportunities); x `MEAN_ADJ` (1.03; passing yards 0.93). Averaged 50/50 with Sleeper's
-  stat line when players.json has it. Spread = his game-to-game spread blended with `PRIOR_CV` (counted as 8 games)
-  x1.15; log-normal for rushing / receiving yards and catches, bell curve for passing yards. Tested and dropped: game
-  script, the defense's per-play effect, discounting low-snap games (Nov 1; `snap` option in
-  `scripts/backtest/engine.py`, off). Backtest (each game projected only from earlier games; scored on whether he beats
-  a "typical" mark = floor(his average) + 0.5): 2021-2025 Brier 0.240 (21,949 projections; coin 0.250); held-out 2026
-  0.238-0.240 (first version 0.259). Receiving yards strongest; passing yards about a coin flip.
+  game as a recency-weighted average (4-game half-life) x defense allowed to the position (quarter strength) x team
+  implied points vs week average (eighth strength), each capped at 0.95-1.05, x injury openings (60% of Out/Doubtful
+  teammates' recent volume, new absences only, max +25%); efficiency = his recency-weighted rate (6-game half-life)
+  steadied toward the position's league rate (`RATE_PAD` 20 opportunities; `RATE_PAD_BY`: passing 100, TE catches 50)
+  x the defense's per-play rate (quarter strength); x `MEAN_ADJ` (1.06; passing yards x0.93). Averaged 50/50 with
+  Sleeper's stat line when players.json has it. Spread = his game-to-game spread blended with `PRIOR_CV` (counted as 12
+  games) x1.225; log-normal for rushing / receiving yards and catches, bell curve for passing yards. `median` = his
+  typical game (the middle of the range); quote it, not `mean`, in words: skewed stats' mean runs ~10% above actual
+  averages while the middle is right (actual above it 50-52%, 2016-2025).
+  **Ten-season retune (Josh, Nov 9, 2026):** replayed 2016-2025 (43,442 projections, each from earlier games only) and
+  2026. Scored with `evaluate_multi` in `scripts/backtest/engine.py`: the over at five lines (0.6-1.4x his average) per
+  projection, plus average miss and bias. The old one-line test (floor(average) + 0.5) mostly tested the range's shape
+  and rewarded projecting high. Settings `SETTINGS_VERSION` 2: better in all 10 seasons and on 2026 (multi Brier
+  0.2119 -> 0.2113; 2016-2025 0.2138 -> 0.2130). Gains from settings alone are small; bigger gains need new
+  information (team volume shares, depth chart / QB changes). Stronger pulls toward the league average (100-800) did
+  not help on 10 seasons except for passing. Tested and dropped earlier: game script, discounting low-snap games.
 - **Chance to score** (`td_chance` in projections.py; Josh, Nov 1). Logistic on 2021-2025 player games from earlier
   games only: recency-weighted (4-game half-life) carries, targets, red-zone carries and targets, TDs per game, his share
   of the team's red-zone carries / targets, team implied points vs the week average, position. Calibrated out of season;
@@ -91,11 +97,13 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   `model/projections/<season>-wNN.json` (frozen at kickoff); (2) score every saved game with a published box score into
   `model/scorecard.json` (by week / game day / stat: average miss, bias %, Brier vs coin, ours vs Sleeper vs the 50/50
   average, the chance-to-score scorecard, biggest misses); (3) once per finished week W (all games' stats out, W >= 6):
-  local search from the current settings (one grid step either way per setting, twice) on 2021-2025 + this season's
-  weeks < W counted x4 (`THIS_SEASON_WEIGHT`), adopted only if it also beats the current settings on week W itself by
-  `ADOPT_MARGIN` -> `model/tuning/wNN.json`, and if adopted `model/settings.json` (read by `projections.apply_settings`
+  local search from the current settings (one grid step either way per setting, twice) on 2016-2025 + this season's
+  weeks < W counted x4 (`THIS_SEASON_WEIGHT`), scored with `evaluate_multi`; adopted only if it beats the current
+  settings in at least 70% of the past seasons on their own (`SEASON_WINS`) and isn't worse on week W
+  (Nov 9: one week of ~300 projections is mostly noise) -> `model/tuning/wNN.json`, and if adopted `model/settings.json` (read by `projections.apply_settings`
   and by mingus-picks) + `settings-history.json`; (4) `model/report-wNN.json` / `report-latest.json` with a
-  ready-to-send email. Retuning needs past seasons in `hist/` (Actions cache), this season's `stats_<season>.csv` and
+  ready-to-send email. `migrate_settings` replaces a `settings.json` older than `SETTINGS_VERSION` with the code's
+  defaults (logged in the history). Retuning needs past seasons in `hist/` (Actions cache, 2016-2025), this season's `stats_<season>.csv` and
   `games.csv`; `scripts/backtest/engine.py` must keep mirroring `projection()`.
 
 ## Open threads
