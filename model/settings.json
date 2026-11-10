@@ -4,21 +4,25 @@
   "hl": 4,
   "rate_hl": 6,
   "K": 20,
+  "Ks": {
+   "pass_yds": 100,
+   "rec:TE": 50
+  },
   "ds": 0.25,
-  "de": 0.125,
-  "cap": 0.1,
+  "de": 0.25,
+  "cap": 0.05,
   "is": 0.125,
   "sc": 0.0,
   "c": 1.06,
   "cs": {
-   "pass_yds": 0.9
+   "pass_yds": 0.93
   },
   "k": 1.225,
   "cv": {
-   "pass_yds": 0.5,
+   "pass_yds": 0.3,
    "rush_yds": 0.6,
-   "rec_yds": 0.7,
-   "rec": 0.6
+   "rec_yds": 0.8,
+   "rec": 0.7
   },
   "pw": 12,
   "skew": [
@@ -27,7 +31,8 @@
    "rush_yds"
   ]
  },
- "adopted_at": "2026-10-31T14:34+00:00",
- "week": 7,
- "why": "adopted: better on week 7 (0.2364 vs 0.2379), which it never saw"
+ "adopted_at": "2026-11-10T07:37+00:00",
+ "week": null,
+ "why": "retuned on 2016-2025 (43,442 projections) scored at five lines around each player's average; better than the old settings in all 10 seasons and on 2026 so far",
+ "version": 2
 }

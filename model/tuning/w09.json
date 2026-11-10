@@ -1,0 +1,82 @@
+{
+ "week": 9,
+ "tuned_at": "2026-11-10T07:37+00:00",
+ "train_rows": 44564,
+ "valid_rows": 312,
+ "this_season_weight": 4.0,
+ "train": {
+  "current": 0.213,
+  "candidate": 0.21296
+ },
+ "valid": {
+  "current": 0.19987,
+  "candidate": 0.20051,
+  "coin": 0.25
+ },
+ "season_wins": {
+  "wins": 5,
+  "seasons": 10
+ },
+ "changes": [
+  {
+   "setting": "cv",
+   "from": {
+    "pass_yds": 0.3,
+    "rush_yds": 0.6,
+    "rec_yds": 0.8,
+    "rec": 0.7
+   },
+   "to": {
+    "pass_yds": 0.3,
+    "rush_yds": 0.8,
+    "rec_yds": 0.8,
+    "rec": 0.7
+   }
+  },
+  {
+   "setting": "cs",
+   "from": {
+    "pass_yds": 0.93
+   },
+   "to": {
+    "pass_yds": 0.9,
+    "rush_yds": 1.05
+   }
+  }
+ ],
+ "decision": "kept",
+ "why": "kept the current settings: the candidate was better in only 5 of 10 past seasons, or worse on week 9 (0.2005 vs 0.1999)",
+ "candidate": {
+  "vol": "exp",
+  "hl": 4,
+  "rate_hl": 6,
+  "K": 20,
+  "Ks": {
+   "pass_yds": 100,
+   "rec:TE": 50
+  },
+  "ds": 0.25,
+  "de": 0.25,
+  "cap": 0.05,
+  "is": 0.125,
+  "sc": 0.0,
+  "c": 1.06,
+  "cs": {
+   "pass_yds": 0.9,
+   "rush_yds": 1.05
+  },
+  "k": 1.225,
+  "cv": {
+   "pass_yds": 0.3,
+   "rush_yds": 0.8,
+   "rec_yds": 0.8,
+   "rec": 0.7
+  },
+  "pw": 12,
+  "skew": [
+   "rec",
+   "rec_yds",
+   "rush_yds"
+  ]
+ }
+}

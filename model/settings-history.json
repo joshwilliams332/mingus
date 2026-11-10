@@ -45,5 +45,54 @@
     }
    }
   ]
+ },
+ {
+  "adopted_at": "2026-11-10T07:37+00:00",
+  "week": null,
+  "why": "retuned on 2016-2025 (43,442 projections) scored at five lines around each player's average; better than the old settings in all 10 seasons and on 2026 so far",
+  "changes": [
+   {
+    "setting": "de",
+    "from": 0.125,
+    "to": 0.25
+   },
+   {
+    "setting": "cap",
+    "from": 0.1,
+    "to": 0.05
+   },
+   {
+    "setting": "cv",
+    "from": {
+     "pass_yds": 0.5,
+     "rush_yds": 0.6,
+     "rec_yds": 0.7,
+     "rec": 0.6
+    },
+    "to": {
+     "pass_yds": 0.3,
+     "rush_yds": 0.6,
+     "rec_yds": 0.8,
+     "rec": 0.7
+    }
+   },
+   {
+    "setting": "cs",
+    "from": {
+     "pass_yds": 0.9
+    },
+    "to": {
+     "pass_yds": 0.93
+    }
+   },
+   {
+    "setting": "Ks",
+    "from": null,
+    "to": {
+     "pass_yds": 100,
+     "rec:TE": 50
+    }
+   }
+  ]
  }
 ]
