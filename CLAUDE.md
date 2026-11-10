@@ -57,6 +57,8 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   (separation minus a league-wide straight-line fit on target depth). Leaderboard shows volume per game (att / tgt / car)
   and a "Regulars" filter (`NGS_VOL`); on phones it is a one-stat ranked list with a Rank by dropdown instead of the wide table.
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
+- Header (Nov 10, 2026): one row only from 1201px; narrower it is two rows (logo + week, then all seven tabs spread
+  across the screen, current page underlined). Phone labels: Players, Ranks, Start/Sit, Games, Teams, Trends, Analytics.
 - Phones: player names wrap instead of overlapping tags; grid children have `min-width: 0` so wide tables scroll
   inside their card; team schedule hides O/U, Total and Pts vs implied on small screens.
 - **Fantasy focus (Josh, Nov 3, 2026).** This site covers fantasy football only. Picks, odds pulls, grading, the prop
