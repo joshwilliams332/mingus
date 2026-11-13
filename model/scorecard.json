@@ -469,6 +469,161 @@
      "opp": "LAC"
     }
    ]
+  },
+  "10": {
+   "n": 24,
+   "brier": 0.2568,
+   "coin": 0.25,
+   "by_stat": {
+    "pass_yds": {
+     "n": 2,
+     "mae": 96.75,
+     "bias_pct": 25.5,
+     "brier": 0.2724,
+     "coin": 0.25
+    },
+    "rush_yds": {
+     "n": 4,
+     "mae": 11.88,
+     "bias_pct": 11.9,
+     "brier": 0.2553,
+     "coin": 0.25
+    },
+    "rec_yds": {
+     "n": 9,
+     "mae": 24.97,
+     "bias_pct": -16.4,
+     "brier": 0.239,
+     "coin": 0.25
+    },
+    "rec": {
+     "n": 9,
+     "mae": 1.2,
+     "bias_pct": -9.0,
+     "brier": 0.2718,
+     "coin": 0.25
+    }
+   },
+   "sources": {
+    "n": 23,
+    "ours": 39.7,
+    "sleeper": 42.7,
+    "blend": 39.3
+   },
+   "days": {
+    "2026-11-12": {
+     "n": 24,
+     "brier": 0.2568,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 2,
+       "mae": 96.75,
+       "bias_pct": 25.5,
+       "brier": 0.2724,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 4,
+       "mae": 11.88,
+       "bias_pct": 11.9,
+       "brier": 0.2553,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 9,
+       "mae": 24.97,
+       "bias_pct": -16.4,
+       "brier": 0.239,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 9,
+       "mae": 1.2,
+       "bias_pct": -9.0,
+       "brier": 0.2718,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 23,
+      "ours": 39.7,
+      "sleeper": 42.7,
+      "blend": 39.3
+     },
+     "slot": "TNF",
+     "games": 1
+    }
+   },
+   "complete": false,
+   "td": {
+    "n": 16,
+    "brier": 0.1576,
+    "flat": 0.1875,
+    "avg_p": 0.206,
+    "rate": 0.25,
+    "calib": {
+     "0.1": [
+      10,
+      0.15,
+      0.1
+     ],
+     "0.2": [
+      3,
+      0.241,
+      0.333
+     ],
+     "0.3": [
+      3,
+      0.358,
+      0.667
+     ]
+    }
+   },
+   "misses": [
+    {
+     "name": "Jameis Winston",
+     "st": "pass_yds",
+     "mean": 139.3,
+     "actual": 0.0,
+     "opp": "WAS"
+    },
+    {
+     "name": "Isaiah Likely",
+     "st": "rec_yds",
+     "mean": 55.7,
+     "actual": 127.0,
+     "opp": "WAS"
+    },
+    {
+     "name": "Devin Singletary",
+     "st": "rush_yds",
+     "mean": 32.8,
+     "actual": 3.0,
+     "opp": "WAS"
+    },
+    {
+     "name": "Stefon Diggs",
+     "st": "rec_yds",
+     "mean": 45.3,
+     "actual": 83.0,
+     "opp": "NYG"
+    },
+    {
+     "name": "Isaiah Likely",
+     "st": "rec",
+     "mean": 5.3,
+     "actual": 9.0,
+     "opp": "WAS"
+    },
+    {
+     "name": "Malachi Fields",
+     "st": "rec_yds",
+     "mean": 36.4,
+     "actual": 62.0,
+     "opp": "WAS"
+    }
+   ]
   }
  }
 }
