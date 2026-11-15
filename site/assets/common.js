@@ -1,5 +1,18 @@
 // Shared by every Mingus Football page: header/footer, data loading, fantasy scoring and formatting helpers.
 
+// Header tabs: [label, default page, pages that light it up]. Grouped tabs remember the view you used last.
+const NAV_TABS = [
+  ["Players", "rankings.html", ["players.html", "player.html", "rankings.html"]],
+  ["Start/Sit", "startsit.html", ["startsit.html"]],
+  ["Games", "games.html", ["games.html", "game.html"]],
+  ["Teams", "teams.html", ["teams.html", "team.html"]],
+  ["Stats", "trends.html", ["trends.html", "analytics.html", "ngs.html"]],
+];
+// The switch at the top of a grouped page: [page, name, keeps ?pos= when switching].
+const PAGE_GROUPS = {
+  Players: [["players.html", "All players", true], ["rankings.html", "Rankings", true]],
+  Stats: [["trends.html", "Trends"], ["analytics.html", "Charts"], ["ngs.html", "Next Gen"]],
+};
 const RANK_TABS = ["QB", "RB", "WR", "TE", "FLX", "K", "DST"];
 const FLEX = ["RB", "WR", "TE"];
 const TAB_LABELS = { QB: "Quarterbacks", RB: "Running Backs", WR: "Wide Receivers", TE: "Tight Ends", FLX: "Flex (RB/WR/TE)", K: "Kickers", DST: "Defense/Special Teams" };
@@ -41,30 +54,11 @@ const Mingus = {
             <span class="brand-name">Mingus Football</span>
           </a>
           <nav class="nav" aria-label="Main">
-            <div class="nav-drop">
-              <a href="players.html" ${here === "players.html" || here === "player.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Player Database</span><span class="ns">Players</span> <span class="caret" aria-hidden="true">▾</span></a>
-              <div class="nav-menu">
-                <a href="players.html"><strong>All</strong><span>Every position</span></a>
-                ${["QB", "RB", "WR", "TE", "K", "DST"].map(t => `<a href="players.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
-              </div>
-            </div>
-            <div class="nav-drop">
-              <a href="rankings.html" ${here === "rankings.html" ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Fantasy Rankings</span><span class="ns">Ranks</span> <span class="caret" aria-hidden="true">▾</span></a>
-              <div class="nav-menu">
-                ${RANK_TABS.map(t => `<a href="rankings.html?pos=${t}"><strong>${t}</strong><span>${TAB_LABELS[t]}</span></a>`).join("")}
-              </div>
-            </div>
-            <a href="startsit.html" ${here === "startsit.html" ? 'aria-current="page"' : ""}><span class="nl">Start/Sit</span><span class="ns">Start/Sit</span></a>
-            <a href="games.html" ${["games.html", "game.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Schedule</span><span class="ns">Games</span></a>
-            <a href="teams.html" ${["teams.html", "team.html"].includes(here) ? 'aria-current="page"' : ""}><span class="nl">Teams</span><span class="ns">Teams</span></a>
-            <a href="trends.html" ${here === "trends.html" ? 'aria-current="page"' : ""}><span class="nl">Trends</span><span class="ns">Trends</span></a>
-            <div class="nav-drop">
-              <a href="analytics.html" ${["analytics.html", "ngs.html"].includes(here) ? 'aria-current="page"' : ""} aria-haspopup="true"><span class="nl">Analytics</span><span class="ns">Analytics</span> <span class="caret" aria-hidden="true">▾</span></a>
-              <div class="nav-menu wide right">
-                <a href="analytics.html"><strong>Chart builder</strong><span>Any two stats, plotted</span></a>
-                <a href="ngs.html"><strong>Next Gen Stats</strong><span>NFL tracking leaderboards</span></a>
-              </div>
-            </div>
+            ${NAV_TABS.map(([label, home, pages]) => {
+              const group = PAGE_GROUPS[label], on = pages.includes(here);
+              const href = group ? (this.lastInGroup(label) || home) : home;
+              return `<a href="${href}" ${on ? 'aria-current="page"' : ""}>${label}</a>`;
+            }).join("")}
           </nav>
           <span class="header-week">${esc(week)}</span>
         </div>
@@ -74,6 +68,30 @@ const Mingus = {
         Data from <a href="https://github.com/nflverse/nflverse-data">nflverse</a>${meta ? ` · updated ${esc(fmtDateTime(meta.built_at))}` : ""}
         <br>Mingus Football is a fan site and isn't affiliated with the NFL.
       </footer>`);
+  },
+
+  // Grouped tabs (Nov 15, 2026): Players = All players / Rankings, Stats = Trends / Charts / Next Gen. The header tab
+  // opens the view you used last; the switch at the top of the page changes it (no header dropdowns).
+  lastInGroup(label) {
+    try {
+      const v = localStorage.getItem(`mingus-tab-${label}`);
+      return (PAGE_GROUPS[label] || []).some(([page]) => page === v) ? v : null;
+    } catch (e) { return null; }
+  },
+
+  renderGroupSwitch() {
+    const here = location.pathname.split("/").pop() || "index.html";
+    const label = Object.keys(PAGE_GROUPS).find(k => PAGE_GROUPS[k].some(([page]) => page === here));
+    if (!label) return;
+    try { localStorage.setItem(`mingus-tab-${label}`, here); } catch (e) { /* private mode: just don't remember */ }
+    const pos = new URLSearchParams(location.search).get("pos");         // keep the position when switching views
+    const main = document.querySelector("main");
+    main.classList.add("has-switch");
+    main.insertAdjacentHTML("beforebegin", `
+      <div class="group-switch-wrap"><nav class="group-switch" aria-label="${esc(label)} views">
+        ${PAGE_GROUPS[label].map(([page, name, keepPos]) =>
+          `<a href="${page}${keepPos && pos ? `?pos=${encodeURIComponent(pos)}` : ""}" ${page === here ? 'aria-current="page"' : ""}>${esc(name)}</a>`).join("")}
+      </nav></div>`);
   },
 
   // "Back" links return to the page you came from (e.g. the matchup page), falling back to their href.
@@ -98,6 +116,7 @@ const Mingus = {
       meta = await this.load("meta");
     } catch (e) { /* header still renders without the week */ }
     this.renderChrome(meta);
+    this.renderGroupSwitch();
     const current = document.querySelector('.nav [aria-current="page"]'), nav = document.querySelector(".nav");
     if (current && nav.scrollWidth > nav.clientWidth) nav.scrollLeft = current.offsetLeft - nav.clientWidth / 2 + current.offsetWidth / 2;
     this.wireBackLinks();
