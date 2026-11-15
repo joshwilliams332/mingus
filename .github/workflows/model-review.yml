@@ -34,15 +34,20 @@ jobs:
         uses: actions/cache@v4
         with:
           path: hist
-          key: nflverse-hist-2016-2025-v2
+          key: nflverse-hist-2016-2025-v3
       - name: Download data
         run: |
           mkdir -p hist livedata
-          B=https://github.com/nflverse/nflverse-data/releases/download/stats_player
+          R=https://github.com/nflverse/nflverse-data/releases/download
+          B=$R/stats_player
           for s in 2016 2017 2018 2019 2020 2021 2022 2023 2024 2025; do
             [ -f hist/stats_$s.csv ] || curl -fsSLo hist/stats_$s.csv "$B/stats_player_week_$s.csv"
+            [ -f hist/roster_weekly_$s.csv ] || curl -fsSLo hist/roster_weekly_$s.csv "$R/weekly_rosters/roster_weekly_$s.csv"
+            [ -f hist/injuries_$s.csv ] || curl -fsSLo hist/injuries_$s.csv "$R/injuries/injuries_$s.csv"
           done
           curl -fsSLo hist/stats_2026.csv "$B/stats_player_week_2026.csv"      # this season, fresh every run
+          curl -fsSLo hist/roster_weekly_2026.csv "$R/weekly_rosters/roster_weekly_2026.csv"
+          curl -fsSLo hist/injuries_2026.csv "$R/injuries/injuries_2026.csv"
           curl -fsSLo hist/games.csv https://github.com/nflverse/nfldata/raw/master/data/games.csv
           for f in meta players games teams; do
             curl -fsSL "https://joshwilliams332.github.io/mingus/data/$f.json" -o "livedata/$f.json"

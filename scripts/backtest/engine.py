@@ -18,6 +18,7 @@ COLS = {"att": "attempts", "pass_yds": "passing_yards", "car": "carries", "rush_
 KEYS = list(COLS)
 MINV = {"att": 20, "car": 5, "tgt": 3}
 MIN_GAMES = 4
+TF_KEY = {"att": "tfa", "car": "tfc", "tgt": "tft"}   # team-first weight by opportunity type
 FIX = {"OAK": "LV", "SD": "LAC", "STL": "LA", "LAR": "LA"}
 
 
@@ -82,6 +83,32 @@ def features(season, path=None):
             t[k] += e[k]
     weeks = sorted({k[2] for k in dtot})
     teams = sorted({k[0] for k in dtot})
+    # Team first (Nov 9, 2026): each team's volume per game (all its QB/RB/WR/TE) and each player's share of it. Who
+    # plays this game is only what's known before kickoff: on the team's active roster that week
+    # (roster_weekly_<season>.csv, status ACT; game-day inactives are INA from 2021) and not listed Out / Doubtful on
+    # that week's injury report (injuries_<season>.csv). Without those files every teammate counts.
+    ttot = defaultdict(lambda: defaultdict(float))
+    by_team = defaultdict(set)
+    for key, log in players.items():
+        for e in log:
+            for k in ("att", "car", "tgt"):
+                ttot[(e["team"], e["week"])][k] += e[k]
+            by_team[e["team"]].add(key)
+    tweeks = defaultdict(list)
+    for (team, wk) in sorted(ttot):
+        tweeks[team].append(wk)
+    act, ruled_out = defaultdict(set), set()
+    if os.path.exists(f"{H}roster_weekly_{season}.csv"):
+        for r in csv.DictReader(open(f"{H}roster_weekly_{season}.csv")):
+            if r["status"] == "ACT" and r["game_type"] == "REG" and r["week"]:
+                act[(FIX.get(r["team"], r["team"]), int(r["week"]))].add(r["gsis_id"])
+    if os.path.exists(f"{H}injuries_{season}.csv"):
+        for r in csv.DictReader(open(f"{H}injuries_{season}.csv")):
+            if r["report_status"] in ("Out", "Doubtful") and r["game_type"] == "REG":
+                ruled_out.add((r["gsis_id"], int(r["week"])))
+    def shares(log, upto, ok):
+        """His share of his team's opportunities in each game before `upto`."""
+        return [e[ok] / ttot[(e["team"], e["week"])][ok] for e in log if e["week"] < upto and ttot[(e["team"], e["week"])][ok]]
     # Defense per game before each week: cum[(team, pos)][week] = (games, {key: total}) over weeks < week.
     played = defaultdict(set)
     for (opp, pos, wk) in dtot:
@@ -125,7 +152,19 @@ def features(season, path=None):
                 if (statistics.mean(opps) + statistics.mean(opps[-3:])) / 2 < MINV[ok]:
                     continue
                 vals = [p[st] for p in prior]
-                out.append({"season": season, "week": e["week"], "pid": pid, "pos": pos, "st": st, "vals": vals, "opps": opps,
+                team_opps = [ttot[(e["team"], w)][ok] for w in tweeks[e["team"]] if w < e["week"]]
+                my_sh = shares(prior, e["week"], ok)
+                mates = []      # teammates who may play: (their shares here, team games they've missed since)
+                tw = [w for w in tweeks[e["team"]] if w < e["week"]]
+                listed = act.get((e["team"], e["week"]))
+                for key in by_team[e["team"]]:
+                    if key[0] == pid or (listed is not None and key[0] not in listed) or (key[0], e["week"]) in ruled_out:
+                        continue
+                    here = [x for x in players[key] if x["team"] == e["team"] and x["week"] < e["week"]]
+                    sh = shares(here, e["week"], ok)
+                    if sh:
+                        mates.append((sh, sum(1 for w in tw if w > here[-1]["week"])))
+                out.append({"team_opps": team_opps, "my_sh": my_sh, "mates": mates, "season": season, "week": e["week"], "pid": pid, "pos": pos, "st": st, "vals": vals, "opps": opps,
                             "snaps": [p["snap"] for p in prior],
                             "d_opp": dpg.get(ok, 0), "d_val": dpg.get(st, 0), "l_opp": lg[ok], "l_val": lg[st],
                             "imp": ctx["imp"], "imp_avg": statistics.mean(imp_avg[e["week"]]), "fav": ctx["fav"],
@@ -172,6 +211,15 @@ def project(r, P):
         vol = (statistics.mean(opps) + statistics.mean(opps[-3:])) / 2
     else:
         vol = wmean(opps, P["hl"])
+    tf = P.get(TF_KEY[OPP_OF[r["st"]]], 0)
+    if tf and r.get("team_opps") and r.get("my_sh"):
+        # Team first: the team's recent volume (half-life "thl" games), split among the players who may play this game
+        # by their recent shares (re-scaled to add up to 1), blended with his own recent volume by tf.
+        team_vol = wmean(r["team_opps"], P.get("thl") or P["hl"])
+        mine = wmean(r["my_sh"], P["hl"])
+        others = sum(wmean(sh, P["hl"]) for sh, gap in r["mates"] if gap <= P.get("tgap", 1))
+        if mine + others:
+            vol = tf * team_vol * mine / (mine + others) + (1 - tf) * vol
     f_dv = clamp(1 + P["ds"] * (r["d_opp"] / r["l_opp"] - 1), 1 - P["cap"], 1 + P["cap"]) if r["l_opp"] else 1
     f_imp = clamp(1 + P["is"] * (r["imp"] / r["imp_avg"] - 1), 0.9, 1.1) if r["imp_avg"] else 1
     lean = clamp(P["sc"] * r["fav"], -0.06, 0.06)

@@ -7,8 +7,11 @@ the chance he beats his "typical" mark (floor of his average so far + 0.5) is sc
 
 ```sh
 mkdir hist && cd hist
+R=https://github.com/nflverse/nflverse-data/releases/download
 for s in $(seq 2016 2026); do
-  curl -fsSLo stats_$s.csv https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_$s.csv
+  curl -fsSLo stats_$s.csv $R/stats_player/stats_player_week_$s.csv
+  curl -fsSLo roster_weekly_$s.csv $R/weekly_rosters/roster_weekly_$s.csv   # team first: who's on the active roster
+  curl -fsSLo injuries_$s.csv $R/injuries/injuries_$s.csv                   # ... and not listed Out / Doubtful
 done
 # optional, for the snap-share test (P["snap"] in engine.py): snaps_<season>.csv and roster_<season>.csv
 #   from .../snap_counts/snap_counts_$s.csv and .../rosters/roster_$s.csv
@@ -20,7 +23,8 @@ python3 scripts/backtest/tune.py             # coordinate search on 2021-2025 ->
 
 `engine.py` mirrors `projection()` and `chance_over()` in projections.py with every setting exposed (`CURRENT` = the
 settings before tuning). If the model changes there, change it here too, or the backtest stops describing the real
-model. Not backtested: the Sleeper blend and injury openings (no historical Sleeper projections or injury reports).
+model. Not backtested: the Sleeper blend (no historical Sleeper projections). Injury openings are, through team first
+(weekly rosters + injury reports, so only what was known before kickoff).
 
 ## Anytime touchdowns (`td/`)
 The TD model in `projections.td_chance` (Nov 1, 2026). Offline only (needs numpy + scikit-learn). Folder layout: `ROOT/hist/`
