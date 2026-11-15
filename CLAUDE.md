@@ -51,14 +51,17 @@ Josh mostly checks the site on his phone, so every change gets checked at ~390px
   who qualify (NGS has play minimums); stats with a clear good direction are colored, style stats (aggressiveness,
   time to throw, depth, cushion, stacked boxes) get grey chips. Non-qualifiers get a one-line note.
   Definitions (`NGS`, `NGS_ORDER`, `NGS_POS`, `ngsRank`, `ngsShow`, `ngsUrl`) live in common.js. Leaderboards are on
-  `ngs.html` (Analytics is a dropdown: Chart builder / Next Gen Stats); each stat label and rank chip on a player page
+  `ngs.html` (the Stats tab's Next Gen view); each stat label and rank chip on a player page
   links to its leaderboard with `hl=` highlighting that player.
   Raw separation is inflated by short targets (Deebo on screens topped it), so `ngsDerive` adds "Separation vs. depth"
   (separation minus a league-wide straight-line fit on target depth). Leaderboard shows volume per game (att / tgt / car)
   and a "Regulars" filter (`NGS_VOL`); on phones it is a one-stat ranked list with a Rank by dropdown instead of the wide table.
 - Player game log: Snap %, Opp % (carries + targets share) and Tgt % have header tooltips and a note under the table.
-- Header (Nov 10, 2026): one row only from 1201px; narrower it is two rows (logo + week, then all seven tabs spread
-  across the screen, current page underlined). Phone labels: Players, Ranks, Start/Sit, Games, Teams, Trends, Analytics.
+- Header (Josh, Nov 15, 2026): five tabs, no dropdowns: Players, Start/Sit, Games, Teams, Stats (`NAV_TABS` in
+  common.js). Grouped pages get a switch at the top (`PAGE_GROUPS`, `renderGroupSwitch`): Players = All players /
+  Rankings (keeps `?pos=`), Stats = Trends / Charts (analytics.html) / Next Gen (ngs.html). A grouped tab opens the
+  view used last (localStorage `mingus-tab-<tab>`; defaults Rankings, Trends). One row from 761px; on phones two rows
+  (logo + week, then the five tabs spread across, current page underlined).
 - Phones: player names wrap instead of overlapping tags; grid children have `min-width: 0` so wide tables scroll
   inside their card; team schedule hides O/U, Total and Pts vs implied on small screens.
 - **Fantasy focus (Josh, Nov 3, 2026).** This site covers fantasy football only. Picks, odds pulls, grading, the prop
