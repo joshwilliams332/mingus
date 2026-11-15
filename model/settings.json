@@ -29,10 +29,15 @@
    "rec",
    "rec_yds",
    "rush_yds"
-  ]
+  ],
+  "tfa": 0.25,
+  "tfc": 0.5,
+  "tft": 0.5,
+  "thl": 16,
+  "tgap": 1
  },
- "adopted_at": "2026-11-10T07:37+00:00",
+ "adopted_at": "2026-11-15T07:06+00:00",
  "week": null,
  "why": "retuned on 2016-2025 (43,442 projections) scored at five lines around each player's average; better than the old settings in all 10 seasons and on 2026 so far",
- "version": 2
+ "version": 3
 }

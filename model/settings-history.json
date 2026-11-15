@@ -94,5 +94,32 @@
     }
    }
   ]
+ },
+ {
+  "adopted_at": "2026-11-15T07:06+00:00",
+  "week": null,
+  "why": "retuned on 2016-2025 (43,442 projections) scored at five lines around each player's average; better than the old settings in all 10 seasons and on 2026 so far",
+  "changes": [
+   {
+    "setting": "tfa",
+    "from": null,
+    "to": 0.25
+   },
+   {
+    "setting": "tfc",
+    "from": null,
+    "to": 0.5
+   },
+   {
+    "setting": "tft",
+    "from": null,
+    "to": 0.5
+   },
+   {
+    "setting": "thl",
+    "from": null,
+    "to": 16
+   }
+  ]
  }
 ]
