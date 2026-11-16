@@ -471,44 +471,44 @@
    ]
   },
   "10": {
-   "n": 24,
-   "brier": 0.2568,
+   "n": 257,
+   "brier": 0.224,
    "coin": 0.25,
    "by_stat": {
     "pass_yds": {
-     "n": 2,
-     "mae": 96.75,
-     "bias_pct": 25.5,
-     "brier": 0.2724,
+     "n": 20,
+     "mae": 72.72,
+     "bias_pct": 1.8,
+     "brier": 0.2155,
      "coin": 0.25
     },
     "rush_yds": {
-     "n": 4,
-     "mae": 11.88,
-     "bias_pct": 11.9,
-     "brier": 0.2553,
+     "n": 37,
+     "mae": 19.25,
+     "bias_pct": 9.4,
+     "brier": 0.2325,
      "coin": 0.25
     },
     "rec_yds": {
-     "n": 9,
-     "mae": 24.97,
-     "bias_pct": -16.4,
-     "brier": 0.239,
+     "n": 100,
+     "mae": 26.69,
+     "bias_pct": 2.7,
+     "brier": 0.2346,
      "coin": 0.25
     },
     "rec": {
-     "n": 9,
-     "mae": 1.2,
-     "bias_pct": -9.0,
-     "brier": 0.2718,
+     "n": 100,
+     "mae": 1.66,
+     "bias_pct": 12.8,
+     "brier": 0.212,
      "coin": 0.25
     }
    },
    "sources": {
-    "n": 23,
-    "ours": 39.7,
+    "n": 253,
+    "ours": 46.8,
     "sleeper": 42.7,
-    "blend": 39.3
+    "blend": 44.2
    },
    "days": {
     "2026-11-12": {
@@ -553,75 +553,143 @@
      },
      "slot": "TNF",
      "games": 1
+    },
+    "2026-11-15": {
+     "n": 233,
+     "brier": 0.2207,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 18,
+       "mae": 70.05,
+       "bias_pct": -0.1,
+       "brier": 0.2092,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 33,
+       "mae": 20.14,
+       "bias_pct": 9.1,
+       "brier": 0.2297,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 91,
+       "mae": 26.86,
+       "bias_pct": 4.5,
+       "brier": 0.2342,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 91,
+       "mae": 1.71,
+       "bias_pct": 14.8,
+       "brier": 0.2061,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 230,
+      "ours": 47.4,
+      "sleeper": 42.7,
+      "blend": 44.7
+     },
+     "slot": "Sunday",
+     "games": 11
     }
    },
    "complete": false,
    "td": {
-    "n": 16,
-    "brier": 0.1576,
-    "flat": 0.1875,
-    "avg_p": 0.206,
-    "rate": 0.25,
+    "n": 171,
+    "brier": 0.1656,
+    "flat": 0.1882,
+    "avg_p": 0.238,
+    "rate": 0.251,
     "calib": {
+     "0.0": [
+      2,
+      0.081,
+      0.0
+     ],
      "0.1": [
-      10,
-      0.15,
-      0.1
+      78,
+      0.151,
+      0.154
      ],
      "0.2": [
-      3,
-      0.241,
-      0.333
+      55,
+      0.247,
+      0.236
      ],
      "0.3": [
-      3,
-      0.358,
-      0.667
+      21,
+      0.342,
+      0.381
+     ],
+     "0.4": [
+      4,
+      0.431,
+      0.5
+     ],
+     "0.5": [
+      8,
+      0.535,
+      0.625
+     ],
+     "0.6": [
+      2,
+      0.645,
+      1.0
+     ],
+     "0.7": [
+      1,
+      0.728,
+      1.0
      ]
     }
    },
    "misses": [
     {
-     "name": "Jameis Winston",
-     "st": "pass_yds",
-     "mean": 139.3,
-     "actual": 0.0,
-     "opp": "WAS"
-    },
-    {
-     "name": "Isaiah Likely",
+     "name": "Christian McCaffrey",
      "st": "rec_yds",
-     "mean": 55.7,
-     "actual": 127.0,
-     "opp": "WAS"
+     "mean": 33.4,
+     "actual": 161.0,
+     "opp": "DAL"
     },
     {
-     "name": "Devin Singletary",
-     "st": "rush_yds",
-     "mean": 32.8,
-     "actual": 3.0,
-     "opp": "WAS"
-    },
-    {
-     "name": "Stefon Diggs",
+     "name": "Tony Pollard",
      "st": "rec_yds",
-     "mean": 45.3,
-     "actual": 83.0,
-     "opp": "NYG"
+     "mean": 14.1,
+     "actual": 66.0,
+     "opp": "JAX"
     },
     {
-     "name": "Isaiah Likely",
+     "name": "Tony Pollard",
      "st": "rec",
-     "mean": 5.3,
-     "actual": 9.0,
-     "opp": "WAS"
+     "mean": 2.3,
+     "actual": 8.0,
+     "opp": "JAX"
     },
     {
-     "name": "Malachi Fields",
+     "name": "Chuba Hubbard",
      "st": "rec_yds",
-     "mean": 36.4,
-     "actual": 62.0,
-     "opp": "WAS"
+     "mean": 24.1,
+     "actual": 80.0,
+     "opp": "NO"
+    },
+    {
+     "name": "Drake Maye",
+     "st": "pass_yds",
+     "mean": 266.1,
+     "actual": 48.0,
+     "opp": "DET"
+    },
+    {
+     "name": "Jahmyr Gibbs",
+     "st": "rec_yds",
+     "mean": 33.9,
+     "actual": 99.0,
+     "opp": "NE"
     }
    ]
   }
