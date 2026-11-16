@@ -7361,7 +7361,7 @@
    ]
   },
   "2026_10_LAC_BAL": {
-   "saved": "2026-11-16T03:06+00:00",
+   "saved": "2026-11-16T22:49+00:00",
    "settings": "2026-11-15T07:06+00:00",
    "rows": [
     {
@@ -7403,7 +7403,7 @@
      "st": "rec_yds",
      "mean": 26.5,
      "sd": 22.6,
-     "mingus": 27.3,
+     "mingus": 27.2,
      "sleeper": 25.8,
      "line": 26.5,
      "p_over": 0.3558,
@@ -7463,7 +7463,7 @@
      "st": "pass_yds",
      "mean": 203.3,
      "sd": 64.3,
-     "mingus": 187.3,
+     "mingus": 187.2,
      "sleeper": 219.4,
      "line": 198.5,
      "p_over": 0.5298,
@@ -7478,7 +7478,7 @@
      "st": "rec_yds",
      "mean": 28.3,
      "sd": 30.8,
-     "mingus": 29.2,
+     "mingus": 29.3,
      "sleeper": 27.4,
      "line": 32.5,
      "p_over": 0.2747,
@@ -7523,7 +7523,7 @@
      "st": "rec",
      "mean": 1.9,
      "sd": 1.6,
-     "mingus": 2.4,
+     "mingus": 2.3,
      "sleeper": 1.5,
      "line": 2.5,
      "p_over": 0.2294,
@@ -7643,7 +7643,7 @@
      "st": "rec_yds",
      "mean": 20.6,
      "sd": 20.3,
-     "mingus": 23.9,
+     "mingus": 23.8,
      "sleeper": 17.4,
      "line": 21.5,
      "p_over": 0.3214,
