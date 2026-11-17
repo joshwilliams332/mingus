@@ -9,9 +9,9 @@
    "rec:TE": 50
   },
   "ds": 0.25,
-  "de": 0.25,
+  "de": 0.125,
   "cap": 0.05,
-  "is": 0.125,
+  "is": 0.25,
   "sc": 0.0,
   "c": 1.06,
   "cs": {
@@ -20,7 +20,7 @@
   "k": 1.225,
   "cv": {
    "pass_yds": 0.3,
-   "rush_yds": 0.6,
+   "rush_yds": 0.7,
    "rec_yds": 0.8,
    "rec": 0.7
   },
@@ -33,11 +33,11 @@
   "tfa": 0.25,
   "tfc": 0.5,
   "tft": 0.5,
-  "thl": 16,
+  "thl": 32,
   "tgap": 1
  },
- "adopted_at": "2026-11-15T07:06+00:00",
- "week": null,
- "why": "retuned on 2016-2025 (43,442 projections) scored at five lines around each player's average; better than the old settings in all 10 seasons and on 2026 so far",
+ "adopted_at": "2026-11-17T21:38+00:00",
+ "week": 10,
+ "why": "adopted: better in 7 of 10 past seasons and not worse on week 10 (0.2207 vs 0.2216)",
  "version": 3
 }

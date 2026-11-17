@@ -471,44 +471,44 @@
    ]
   },
   "10": {
-   "n": 285,
-   "brier": 0.2216,
+   "n": 307,
+   "brier": 0.2275,
    "coin": 0.25,
    "by_stat": {
     "pass_yds": {
-     "n": 22,
-     "mae": 75.91,
-     "bias_pct": 1.2,
-     "brier": 0.2216,
+     "n": 24,
+     "mae": 78.79,
+     "bias_pct": -0.2,
+     "brier": 0.2301,
      "coin": 0.25
     },
     "rush_yds": {
-     "n": 41,
-     "mae": 19.79,
-     "bias_pct": 13.2,
-     "brier": 0.2249,
+     "n": 45,
+     "mae": 21.92,
+     "bias_pct": 14.0,
+     "brier": 0.2258,
      "coin": 0.25
     },
     "rec_yds": {
-     "n": 111,
-     "mae": 26.8,
-     "bias_pct": 2.5,
-     "brier": 0.2313,
+     "n": 119,
+     "mae": 26.59,
+     "bias_pct": 0.8,
+     "brier": 0.2337,
      "coin": 0.25
     },
     "rec": {
-     "n": 111,
+     "n": 119,
      "mae": 1.7,
-     "bias_pct": 12.5,
-     "brier": 0.2108,
+     "bias_pct": 9.9,
+     "brier": 0.2215,
      "coin": 0.25
     }
    },
    "sources": {
-    "n": 281,
-    "ours": 47.4,
-    "sleeper": 44.0,
-    "blend": 45.2
+    "n": 303,
+    "ours": 48.4,
+    "sleeper": 45.5,
+    "blend": 46.5
    },
    "days": {
     "2026-11-12": {
@@ -596,15 +596,58 @@
      },
      "slot": "Sunday",
      "games": 12
+    },
+    "2026-11-16": {
+     "n": 22,
+     "brier": 0.3038,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 2,
+       "mae": 110.45,
+       "bias_pct": -18.2,
+       "brier": 0.3234,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 4,
+       "mae": 43.67,
+       "bias_pct": 25.8,
+       "brier": 0.2349,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 8,
+       "mae": 23.69,
+       "bias_pct": -29.9,
+       "brier": 0.2661,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 8,
+       "mae": 1.71,
+       "bias_pct": -37.8,
+       "brier": 0.371,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 22,
+      "ours": 60.6,
+      "sleeper": 64.0,
+      "blend": 62.0
+     },
+     "slot": "MNF",
+     "games": 1
     }
    },
-   "complete": false,
+   "complete": true,
    "td": {
-    "n": 184,
-    "brier": 0.1736,
-    "flat": 0.1928,
-    "avg_p": 0.243,
-    "rate": 0.261,
+    "n": 199,
+    "brier": 0.1706,
+    "flat": 0.1906,
+    "avg_p": 0.238,
+    "rate": 0.256,
     "calib": {
      "0.0": [
       2,
@@ -612,14 +655,14 @@
       0.0
      ],
      "0.1": [
-      80,
-      0.152,
-      0.163
+      92,
+      0.151,
+      0.152
      ],
      "0.2": [
-      61,
-      0.246,
-      0.262
+      63,
+      0.247,
+      0.27
      ],
      "0.3": [
       22,
@@ -627,9 +670,9 @@
       0.364
      ],
      "0.4": [
-      8,
-      0.44,
-      0.375
+      9,
+      0.443,
+      0.444
      ],
      "0.5": [
       8,
@@ -678,18 +721,18 @@
      "opp": "NO"
     },
     {
+     "name": "Mark Andrews",
+     "st": "rec_yds",
+     "mean": 26.5,
+     "actual": 82.0,
+     "opp": "LAC"
+    },
+    {
      "name": "Drake Maye",
      "st": "pass_yds",
      "mean": 266.1,
      "actual": 48.0,
      "opp": "DET"
-    },
-    {
-     "name": "Jahmyr Gibbs",
-     "st": "rec_yds",
-     "mean": 33.9,
-     "actual": 99.0,
-     "opp": "NE"
     }
    ]
   }

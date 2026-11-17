@@ -121,5 +121,42 @@
     "to": 16
    }
   ]
+ },
+ {
+  "adopted_at": "2026-11-17T21:38+00:00",
+  "week": 10,
+  "why": "adopted: better in 7 of 10 past seasons and not worse on week 10 (0.2207 vs 0.2216)",
+  "changes": [
+   {
+    "setting": "de",
+    "from": 0.25,
+    "to": 0.125
+   },
+   {
+    "setting": "is",
+    "from": 0.125,
+    "to": 0.25
+   },
+   {
+    "setting": "thl",
+    "from": 16,
+    "to": 32
+   },
+   {
+    "setting": "cv",
+    "from": {
+     "pass_yds": 0.3,
+     "rush_yds": 0.6,
+     "rec_yds": 0.8,
+     "rec": 0.7
+    },
+    "to": {
+     "pass_yds": 0.3,
+     "rush_yds": 0.7,
+     "rec_yds": 0.8,
+     "rec": 0.7
+    }
+   }
+  ]
  }
 ]
