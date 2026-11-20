@@ -1,13 +1,13 @@
 {
- "checked": "2026-11-19T04:30+00:00",
+ "checked": "2026-11-20T04:17+00:00",
  "settings": {
   "state": "current"
  },
  "snapshot": {
   "week": 11,
   "state": "saved",
-  "games": 13,
-  "rows": 320
+  "games": 12,
+  "rows": 296
  },
  "scored_weeks": [
   "8",
