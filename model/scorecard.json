@@ -735,6 +735,166 @@
      "opp": "DET"
     }
    ]
+  },
+  "11": {
+   "n": 19,
+   "brier": 0.1805,
+   "coin": 0.25,
+   "by_stat": {
+    "pass_yds": {
+     "n": 2,
+     "mae": 56.5,
+     "bias_pct": 25.1,
+     "brier": 0.2386,
+     "coin": 0.25
+    },
+    "rush_yds": {
+     "n": 3,
+     "mae": 44.63,
+     "bias_pct": 1.4,
+     "brier": 0.1334,
+     "coin": 0.25
+    },
+    "rec_yds": {
+     "n": 7,
+     "mae": 20.96,
+     "bias_pct": 47.3,
+     "brier": 0.2072,
+     "coin": 0.25
+    },
+    "rec": {
+     "n": 7,
+     "mae": 1.91,
+     "bias_pct": 46.7,
+     "brier": 0.1574,
+     "coin": 0.25
+    }
+   },
+   "sources": {
+    "n": 19,
+    "ours": 68.1,
+    "sleeper": 59.9,
+    "blend": 64.0
+   },
+   "days": {
+    "2026-11-19": {
+     "n": 19,
+     "brier": 0.1805,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 2,
+       "mae": 56.5,
+       "bias_pct": 25.1,
+       "brier": 0.2386,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 3,
+       "mae": 44.63,
+       "bias_pct": 1.4,
+       "brier": 0.1334,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 7,
+       "mae": 20.96,
+       "bias_pct": 47.3,
+       "brier": 0.2072,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 7,
+       "mae": 1.91,
+       "bias_pct": 46.7,
+       "brier": 0.1574,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 19,
+      "ours": 68.1,
+      "sleeper": 59.9,
+      "blend": 64.0
+     },
+     "slot": "TNF",
+     "games": 1
+    }
+   },
+   "complete": false,
+   "td": {
+    "n": 15,
+    "brier": 0.1105,
+    "flat": 0.1156,
+    "avg_p": 0.22,
+    "rate": 0.133,
+    "calib": {
+     "0.0": [
+      2,
+      0.093,
+      0.0
+     ],
+     "0.1": [
+      5,
+      0.153,
+      0.0
+     ],
+     "0.2": [
+      5,
+      0.249,
+      0.2
+     ],
+     "0.3": [
+      3,
+      0.368,
+      0.333
+     ]
+    }
+   },
+   "misses": [
+    {
+     "name": "David Montgomery",
+     "st": "rush_yds",
+     "mean": 41.0,
+     "actual": 107.0,
+     "opp": "IND"
+    },
+    {
+     "name": "Laquon Treadwell",
+     "st": "rec",
+     "mean": 2.4,
+     "actual": 0.0,
+     "opp": "HOU"
+    },
+    {
+     "name": "Laquon Treadwell",
+     "st": "rec_yds",
+     "mean": 31.2,
+     "actual": 0.0,
+     "opp": "HOU"
+    },
+    {
+     "name": "Tyler Warren",
+     "st": "rec",
+     "mean": 5.4,
+     "actual": 1.0,
+     "opp": "HOU"
+    },
+    {
+     "name": "Jonathan Taylor",
+     "st": "rush_yds",
+     "mean": 66.5,
+     "actual": 21.0,
+     "opp": "HOU"
+    },
+    {
+     "name": "Xavier Hutchinson",
+     "st": "rec_yds",
+     "mean": 42.6,
+     "actual": 13.0,
+     "opp": "IND"
+    }
+   ]
   }
  }
 }
