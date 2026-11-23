@@ -737,44 +737,44 @@
    ]
   },
   "11": {
-   "n": 19,
-   "brier": 0.1805,
+   "n": 232,
+   "brier": 0.2338,
    "coin": 0.25,
    "by_stat": {
     "pass_yds": {
-     "n": 2,
-     "mae": 56.5,
-     "bias_pct": 25.1,
-     "brier": 0.2386,
+     "n": 18,
+     "mae": 39.69,
+     "bias_pct": -0.4,
+     "brier": 0.2485,
      "coin": 0.25
     },
     "rush_yds": {
-     "n": 3,
-     "mae": 44.63,
-     "bias_pct": 1.4,
-     "brier": 0.1334,
+     "n": 36,
+     "mae": 27.43,
+     "bias_pct": -0.6,
+     "brier": 0.2355,
      "coin": 0.25
     },
     "rec_yds": {
-     "n": 7,
-     "mae": 20.96,
-     "bias_pct": 47.3,
-     "brier": 0.2072,
+     "n": 89,
+     "mae": 22.03,
+     "bias_pct": 14.6,
+     "brier": 0.2269,
      "coin": 0.25
     },
     "rec": {
-     "n": 7,
-     "mae": 1.91,
-     "bias_pct": 46.7,
-     "brier": 0.1574,
+     "n": 89,
+     "mae": 1.72,
+     "bias_pct": 11.6,
+     "brier": 0.2369,
      "coin": 0.25
     }
    },
    "sources": {
-    "n": 19,
-    "ours": 68.1,
-    "sleeper": 59.9,
-    "blend": 64.0
+    "n": 232,
+    "ours": 40.8,
+    "sleeper": 39.6,
+    "blend": 39.8
    },
    "days": {
     "2026-11-19": {
@@ -819,39 +819,130 @@
      },
      "slot": "TNF",
      "games": 1
+    },
+    "2026-11-22": {
+     "n": 213,
+     "brier": 0.2385,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 16,
+       "mae": 37.59,
+       "bias_pct": -3.5,
+       "brier": 0.2497,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 33,
+       "mae": 25.87,
+       "bias_pct": -0.8,
+       "brier": 0.2448,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 82,
+       "mae": 22.12,
+       "bias_pct": 12.0,
+       "brier": 0.2286,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 82,
+       "mae": 1.7,
+       "bias_pct": 8.6,
+       "brier": 0.2437,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 213,
+      "ours": 38.9,
+      "sleeper": 38.1,
+      "blend": 38.1
+     },
+     "slot": "Sunday",
+     "games": 10
     }
    },
    "complete": false,
    "td": {
-    "n": 15,
-    "brier": 0.1105,
-    "flat": 0.1156,
-    "avg_p": 0.22,
-    "rate": 0.133,
+    "n": 165,
+    "brier": 0.1578,
+    "flat": 0.1837,
+    "avg_p": 0.232,
+    "rate": 0.242,
     "calib": {
      "0.0": [
-      2,
-      0.093,
+      10,
+      0.088,
       0.0
      ],
      "0.1": [
-      5,
-      0.153,
-      0.0
+      77,
+      0.155,
+      0.169
      ],
      "0.2": [
-      5,
-      0.249,
-      0.2
+      44,
+      0.244,
+      0.227
      ],
      "0.3": [
+      19,
+      0.343,
+      0.368
+     ],
+     "0.4": [
+      5,
+      0.438,
+      0.6
+     ],
+     "0.5": [
+      6,
+      0.563,
+      0.5
+     ],
+     "0.6": [
       3,
-      0.368,
-      0.333
+      0.625,
+      1.0
+     ],
+     "0.7": [
+      1,
+      0.739,
+      1.0
      ]
     }
    },
    "misses": [
+    {
+     "name": "Jack Bech",
+     "st": "rec",
+     "mean": 1.8,
+     "actual": 8.0,
+     "opp": "DEN"
+    },
+    {
+     "name": "Jack Bech",
+     "st": "rec_yds",
+     "mean": 19.9,
+     "actual": 88.0,
+     "opp": "DEN"
+    },
+    {
+     "name": "Evan Engram",
+     "st": "rec_yds",
+     "mean": 23.5,
+     "actual": 74.0,
+     "opp": "LV"
+    },
+    {
+     "name": "Devaughn Vele",
+     "st": "rec",
+     "mean": 2.6,
+     "actual": 7.0,
+     "opp": "CHI"
+    },
     {
      "name": "David Montgomery",
      "st": "rush_yds",
@@ -860,39 +951,11 @@
      "opp": "IND"
     },
     {
-     "name": "Laquon Treadwell",
-     "st": "rec",
-     "mean": 2.4,
-     "actual": 0.0,
-     "opp": "HOU"
-    },
-    {
-     "name": "Laquon Treadwell",
+     "name": "Ashton Jeanty",
      "st": "rec_yds",
-     "mean": 31.2,
-     "actual": 0.0,
-     "opp": "HOU"
-    },
-    {
-     "name": "Tyler Warren",
-     "st": "rec",
-     "mean": 5.4,
-     "actual": 1.0,
-     "opp": "HOU"
-    },
-    {
-     "name": "Jonathan Taylor",
-     "st": "rush_yds",
-     "mean": 66.5,
-     "actual": 21.0,
-     "opp": "HOU"
-    },
-    {
-     "name": "Xavier Hutchinson",
-     "st": "rec_yds",
-     "mean": 42.6,
-     "actual": 13.0,
-     "opp": "IND"
+     "mean": 31.6,
+     "actual": 90.0,
+     "opp": "DEN"
     }
    ]
   }
