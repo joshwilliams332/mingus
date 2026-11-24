@@ -1,13 +1,13 @@
 {
- "checked": "2026-11-24T00:41+00:00",
+ "checked": "2026-11-24T07:05+00:00",
  "settings": {
   "state": "current"
  },
  "snapshot": {
-  "week": 11,
+  "week": 12,
   "state": "saved",
-  "games": 1,
-  "rows": 26
+  "games": 16,
+  "rows": 404
  },
  "scored_weeks": [
   "8",
@@ -16,12 +16,14 @@
   "11"
  ],
  "tuning": {
-  "week": 10,
+  "week": 11,
   "state": "done",
-  "decision": "adopted"
+  "decision": "kept",
+  "new": true
  },
  "report": {
-  "week": 10,
-  "state": "done"
+  "week": 11,
+  "state": "done",
+  "new": true
  }
 }

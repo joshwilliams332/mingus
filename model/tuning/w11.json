@@ -1,0 +1,60 @@
+{
+ "week": 11,
+ "tuned_at": "2026-11-24T07:05+00:00",
+ "train_rows": 45173,
+ "valid_rows": 279,
+ "this_season_weight": 4.0,
+ "train": {
+  "current": 0.21163,
+  "candidate": 0.21163
+ },
+ "valid": {
+  "current": 0.21038,
+  "candidate": 0.21038,
+  "coin": 0.25
+ },
+ "season_wins": {
+  "wins": 0,
+  "seasons": 0
+ },
+ "changes": [],
+ "decision": "kept",
+ "why": "no setting change improved the training seasons",
+ "candidate": {
+  "vol": "exp",
+  "hl": 4,
+  "rate_hl": 6,
+  "K": 20,
+  "Ks": {
+   "pass_yds": 100,
+   "rec:TE": 50
+  },
+  "ds": 0.25,
+  "de": 0.125,
+  "cap": 0.05,
+  "is": 0.25,
+  "sc": 0.0,
+  "c": 1.06,
+  "cs": {
+   "pass_yds": 0.93
+  },
+  "k": 1.225,
+  "cv": {
+   "pass_yds": 0.3,
+   "rush_yds": 0.7,
+   "rec_yds": 0.8,
+   "rec": 0.7
+  },
+  "pw": 12,
+  "skew": [
+   "rec",
+   "rec_yds",
+   "rush_yds"
+  ],
+  "tfa": 0.25,
+  "tfc": 0.5,
+  "tft": 0.5,
+  "thl": 32,
+  "tgap": 1
+ }
+}

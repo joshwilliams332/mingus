@@ -737,44 +737,44 @@
    ]
   },
   "11": {
-   "n": 254,
-   "brier": 0.2289,
+   "n": 278,
+   "brier": 0.2318,
    "coin": 0.25,
    "by_stat": {
     "pass_yds": {
-     "n": 20,
-     "mae": 36.76,
-     "bias_pct": -0.8,
-     "brier": 0.2381,
+     "n": 22,
+     "mae": 36.92,
+     "bias_pct": -1.4,
+     "brier": 0.2372,
      "coin": 0.25
     },
     "rush_yds": {
-     "n": 40,
-     "mae": 26.29,
-     "bias_pct": 2.5,
-     "brier": 0.2237,
+     "n": 46,
+     "mae": 25.75,
+     "bias_pct": 3.9,
+     "brier": 0.2363,
      "coin": 0.25
     },
     "rec_yds": {
-     "n": 97,
-     "mae": 21.67,
-     "bias_pct": 13.3,
-     "brier": 0.2238,
+     "n": 105,
+     "mae": 22.84,
+     "bias_pct": 11.9,
+     "brier": 0.227,
      "coin": 0.25
     },
     "rec": {
-     "n": 97,
-     "mae": 1.68,
-     "bias_pct": 10.3,
-     "brier": 0.2343,
+     "n": 105,
+     "mae": 1.7,
+     "bias_pct": 9.1,
+     "brier": 0.2334,
      "coin": 0.25
     }
    },
    "sources": {
-    "n": 254,
-    "ours": 39.7,
-    "sleeper": 37.7,
-    "blend": 38.2
+    "n": 278,
+    "ours": 40.1,
+    "sleeper": 38.0,
+    "blend": 38.6
    },
    "days": {
     "2026-11-19": {
@@ -862,15 +862,58 @@
      },
      "slot": "Sunday",
      "games": 11
+    },
+    "2026-11-23": {
+     "n": 24,
+     "brier": 0.2622,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 2,
+       "mae": 38.5,
+       "bias_pct": -5.9,
+       "brier": 0.2285,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 6,
+       "mae": 22.12,
+       "bias_pct": 17.7,
+       "brier": 0.3203,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 8,
+       "mae": 37.08,
+       "bias_pct": -1.5,
+       "brier": 0.2665,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 8,
+       "mae": 1.98,
+       "bias_pct": -2.9,
+       "brier": 0.2229,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 24,
+      "ours": 43.5,
+      "sleeper": 40.9,
+      "blend": 41.7
+     },
+     "slot": "MNF",
+     "games": 1
     }
    },
-   "complete": false,
+   "complete": true,
    "td": {
-    "n": 182,
-    "brier": 0.1548,
-    "flat": 0.1833,
-    "avg_p": 0.233,
-    "rate": 0.242,
+    "n": 198,
+    "brier": 0.1525,
+    "flat": 0.1783,
+    "avg_p": 0.237,
+    "rate": 0.232,
     "calib": {
      "0.0": [
       10,
@@ -878,29 +921,29 @@
       0.0
      ],
      "0.1": [
-      84,
-      0.155,
-      0.155
+      88,
+      0.156,
+      0.148
      ],
      "0.2": [
-      50,
-      0.246,
-      0.22
+      57,
+      0.245,
+      0.193
      ],
      "0.3": [
-      22,
-      0.341,
-      0.409
+      24,
+      0.34,
+      0.417
      ],
      "0.4": [
-      5,
-      0.438,
-      0.6
+      6,
+      0.433,
+      0.667
      ],
      "0.5": [
-      6,
-      0.563,
-      0.5
+      8,
+      0.551,
+      0.375
      ],
      "0.6": [
       4,
@@ -930,6 +973,20 @@
      "opp": "DEN"
     },
     {
+     "name": "Antonio Williams",
+     "st": "rec",
+     "mean": 3.0,
+     "actual": 9.0,
+     "opp": "CIN"
+    },
+    {
+     "name": "Antonio Williams",
+     "st": "rec_yds",
+     "mean": 37.8,
+     "actual": 122.0,
+     "opp": "CIN"
+    },
+    {
      "name": "Evan Engram",
      "st": "rec_yds",
      "mean": 23.5,
@@ -942,20 +999,6 @@
      "mean": 2.6,
      "actual": 7.0,
      "opp": "CHI"
-    },
-    {
-     "name": "David Montgomery",
-     "st": "rush_yds",
-     "mean": 41.0,
-     "actual": 107.0,
-     "opp": "IND"
-    },
-    {
-     "name": "Ashton Jeanty",
-     "st": "rec_yds",
-     "mean": 31.6,
-     "actual": 90.0,
-     "opp": "DEN"
     }
    ]
   }
