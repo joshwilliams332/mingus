@@ -1,5 +1,5 @@
 {
- "checked": "2026-11-24T07:05+00:00",
+ "checked": "2026-11-24T22:57+00:00",
  "settings": {
   "state": "current"
  },
@@ -18,12 +18,10 @@
  "tuning": {
   "week": 11,
   "state": "done",
-  "decision": "kept",
-  "new": true
+  "decision": "kept"
  },
  "report": {
   "week": 11,
-  "state": "done",
-  "new": true
+  "state": "done"
  }
 }
