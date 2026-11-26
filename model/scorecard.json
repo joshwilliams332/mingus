@@ -1001,6 +1001,166 @@
      "opp": "CHI"
     }
    ]
+  },
+  "12": {
+   "n": 20,
+   "brier": 0.18,
+   "coin": 0.25,
+   "by_stat": {
+    "pass_yds": {
+     "n": 2,
+     "mae": 76.3,
+     "bias_pct": 31.1,
+     "brier": 0.1476,
+     "coin": 0.25
+    },
+    "rush_yds": {
+     "n": 4,
+     "mae": 42.1,
+     "bias_pct": -48.5,
+     "brier": 0.21,
+     "coin": 0.25
+    },
+    "rec_yds": {
+     "n": 7,
+     "mae": 21.4,
+     "bias_pct": 27.6,
+     "brier": 0.1681,
+     "coin": 0.25
+    },
+    "rec": {
+     "n": 7,
+     "mae": 1.61,
+     "bias_pct": 28.3,
+     "brier": 0.1841,
+     "coin": 0.25
+    }
+   },
+   "sources": {
+    "n": 20,
+    "ours": 58.9,
+    "sleeper": 56.6,
+    "blend": 57.5
+   },
+   "days": {
+    "2026-11-25": {
+     "n": 20,
+     "brier": 0.18,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 2,
+       "mae": 76.3,
+       "bias_pct": 31.1,
+       "brier": 0.1476,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 4,
+       "mae": 42.1,
+       "bias_pct": -48.5,
+       "brier": 0.21,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 7,
+       "mae": 21.4,
+       "bias_pct": 27.6,
+       "brier": 0.1681,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 7,
+       "mae": 1.61,
+       "bias_pct": 28.3,
+       "brier": 0.1841,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 20,
+      "ours": 58.9,
+      "sleeper": 56.6,
+      "blend": 57.5
+     },
+     "slot": "Wednesday night",
+     "games": 1
+    }
+   },
+   "complete": false,
+   "td": {
+    "n": 15,
+    "brier": 0.1111,
+    "flat": 0.16,
+    "avg_p": 0.224,
+    "rate": 0.2,
+    "calib": {
+     "0.1": [
+      9,
+      0.158,
+      0.0
+     ],
+     "0.2": [
+      3,
+      0.238,
+      0.333
+     ],
+     "0.3": [
+      2,
+      0.371,
+      0.5
+     ],
+     "0.4": [
+      1,
+      0.477,
+      1.0
+     ]
+    }
+   },
+   "misses": [
+    {
+     "name": "Blake Corum",
+     "st": "rush_yds",
+     "mean": 58.5,
+     "actual": 184.0,
+     "opp": "GB"
+    },
+    {
+     "name": "Colby Parkinson",
+     "st": "rec_yds",
+     "mean": 26.1,
+     "actual": -1.0,
+     "opp": "GB"
+    },
+    {
+     "name": "Matthew Golden",
+     "st": "rec",
+     "mean": 5.3,
+     "actual": 1.0,
+     "opp": "LA"
+    },
+    {
+     "name": "Matthew Stafford",
+     "st": "pass_yds",
+     "mean": 241.2,
+     "actual": 140.0,
+     "opp": "GB"
+    },
+    {
+     "name": "Tyler Higbee",
+     "st": "rec",
+     "mean": 3.5,
+     "actual": 1.0,
+     "opp": "GB"
+    },
+    {
+     "name": "Konata Mumpfield",
+     "st": "rec_yds",
+     "mean": 37.7,
+     "actual": 69.0,
+     "opp": "GB"
+    }
+   ]
   }
  }
 }
