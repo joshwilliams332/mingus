@@ -1003,44 +1003,44 @@
    ]
   },
   "12": {
-   "n": 43,
-   "brier": 0.2108,
+   "n": 83,
+   "brier": 0.195,
    "coin": 0.25,
    "by_stat": {
     "pass_yds": {
-     "n": 4,
-     "mae": 64.97,
-     "bias_pct": 4.4,
-     "brier": 0.1662,
+     "n": 7,
+     "mae": 67.17,
+     "bias_pct": 13.3,
+     "brier": 0.1598,
      "coin": 0.25
     },
     "rush_yds": {
-     "n": 7,
-     "mae": 44.4,
-     "bias_pct": -46.1,
-     "brier": 0.2618,
+     "n": 12,
+     "mae": 34.69,
+     "bias_pct": -21.4,
+     "brier": 0.2774,
      "coin": 0.25
     },
     "rec_yds": {
-     "n": 16,
-     "mae": 22.37,
-     "bias_pct": 15.2,
-     "brier": 0.2136,
+     "n": 32,
+     "mae": 25.77,
+     "bias_pct": 13.2,
+     "brier": 0.1899,
      "coin": 0.25
     },
     "rec": {
-     "n": 16,
-     "mae": 1.51,
-     "bias_pct": 17.6,
-     "brier": 0.1967,
+     "n": 32,
+     "mae": 1.57,
+     "bias_pct": 16.4,
+     "brier": 0.177,
      "coin": 0.25
     }
    },
    "sources": {
-    "n": 43,
-    "ours": 44.5,
-    "sleeper": 40.2,
-    "blend": 41.8
+    "n": 83,
+    "ours": 49.1,
+    "sleeper": 43.2,
+    "blend": 45.3
    },
    "days": {
     "2026-11-25": {
@@ -1087,80 +1087,90 @@
      "games": 1
     },
     "2026-11-26": {
-     "n": 23,
-     "brier": 0.2375,
+     "n": 63,
+     "brier": 0.1998,
      "coin": 0.25,
      "by_stat": {
       "pass_yds": {
-       "n": 2,
-       "mae": 53.65,
-       "bias_pct": -19.5,
-       "brier": 0.1849,
+       "n": 5,
+       "mae": 63.52,
+       "bias_pct": 6.5,
+       "brier": 0.1647,
        "coin": 0.25
       },
       "rush_yds": {
-       "n": 3,
-       "mae": 47.47,
-       "bias_pct": -44.1,
-       "brier": 0.3309,
+       "n": 8,
+       "mae": 30.99,
+       "bias_pct": -13.1,
+       "brier": 0.3112,
        "coin": 0.25
       },
       "rec_yds": {
-       "n": 9,
-       "mae": 23.12,
-       "bias_pct": 7.4,
-       "brier": 0.2491,
+       "n": 25,
+       "mae": 27.0,
+       "bias_pct": 9.6,
+       "brier": 0.1959,
        "coin": 0.25
       },
       "rec": {
-       "n": 9,
-       "mae": 1.42,
-       "bias_pct": 10.3,
-       "brier": 0.2066,
+       "n": 25,
+       "mae": 1.56,
+       "bias_pct": 13.2,
+       "brier": 0.175,
        "coin": 0.25
       }
      },
      "sources": {
-      "n": 23,
-      "ours": 36.0,
-      "sleeper": 30.6,
-      "blend": 32.7
+      "n": 63,
+      "ours": 46.4,
+      "sleeper": 39.5,
+      "blend": 41.9
      },
      "slot": "Thursday",
-     "games": 1
+     "games": 3
     }
    },
    "complete": false,
    "td": {
-    "n": 30,
-    "brier": 0.1334,
-    "flat": 0.1956,
-    "avg_p": 0.273,
-    "rate": 0.267,
+    "n": 62,
+    "brier": 0.1378,
+    "flat": 0.1834,
+    "avg_p": 0.259,
+    "rate": 0.242,
     "calib": {
-     "0.1": [
-      13,
-      0.161,
+     "0.0": [
+      1,
+      0.098,
       0.0
      ],
+     "0.1": [
+      27,
+      0.159,
+      0.074
+     ],
      "0.2": [
-      7,
-      0.241,
-      0.429
+      17,
+      0.235,
+      0.235
      ],
      "0.3": [
-      5,
-      0.346,
-      0.2
+      8,
+      0.344,
+      0.375
      ],
      "0.4": [
-      3,
-      0.438,
-      0.667
+      4,
+      0.448,
+      0.5
      ],
      "0.5": [
-      1,
-      0.586,
+      2,
+      0.578,
+      0.5
+     ],
+     "0.6": [
+      2,
+      0.601,
       1.0
      ],
      "0.7": [
@@ -1179,6 +1189,20 @@
      "opp": "GB"
     },
     {
+     "name": "DeVonta Smith",
+     "st": "rec_yds",
+     "mean": 70.6,
+     "actual": 200.0,
+     "opp": "DAL"
+    },
+    {
+     "name": "Josh Allen",
+     "st": "pass_yds",
+     "mean": 223.7,
+     "actual": 81.0,
+     "opp": "KC"
+    },
+    {
      "name": "Jahmyr Gibbs",
      "st": "rush_yds",
      "mean": 103.1,
@@ -1186,32 +1210,18 @@
      "opp": "CHI"
     },
     {
+     "name": "DeVonta Smith",
+     "st": "rec",
+     "mean": 5.5,
+     "actual": 11.0,
+     "opp": "DAL"
+    },
+    {
      "name": "Colby Parkinson",
      "st": "rec_yds",
      "mean": 26.1,
      "actual": -1.0,
      "opp": "GB"
-    },
-    {
-     "name": "Matthew Golden",
-     "st": "rec",
-     "mean": 5.3,
-     "actual": 1.0,
-     "opp": "LA"
-    },
-    {
-     "name": "Colston Loveland",
-     "st": "rec_yds",
-     "mean": 51.6,
-     "actual": 5.0,
-     "opp": "DET"
-    },
-    {
-     "name": "Colston Loveland",
-     "st": "rec",
-     "mean": 5.0,
-     "actual": 1.0,
-     "opp": "DET"
     }
    ]
   }
