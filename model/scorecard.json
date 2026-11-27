@@ -1003,44 +1003,44 @@
    ]
   },
   "12": {
-   "n": 20,
-   "brier": 0.18,
+   "n": 43,
+   "brier": 0.2108,
    "coin": 0.25,
    "by_stat": {
     "pass_yds": {
-     "n": 2,
-     "mae": 76.3,
-     "bias_pct": 31.1,
-     "brier": 0.1476,
+     "n": 4,
+     "mae": 64.97,
+     "bias_pct": 4.4,
+     "brier": 0.1662,
      "coin": 0.25
     },
     "rush_yds": {
-     "n": 4,
-     "mae": 42.1,
-     "bias_pct": -48.5,
-     "brier": 0.21,
+     "n": 7,
+     "mae": 44.4,
+     "bias_pct": -46.1,
+     "brier": 0.2618,
      "coin": 0.25
     },
     "rec_yds": {
-     "n": 7,
-     "mae": 21.4,
-     "bias_pct": 27.6,
-     "brier": 0.1681,
+     "n": 16,
+     "mae": 22.37,
+     "bias_pct": 15.2,
+     "brier": 0.2136,
      "coin": 0.25
     },
     "rec": {
-     "n": 7,
-     "mae": 1.61,
-     "bias_pct": 28.3,
-     "brier": 0.1841,
+     "n": 16,
+     "mae": 1.51,
+     "bias_pct": 17.6,
+     "brier": 0.1967,
      "coin": 0.25
     }
    },
    "sources": {
-    "n": 20,
-    "ours": 58.9,
-    "sleeper": 56.6,
-    "blend": 57.5
+    "n": 43,
+    "ours": 44.5,
+    "sleeper": 40.2,
+    "blend": 41.8
    },
    "days": {
     "2026-11-25": {
@@ -1085,34 +1085,87 @@
      },
      "slot": "Wednesday night",
      "games": 1
+    },
+    "2026-11-26": {
+     "n": 23,
+     "brier": 0.2375,
+     "coin": 0.25,
+     "by_stat": {
+      "pass_yds": {
+       "n": 2,
+       "mae": 53.65,
+       "bias_pct": -19.5,
+       "brier": 0.1849,
+       "coin": 0.25
+      },
+      "rush_yds": {
+       "n": 3,
+       "mae": 47.47,
+       "bias_pct": -44.1,
+       "brier": 0.3309,
+       "coin": 0.25
+      },
+      "rec_yds": {
+       "n": 9,
+       "mae": 23.12,
+       "bias_pct": 7.4,
+       "brier": 0.2491,
+       "coin": 0.25
+      },
+      "rec": {
+       "n": 9,
+       "mae": 1.42,
+       "bias_pct": 10.3,
+       "brier": 0.2066,
+       "coin": 0.25
+      }
+     },
+     "sources": {
+      "n": 23,
+      "ours": 36.0,
+      "sleeper": 30.6,
+      "blend": 32.7
+     },
+     "slot": "Thursday",
+     "games": 1
     }
    },
    "complete": false,
    "td": {
-    "n": 15,
-    "brier": 0.1111,
-    "flat": 0.16,
-    "avg_p": 0.224,
-    "rate": 0.2,
+    "n": 30,
+    "brier": 0.1334,
+    "flat": 0.1956,
+    "avg_p": 0.273,
+    "rate": 0.267,
     "calib": {
      "0.1": [
-      9,
-      0.158,
+      13,
+      0.161,
       0.0
      ],
      "0.2": [
-      3,
-      0.238,
-      0.333
+      7,
+      0.241,
+      0.429
      ],
      "0.3": [
-      2,
-      0.371,
-      0.5
+      5,
+      0.346,
+      0.2
      ],
      "0.4": [
+      3,
+      0.438,
+      0.667
+     ],
+     "0.5": [
       1,
-      0.477,
+      0.586,
+      1.0
+     ],
+     "0.7": [
+      1,
+      0.758,
       1.0
      ]
     }
@@ -1124,6 +1177,13 @@
      "mean": 58.5,
      "actual": 184.0,
      "opp": "GB"
+    },
+    {
+     "name": "Jahmyr Gibbs",
+     "st": "rush_yds",
+     "mean": 103.1,
+     "actual": 205.0,
+     "opp": "CHI"
     },
     {
      "name": "Colby Parkinson",
@@ -1140,25 +1200,18 @@
      "opp": "LA"
     },
     {
-     "name": "Matthew Stafford",
-     "st": "pass_yds",
-     "mean": 241.2,
-     "actual": 140.0,
-     "opp": "GB"
-    },
-    {
-     "name": "Tyler Higbee",
-     "st": "rec",
-     "mean": 3.5,
-     "actual": 1.0,
-     "opp": "GB"
-    },
-    {
-     "name": "Konata Mumpfield",
+     "name": "Colston Loveland",
      "st": "rec_yds",
-     "mean": 37.7,
-     "actual": 69.0,
-     "opp": "GB"
+     "mean": 51.6,
+     "actual": 5.0,
+     "opp": "DET"
+    },
+    {
+     "name": "Colston Loveland",
+     "st": "rec",
+     "mean": 5.0,
+     "actual": 1.0,
+     "opp": "DET"
     }
    ]
   }

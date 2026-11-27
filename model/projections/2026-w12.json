@@ -2330,7 +2330,7 @@
    ]
   },
   "2026_12_DEN_PIT": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -2340,13 +2340,13 @@
      "team": "PIT",
      "opp": "DEN",
      "st": "pass_yds",
-     "mean": 218.2,
+     "mean": 218.3,
      "sd": 70.8,
-     "mingus": 218.2,
+     "mingus": 218.3,
      "sleeper": null,
      "line": 224.5,
-     "p_over": 0.4645,
-     "inj": null
+     "p_over": 0.4651,
+     "inj": "Out"
     },
     {
      "pid": "00-0033881",
@@ -2355,12 +2355,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rec_yds",
-     "mean": 25.7,
-     "sd": 27.5,
-     "mingus": 29.2,
-     "sleeper": 22.2,
+     "mean": 26.0,
+     "sd": 27.7,
+     "mingus": 29.8,
+     "sleeper": 22.1,
      "line": 24.5,
-     "p_over": 0.3512,
+     "p_over": 0.3567,
      "inj": null
     },
     {
@@ -2385,12 +2385,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rec_yds",
-     "mean": 33.3,
-     "sd": 28.5,
-     "mingus": 32.6,
+     "mean": 33.7,
+     "sd": 28.7,
+     "mingus": 33.3,
      "sleeper": 34.1,
      "line": 26.5,
-     "p_over": 0.4751,
+     "p_over": 0.4825,
      "inj": null
     },
     {
@@ -2400,12 +2400,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rec",
-     "mean": 2.6,
+     "mean": 2.7,
      "sd": 2.0,
      "mingus": 2.8,
      "sleeper": 2.5,
      "line": 2.5,
-     "p_over": 0.3885,
+     "p_over": 0.4151,
      "inj": null
     },
     {
@@ -2445,12 +2445,12 @@
      "team": "PIT",
      "opp": "DEN",
      "st": "rush_yds",
-     "mean": 31.8,
-     "sd": 24.1,
-     "mingus": 28.8,
-     "sleeper": 34.8,
+     "mean": 32.4,
+     "sd": 24.5,
+     "mingus": 30.0,
+     "sleeper": 34.7,
      "line": 30.5,
-     "p_over": 0.3917,
+     "p_over": 0.4027,
      "inj": null
     },
     {
@@ -2460,13 +2460,13 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rush_yds",
-     "mean": 27.4,
-     "sd": 23.1,
-     "mingus": 27.4,
+     "mean": 27.5,
+     "sd": 23.2,
+     "mingus": 27.5,
      "sleeper": null,
      "line": 32.5,
-     "p_over": 0.2745,
-     "inj": null
+     "p_over": 0.2761,
+     "inj": "Out"
     },
     {
      "pid": "00-0036613",
@@ -2475,12 +2475,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rec_yds",
-     "mean": 46.9,
-     "sd": 45.5,
-     "mingus": 43.1,
+     "mean": 47.4,
+     "sd": 45.8,
+     "mingus": 44.1,
      "sleeper": 50.7,
      "line": 39.5,
-     "p_over": 0.4222,
+     "p_over": 0.428,
      "inj": null
     },
     {
@@ -2490,12 +2490,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rec",
-     "mean": 3.5,
+     "mean": 3.6,
      "sd": 2.8,
-     "mingus": 3.4,
+     "mingus": 3.5,
      "sleeper": 3.7,
      "line": 3.5,
-     "p_over": 0.3625,
+     "p_over": 0.381,
      "inj": null
     },
     {
@@ -2507,8 +2507,8 @@
      "st": "rec_yds",
      "mean": 26.8,
      "sd": 21.4,
-     "mingus": 28.7,
-     "sleeper": 24.9,
+     "mingus": 28.6,
+     "sleeper": 25.0,
      "line": 30.5,
      "p_over": 0.2962,
      "inj": null
@@ -2535,12 +2535,12 @@
      "team": "PIT",
      "opp": "DEN",
      "st": "rush_yds",
-     "mean": 67.5,
-     "sd": 54.9,
-     "mingus": 63.9,
-     "sleeper": 71.2,
+     "mean": 68.8,
+     "sd": 55.5,
+     "mingus": 66.6,
+     "sleeper": 71.0,
      "line": 74.5,
-     "p_over": 0.3104,
+     "p_over": 0.3205,
      "inj": null
     },
     {
@@ -2582,7 +2582,7 @@
      "st": "rec_yds",
      "mean": 23.3,
      "sd": 28.6,
-     "mingus": 26.2,
+     "mingus": 26.1,
      "sleeper": 20.5,
      "line": 28.5,
      "p_over": 0.2453,
@@ -2610,12 +2610,27 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "pass_yds",
-     "mean": 205.1,
-     "sd": 71.8,
-     "mingus": 205.6,
+     "mean": 205.7,
+     "sd": 72.0,
+     "mingus": 206.8,
      "sleeper": 204.6,
      "line": 195.5,
-     "p_over": 0.5532,
+     "p_over": 0.5563,
+     "inj": null
+    },
+    {
+     "pid": "00-0039732",
+     "name": "Bo Nix",
+     "pos": "QB",
+     "team": "DEN",
+     "opp": "PIT",
+     "st": "rush_yds",
+     "mean": 18.7,
+     "sd": 20.7,
+     "mingus": 17.9,
+     "sleeper": 19.5,
+     "line": 12.5,
+     "p_over": 0.5013,
      "inj": null
     },
     {
@@ -2655,12 +2670,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rec_yds",
-     "mean": 34.1,
-     "sd": 30.1,
-     "mingus": 32.9,
+     "mean": 34.4,
+     "sd": 30.3,
+     "mingus": 33.6,
      "sleeper": 35.3,
      "line": 36.5,
-     "p_over": 0.3195,
+     "p_over": 0.3238,
      "inj": null
     },
     {
@@ -2670,12 +2685,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rec",
-     "mean": 2.5,
+     "mean": 2.6,
      "sd": 2.0,
      "mingus": 2.5,
      "sleeper": 2.6,
      "line": 2.5,
-     "p_over": 0.3625,
+     "p_over": 0.3885,
      "inj": null
     },
     {
@@ -2685,12 +2700,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rec_yds",
-     "mean": 30.3,
-     "sd": 28.7,
-     "mingus": 30.3,
+     "mean": 30.8,
+     "sd": 29.1,
+     "mingus": 30.8,
      "sleeper": null,
      "line": 36.5,
-     "p_over": 0.2634,
+     "p_over": 0.2703,
      "inj": "Out"
     },
     {
@@ -2715,12 +2730,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rush_yds",
-     "mean": 63.2,
-     "sd": 50.0,
-     "mingus": 54.2,
-     "sleeper": 72.2,
+     "mean": 69.0,
+     "sd": 53.6,
+     "mingus": 65.7,
+     "sleeper": 72.3,
      "line": 50.5,
-     "p_over": 0.4893,
+     "p_over": 0.5441,
      "inj": null
     },
     {
@@ -2730,12 +2745,12 @@
      "team": "DEN",
      "opp": "PIT",
      "st": "rec_yds",
-     "mean": 22.7,
-     "sd": 22.8,
-     "mingus": 24.8,
+     "mean": 22.9,
+     "sd": 23.0,
+     "mingus": 25.4,
      "sleeper": 20.5,
      "line": 24.5,
-     "p_over": 0.3054,
+     "p_over": 0.3091,
      "inj": null
     },
     {
@@ -2747,7 +2762,7 @@
      "st": "rec",
      "mean": 2.8,
      "sd": 2.2,
-     "mingus": 3.1,
+     "mingus": 3.2,
      "sleeper": 2.4,
      "line": 2.5,
      "p_over": 0.4273,
@@ -2762,7 +2777,7 @@
      "st": "rec_yds",
      "mean": 33.7,
      "sd": 33.6,
-     "mingus": 36.6,
+     "mingus": 36.7,
      "sleeper": 30.7,
      "line": 36.5,
      "p_over": 0.3045,
@@ -2791,7 +2806,7 @@
      "pos": "RB",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.4912,
+     "p": 0.4976,
      "inj": null
     },
     {
@@ -2800,7 +2815,7 @@
      "pos": "RB",
      "team": "PIT",
      "opp": "DEN",
-     "p": 0.3119,
+     "p": 0.3034,
      "inj": null
     },
     {
@@ -2809,17 +2824,8 @@
      "pos": "RB",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.2119,
+     "p": 0.2161,
      "inj": "Out"
-    },
-    {
-     "pid": "00-0036139",
-     "name": "Rico Dowdle",
-     "pos": "RB",
-     "team": "PIT",
-     "opp": "DEN",
-     "p": 0.1984,
-     "inj": null
     },
     {
      "pid": "00-0036613",
@@ -2827,16 +2833,16 @@
      "pos": "WR",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.1951,
+     "p": 0.1991,
      "inj": null
     },
     {
-     "pid": "00-0035640",
-     "name": "DK Metcalf",
-     "pos": "WR",
+     "pid": "00-0036139",
+     "name": "Rico Dowdle",
+     "pos": "RB",
      "team": "PIT",
      "opp": "DEN",
-     "p": 0.1856,
+     "p": 0.1921,
      "inj": null
     },
     {
@@ -2845,8 +2851,8 @@
      "pos": "RB",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.183,
-     "inj": null
+     "p": 0.1868,
+     "inj": "Out"
     },
     {
      "pid": "00-0034348",
@@ -2854,7 +2860,16 @@
      "pos": "WR",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.1827,
+     "p": 0.1865,
+     "inj": null
+    },
+    {
+     "pid": "00-0035640",
+     "name": "DK Metcalf",
+     "pos": "WR",
+     "team": "PIT",
+     "opp": "DEN",
+     "p": 0.1797,
      "inj": null
     },
     {
@@ -2863,16 +2878,7 @@
      "pos": "WR",
      "team": "PIT",
      "opp": "DEN",
-     "p": 0.1805,
-     "inj": null
-    },
-    {
-     "pid": "00-0036894",
-     "name": "Pat Freiermuth",
-     "pos": "TE",
-     "team": "PIT",
-     "opp": "DEN",
-     "p": 0.1777,
+     "p": 0.1747,
      "inj": null
     },
     {
@@ -2881,7 +2887,16 @@
      "pos": "TE",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.1703,
+     "p": 0.1739,
+     "inj": null
+    },
+    {
+     "pid": "00-0036894",
+     "name": "Pat Freiermuth",
+     "pos": "TE",
+     "team": "PIT",
+     "opp": "DEN",
+     "p": 0.1719,
      "inj": null
     },
     {
@@ -2890,7 +2905,7 @@
      "pos": "WR",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.1633,
+     "p": 0.1668,
      "inj": null
     },
     {
@@ -2899,7 +2914,7 @@
      "pos": "WR",
      "team": "PIT",
      "opp": "DEN",
-     "p": 0.157,
+     "p": 0.1518,
      "inj": null
     },
     {
@@ -2908,7 +2923,7 @@
      "pos": "QB",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.1439,
+     "p": 0.147,
      "inj": null
     },
     {
@@ -2917,7 +2932,7 @@
      "pos": "TE",
      "team": "PIT",
      "opp": "DEN",
-     "p": 0.1405,
+     "p": 0.1358,
      "inj": null
     },
     {
@@ -2926,7 +2941,16 @@
      "pos": "WR",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.1294,
+     "p": 0.1323,
+     "inj": null
+    },
+    {
+     "pid": "00-0039868",
+     "name": "Troy Franklin",
+     "pos": "WR",
+     "team": "DEN",
+     "opp": "PIT",
+     "p": 0.1215,
      "inj": null
     },
     {
@@ -2935,17 +2959,8 @@
      "pos": "WR",
      "team": "PIT",
      "opp": "DEN",
-     "p": 0.1194,
+     "p": 0.1153,
      "inj": "Out"
-    },
-    {
-     "pid": "00-0039868",
-     "name": "Troy Franklin",
-     "pos": "WR",
-     "team": "DEN",
-     "opp": "PIT",
-     "p": 0.1188,
-     "inj": null
     },
     {
      "pid": "00-0037085",
@@ -2953,7 +2968,7 @@
      "pos": "RB",
      "team": "DEN",
      "opp": "PIT",
-     "p": 0.0961,
+     "p": 0.0983,
      "inj": "Out"
     },
     {
@@ -2962,13 +2977,13 @@
      "pos": "QB",
      "team": "PIT",
      "opp": "DEN",
-     "p": 0.087,
-     "inj": null
+     "p": 0.0839,
+     "inj": "Out"
     }
    ]
   },
   "2026_12_NO_CIN": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -2978,12 +2993,12 @@
      "team": "CIN",
      "opp": "NO",
      "st": "rush_yds",
-     "mean": 32.7,
-     "sd": 25.8,
+     "mean": 33.0,
+     "sd": 26.0,
      "mingus": 28.7,
-     "sleeper": 36.7,
+     "sleeper": 37.3,
      "line": 21.5,
-     "p_over": 0.6006,
+     "p_over": 0.6061,
      "inj": null
     },
     {
@@ -2993,12 +3008,12 @@
      "team": "CIN",
      "opp": "NO",
      "st": "rec_yds",
-     "mean": 33.7,
+     "mean": 33.6,
      "sd": 34.9,
      "mingus": 35.9,
-     "sleeper": 31.6,
+     "sleeper": 31.4,
      "line": 37.5,
-     "p_over": 0.2905,
+     "p_over": 0.2891,
      "inj": null
     },
     {
@@ -3023,13 +3038,13 @@
      "team": "NO",
      "opp": "CIN",
      "st": "rec_yds",
-     "mean": 25.0,
+     "mean": 24.8,
      "sd": 26.8,
      "mingus": 25.2,
-     "sleeper": 24.7,
+     "sleeper": 24.5,
      "line": 31.5,
-     "p_over": 0.2415,
-     "inj": null
+     "p_over": 0.2383,
+     "inj": "DNP"
     },
     {
      "pid": "00-0036040",
@@ -3044,7 +3059,7 @@
      "sleeper": 2.2,
      "line": 3.5,
      "p_over": 0.1796,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0036410",
@@ -3053,12 +3068,12 @@
      "team": "CIN",
      "opp": "NO",
      "st": "rec_yds",
-     "mean": 81.3,
-     "sd": 71.3,
+     "mean": 81.1,
+     "sd": 71.1,
      "mingus": 77.7,
-     "sleeper": 84.9,
+     "sleeper": 84.4,
      "line": 86.5,
-     "p_over": 0.3229,
+     "p_over": 0.3217,
      "inj": null
     },
     {
@@ -3083,12 +3098,12 @@
      "team": "CIN",
      "opp": "NO",
      "st": "pass_yds",
-     "mean": 300.3,
-     "sd": 109.3,
+     "mean": 299.5,
+     "sd": 109.1,
      "mingus": 316.8,
-     "sleeper": 283.8,
+     "sleeper": 282.1,
      "line": 309.5,
-     "p_over": 0.4665,
+     "p_over": 0.4635,
      "inj": null
     },
     {
@@ -3098,12 +3113,12 @@
      "team": "CIN",
      "opp": "NO",
      "st": "rec_yds",
-     "mean": 98.0,
-     "sd": 88.6,
-     "mingus": 107.9,
-     "sleeper": 88.0,
+     "mean": 97.7,
+     "sd": 88.5,
+     "mingus": 108.0,
+     "sleeper": 87.5,
      "line": 90.5,
-     "p_over": 0.3884,
+     "p_over": 0.3866,
      "inj": null
     },
     {
@@ -3128,12 +3143,12 @@
      "team": "NO",
      "opp": "CIN",
      "st": "rush_yds",
-     "mean": 53.6,
-     "sd": 41.3,
+     "mean": 54.1,
+     "sd": 41.6,
      "mingus": 40.3,
-     "sleeper": 66.9,
+     "sleeper": 67.8,
      "line": 43.5,
-     "p_over": 0.4858,
+     "p_over": 0.4917,
      "inj": null
     },
     {
@@ -3143,12 +3158,12 @@
      "team": "NO",
      "opp": "CIN",
      "st": "rec_yds",
-     "mean": 14.4,
-     "sd": 14.0,
+     "mean": 14.3,
+     "sd": 13.9,
      "mingus": 15.4,
-     "sleeper": 13.3,
+     "sleeper": 13.2,
      "line": 14.5,
-     "p_over": 0.3386,
+     "p_over": 0.3355,
      "inj": null
     },
     {
@@ -3158,12 +3173,12 @@
      "team": "NO",
      "opp": "CIN",
      "st": "rec",
-     "mean": 2.2,
+     "mean": 2.1,
      "sd": 2.2,
      "mingus": 2.4,
-     "sleeper": 2.0,
+     "sleeper": 1.9,
      "line": 2.5,
-     "p_over": 0.2844,
+     "p_over": 0.2634,
      "inj": null
     },
     {
@@ -3173,12 +3188,12 @@
      "team": "NO",
      "opp": "CIN",
      "st": "rec_yds",
-     "mean": 79.4,
-     "sd": 67.5,
-     "mingus": 76.6,
-     "sleeper": 82.3,
+     "mean": 79.1,
+     "sd": 67.3,
+     "mingus": 76.5,
+     "sleeper": 81.6,
      "line": 86.5,
-     "p_over": 0.3139,
+     "p_over": 0.312,
      "inj": null
     },
     {
@@ -3203,12 +3218,12 @@
      "team": "CIN",
      "opp": "NO",
      "st": "rush_yds",
-     "mean": 55.9,
-     "sd": 39.6,
+     "mean": 56.4,
+     "sd": 39.9,
      "mingus": 48.0,
-     "sleeper": 63.8,
+     "sleeper": 64.8,
      "line": 44.5,
-     "p_over": 0.5155,
+     "p_over": 0.5213,
      "inj": null
     },
     {
@@ -3219,11 +3234,11 @@
      "opp": "NO",
      "st": "rec_yds",
      "mean": 26.9,
-     "sd": 25.1,
+     "sd": 25.0,
      "mingus": 35.7,
-     "sleeper": 18.1,
+     "sleeper": 18.0,
      "line": 27.5,
-     "p_over": 0.3359,
+     "p_over": 0.3363,
      "inj": null
     },
     {
@@ -3233,12 +3248,12 @@
      "team": "CIN",
      "opp": "NO",
      "st": "rec",
-     "mean": 4.6,
+     "mean": 4.5,
      "sd": 3.7,
      "mingus": 5.8,
      "sleeper": 3.3,
      "line": 5.5,
-     "p_over": 0.2722,
+     "p_over": 0.2616,
      "inj": null
     },
     {
@@ -3248,12 +3263,12 @@
      "team": "NO",
      "opp": "CIN",
      "st": "rec_yds",
-     "mean": 34.1,
-     "sd": 30.0,
+     "mean": 34.0,
+     "sd": 29.9,
      "mingus": 41.5,
-     "sleeper": 26.8,
+     "sleeper": 26.6,
      "line": 45.5,
-     "p_over": 0.2238,
+     "p_over": 0.2226,
      "inj": null
     },
     {
@@ -3278,12 +3293,12 @@
      "team": "NO",
      "opp": "CIN",
      "st": "pass_yds",
-     "mean": 234.0,
-     "sd": 92.6,
-     "mingus": 232.9,
-     "sleeper": 235.1,
+     "mean": 232.9,
+     "sd": 92.4,
+     "mingus": 232.8,
+     "sleeper": 233.1,
      "line": 239.5,
-     "p_over": 0.4763,
+     "p_over": 0.4715,
      "inj": null
     },
     {
@@ -3324,7 +3339,7 @@
      "pos": "RB",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.5102,
+     "p": 0.5095,
      "inj": null
     },
     {
@@ -3333,7 +3348,7 @@
      "pos": "WR",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.4839,
+     "p": 0.483,
      "inj": null
     },
     {
@@ -3342,7 +3357,7 @@
      "pos": "WR",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.3859,
+     "p": 0.3851,
      "inj": null
     },
     {
@@ -3351,7 +3366,7 @@
      "pos": "WR",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.3043,
+     "p": 0.3035,
      "inj": null
     },
     {
@@ -3360,7 +3375,7 @@
      "pos": "RB",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.2829,
+     "p": 0.2821,
      "inj": null
     },
     {
@@ -3369,7 +3384,7 @@
      "pos": "TE",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.2717,
+     "p": 0.2709,
      "inj": null
     },
     {
@@ -3378,7 +3393,7 @@
      "pos": "RB",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.2639,
+     "p": 0.2632,
      "inj": null
     },
     {
@@ -3387,7 +3402,7 @@
      "pos": "RB",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.2431,
+     "p": 0.2424,
      "inj": null
     },
     {
@@ -3396,7 +3411,7 @@
      "pos": "RB",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.2419,
+     "p": 0.2412,
      "inj": null
     },
     {
@@ -3405,7 +3420,7 @@
      "pos": "TE",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.2174,
+     "p": 0.2168,
      "inj": null
     },
     {
@@ -3414,7 +3429,7 @@
      "pos": "TE",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.2091,
+     "p": 0.2085,
      "inj": "Out"
     },
     {
@@ -3423,7 +3438,7 @@
      "pos": "WR",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.2047,
+     "p": 0.2041,
      "inj": null
     },
     {
@@ -3432,7 +3447,7 @@
      "pos": "WR",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.2034,
+     "p": 0.2028,
      "inj": null
     },
     {
@@ -3441,7 +3456,7 @@
      "pos": "QB",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.1982,
+     "p": 0.1977,
      "inj": null
     },
     {
@@ -3450,7 +3465,7 @@
      "pos": "WR",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.1945,
+     "p": 0.1939,
      "inj": null
     },
     {
@@ -3459,7 +3474,7 @@
      "pos": "WR",
      "team": "CIN",
      "opp": "NO",
-     "p": 0.1922,
+     "p": 0.1917,
      "inj": null
     },
     {
@@ -3468,8 +3483,8 @@
      "pos": "TE",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.1684,
-     "inj": null
+     "p": 0.1679,
+     "inj": "DNP"
     },
     {
      "pid": "00-0035644",
@@ -3477,7 +3492,7 @@
      "pos": "TE",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.1492,
+     "p": 0.1488,
      "inj": null
     },
     {
@@ -3486,7 +3501,7 @@
      "pos": "QB",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.1463,
+     "p": 0.1459,
      "inj": null
     },
     {
@@ -3495,13 +3510,13 @@
      "pos": "RB",
      "team": "NO",
      "opp": "CIN",
-     "p": 0.1134,
+     "p": 0.113,
      "inj": null
     }
    ]
   },
   "2026_12_LV_CLE": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -3511,12 +3526,12 @@
      "team": "CLE",
      "opp": "LV",
      "st": "pass_yds",
-     "mean": 220.6,
-     "sd": 81.7,
-     "mingus": 224.4,
-     "sleeper": 216.8,
+     "mean": 224.3,
+     "sd": 82.5,
+     "mingus": 225.5,
+     "sleeper": 223.1,
      "line": 235.5,
-     "p_over": 0.4276,
+     "p_over": 0.446,
      "inj": null
     },
     {
@@ -3526,12 +3541,12 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rush_yds",
-     "mean": 26.3,
-     "sd": 20.5,
-     "mingus": 29.1,
-     "sleeper": 23.5,
+     "mean": 26.0,
+     "sd": 20.3,
+     "mingus": 29.3,
+     "sleeper": 22.8,
      "line": 29.5,
-     "p_over": 0.3046,
+     "p_over": 0.2987,
      "inj": null
     },
     {
@@ -3541,12 +3556,12 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rec_yds",
-     "mean": 26.4,
-     "sd": 27.9,
-     "mingus": 32.9,
-     "sleeper": 19.9,
+     "mean": 26.8,
+     "sd": 28.1,
+     "mingus": 33.1,
+     "sleeper": 20.5,
      "line": 31.5,
-     "p_over": 0.2621,
+     "p_over": 0.2682,
      "inj": null
     },
     {
@@ -3571,12 +3586,12 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rec_yds",
-     "mean": 17.2,
-     "sd": 15.4,
-     "mingus": 22.7,
-     "sleeper": 11.7,
+     "mean": 17.4,
+     "sd": 15.5,
+     "mingus": 22.8,
+     "sleeper": 12.0,
      "line": 15.5,
-     "p_over": 0.4021,
+     "p_over": 0.4087,
      "inj": null
     },
     {
@@ -3601,12 +3616,12 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rec_yds",
-     "mean": 42.6,
-     "sd": 43.1,
-     "mingus": 46.8,
-     "sleeper": 38.4,
+     "mean": 43.2,
+     "sd": 43.4,
+     "mingus": 47.0,
+     "sleeper": 39.4,
      "line": 53.5,
-     "p_over": 0.2447,
+     "p_over": 0.2503,
      "inj": null
     },
     {
@@ -3616,12 +3631,12 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rec",
-     "mean": 2.6,
+     "mean": 2.7,
      "sd": 2.2,
      "mingus": 3.1,
-     "sleeper": 2.2,
+     "sleeper": 2.3,
      "line": 3.5,
-     "p_over": 0.2201,
+     "p_over": 0.2356,
      "inj": null
     },
     {
@@ -3631,12 +3646,12 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rec_yds",
-     "mean": 29.8,
-     "sd": 31.8,
-     "mingus": 30.9,
-     "sleeper": 28.7,
+     "mean": 30.3,
+     "sd": 32.0,
+     "mingus": 31.0,
+     "sleeper": 29.5,
      "line": 37.5,
-     "p_over": 0.2421,
+     "p_over": 0.2485,
      "inj": null
     },
     {
@@ -3661,12 +3676,12 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rush_yds",
-     "mean": 44.9,
-     "sd": 36.7,
-     "mingus": 39.5,
-     "sleeper": 50.4,
+     "mean": 44.3,
+     "sd": 36.4,
+     "mingus": 39.7,
+     "sleeper": 48.9,
      "line": 41.5,
-     "p_over": 0.4022,
+     "p_over": 0.3943,
      "inj": null
     },
     {
@@ -3676,12 +3691,12 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rec_yds",
-     "mean": 31.3,
-     "sd": 30.5,
-     "mingus": 38.3,
-     "sleeper": 24.3,
+     "mean": 31.7,
+     "sd": 30.7,
+     "mingus": 38.4,
+     "sleeper": 24.9,
      "line": 46.5,
-     "p_over": 0.1859,
+     "p_over": 0.19,
      "inj": null
     },
     {
@@ -3694,7 +3709,7 @@
      "mean": 3.7,
      "sd": 2.6,
      "mingus": 4.2,
-     "sleeper": 3.1,
+     "sleeper": 3.2,
      "line": 4.5,
      "p_over": 0.2657,
      "inj": null
@@ -3706,12 +3721,12 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rec_yds",
-     "mean": 24.5,
-     "sd": 24.1,
-     "mingus": 29.7,
-     "sleeper": 19.4,
+     "mean": 24.9,
+     "sd": 24.3,
+     "mingus": 29.9,
+     "sleeper": 19.9,
      "line": 30.5,
-     "p_over": 0.249,
+     "p_over": 0.2556,
      "inj": null
     },
     {
@@ -3721,12 +3736,12 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rec",
-     "mean": 2.9,
+     "mean": 3.0,
      "sd": 2.5,
      "mingus": 3.5,
-     "sleeper": 2.3,
+     "sleeper": 2.4,
      "line": 3.5,
-     "p_over": 0.266,
+     "p_over": 0.2825,
      "inj": null
     },
     {
@@ -3736,13 +3751,13 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rec_yds",
-     "mean": 52.1,
-     "sd": 52.3,
-     "mingus": 58.4,
-     "sleeper": 45.8,
+     "mean": 53.0,
+     "sd": 52.7,
+     "mingus": 58.7,
+     "sleeper": 47.2,
      "line": 54.5,
-     "p_over": 0.3187,
-     "inj": null
+     "p_over": 0.327,
+     "inj": "Limited"
     },
     {
      "pid": "00-0040663",
@@ -3751,13 +3766,13 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rec",
-     "mean": 4.4,
+     "mean": 4.5,
      "sd": 3.7,
      "mingus": 4.9,
-     "sleeper": 3.9,
+     "sleeper": 4.0,
      "line": 4.5,
-     "p_over": 0.3459,
-     "inj": null
+     "p_over": 0.3597,
+     "inj": "Limited"
     },
     {
      "pid": "00-0040729",
@@ -3766,12 +3781,12 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rec_yds",
-     "mean": 31.5,
-     "sd": 32.4,
-     "mingus": 38.5,
-     "sleeper": 24.5,
+     "mean": 31.9,
+     "sd": 32.7,
+     "mingus": 38.7,
+     "sleeper": 25.1,
      "line": 31.5,
-     "p_over": 0.3355,
+     "p_over": 0.3413,
      "inj": null
     },
     {
@@ -3781,12 +3796,12 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rec",
-     "mean": 2.7,
+     "mean": 2.8,
      "sd": 2.6,
      "mingus": 3.4,
-     "sleeper": 2.1,
+     "sleeper": 2.2,
      "line": 3.5,
-     "p_over": 0.2341,
+     "p_over": 0.2491,
      "inj": null
     },
     {
@@ -3796,12 +3811,12 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rush_yds",
-     "mean": 58.0,
-     "sd": 41.6,
-     "mingus": 52.8,
-     "sleeper": 63.2,
+     "mean": 57.3,
+     "sd": 41.2,
+     "mingus": 53.1,
+     "sleeper": 61.5,
      "line": 47.5,
-     "p_over": 0.4952,
+     "p_over": 0.4872,
      "inj": null
     },
     {
@@ -3811,12 +3826,12 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rush_yds",
-     "mean": 33.7,
-     "sd": 29.1,
-     "mingus": 34.4,
-     "sleeper": 33.0,
+     "mean": 33.3,
+     "sd": 28.9,
+     "mingus": 34.6,
+     "sleeper": 32.0,
      "line": 30.5,
-     "p_over": 0.4053,
+     "p_over": 0.3984,
      "inj": null
     },
     {
@@ -3826,13 +3841,13 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rec_yds",
-     "mean": 50.0,
-     "sd": 43.9,
-     "mingus": 50.4,
-     "sleeper": 49.6,
+     "mean": 50.9,
+     "sd": 44.4,
+     "mingus": 50.7,
+     "sleeper": 51.1,
      "line": 52.5,
-     "p_over": 0.3291,
-     "inj": null
+     "p_over": 0.3382,
+     "inj": "DNP"
     },
     {
      "pid": "00-0041037",
@@ -3841,13 +3856,13 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rec",
-     "mean": 3.2,
+     "mean": 3.3,
      "sd": 2.5,
      "mingus": 3.5,
-     "sleeper": 2.9,
+     "sleeper": 3.0,
      "line": 3.5,
-     "p_over": 0.3174,
-     "inj": null
+     "p_over": 0.3357,
+     "inj": "DNP"
     },
     {
      "pid": "00-0041547",
@@ -3856,12 +3871,12 @@
      "team": "CLE",
      "opp": "LV",
      "st": "rec_yds",
-     "mean": 49.4,
-     "sd": 46.5,
-     "mingus": 51.2,
-     "sleeper": 47.6,
+     "mean": 50.2,
+     "sd": 46.9,
+     "mingus": 51.5,
+     "sleeper": 49.0,
      "line": 45.5,
-     "p_over": 0.384,
+     "p_over": 0.3928,
      "inj": null
     },
     {
@@ -3874,7 +3889,7 @@
      "mean": 3.9,
      "sd": 2.9,
      "mingus": 4.0,
-     "sleeper": 3.8,
+     "sleeper": 3.9,
      "line": 4.5,
      "p_over": 0.292,
      "inj": null
@@ -3886,13 +3901,13 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rec_yds",
-     "mean": 65.3,
-     "sd": 54.7,
-     "mingus": 66.4,
-     "sleeper": 64.1,
+     "mean": 66.2,
+     "sd": 55.4,
+     "mingus": 66.7,
+     "sleeper": 65.8,
      "line": 84.5,
-     "p_over": 0.2364,
-     "inj": null
+     "p_over": 0.2422,
+     "inj": "Limited"
     },
     {
      "pid": "00-0039338",
@@ -3901,13 +3916,13 @@
      "team": "LV",
      "opp": "CLE",
      "st": "rec",
-     "mean": 5.1,
-     "sd": 3.8,
-     "mingus": 5.2,
-     "sleeper": 4.9,
+     "mean": 5.2,
+     "sd": 3.9,
+     "mingus": 5.3,
+     "sleeper": 5.1,
      "line": 6.5,
-     "p_over": 0.2428,
-     "inj": null
+     "p_over": 0.2521,
+     "inj": "Limited"
     }
    ],
    "td": [
@@ -3917,7 +3932,7 @@
      "pos": "RB",
      "team": "CLE",
      "opp": "LV",
-     "p": 0.4122,
+     "p": 0.4177,
      "inj": null
     },
     {
@@ -3926,7 +3941,7 @@
      "pos": "RB",
      "team": "LV",
      "opp": "CLE",
-     "p": 0.3562,
+     "p": 0.363,
      "inj": null
     },
     {
@@ -3935,8 +3950,8 @@
      "pos": "TE",
      "team": "LV",
      "opp": "CLE",
-     "p": 0.2931,
-     "inj": null
+     "p": 0.2992,
+     "inj": "Limited"
     },
     {
      "pid": "00-0041547",
@@ -3944,7 +3959,7 @@
      "pos": "WR",
      "team": "CLE",
      "opp": "LV",
-     "p": 0.2711,
+     "p": 0.2756,
      "inj": null
     },
     {
@@ -3953,8 +3968,8 @@
      "pos": "TE",
      "team": "CLE",
      "opp": "LV",
-     "p": 0.2697,
-     "inj": null
+     "p": 0.2742,
+     "inj": "Limited"
     },
     {
      "pid": "00-0041037",
@@ -3962,8 +3977,8 @@
      "pos": "WR",
      "team": "CLE",
      "opp": "LV",
-     "p": 0.2401,
-     "inj": null
+     "p": 0.2442,
+     "inj": "DNP"
     },
     {
      "pid": "00-0040162",
@@ -3971,7 +3986,7 @@
      "pos": "RB",
      "team": "CLE",
      "opp": "LV",
-     "p": 0.2104,
+     "p": 0.2142,
      "inj": null
     },
     {
@@ -3980,7 +3995,7 @@
      "pos": "WR",
      "team": "LV",
      "opp": "CLE",
-     "p": 0.1949,
+     "p": 0.1995,
      "inj": null
     },
     {
@@ -3989,7 +4004,7 @@
      "pos": "QB",
      "team": "CLE",
      "opp": "LV",
-     "p": 0.1928,
+     "p": 0.1963,
      "inj": null
     },
     {
@@ -3998,16 +4013,7 @@
      "pos": "WR",
      "team": "LV",
      "opp": "CLE",
-     "p": 0.1884,
-     "inj": null
-    },
-    {
-     "pid": "00-0036407",
-     "name": "Jerry Jeudy",
-     "pos": "WR",
-     "team": "CLE",
-     "opp": "LV",
-     "p": 0.1531,
+     "p": 0.193,
      "inj": null
     },
     {
@@ -4016,7 +4022,16 @@
      "pos": "RB",
      "team": "LV",
      "opp": "CLE",
-     "p": 0.1528,
+     "p": 0.1566,
+     "inj": null
+    },
+    {
+     "pid": "00-0036407",
+     "name": "Jerry Jeudy",
+     "pos": "WR",
+     "team": "CLE",
+     "opp": "LV",
+     "p": 0.1561,
      "inj": null
     },
     {
@@ -4025,7 +4040,7 @@
      "pos": "TE",
      "team": "LV",
      "opp": "CLE",
-     "p": 0.1495,
+     "p": 0.1533,
      "inj": null
     },
     {
@@ -4034,7 +4049,7 @@
      "pos": "WR",
      "team": "LV",
      "opp": "CLE",
-     "p": 0.143,
+     "p": 0.1466,
      "inj": null
     },
     {
@@ -4043,7 +4058,7 @@
      "pos": "QB",
      "team": "CLE",
      "opp": "LV",
-     "p": 0.1375,
+     "p": 0.1402,
      "inj": null
     },
     {
@@ -4052,7 +4067,7 @@
      "pos": "QB",
      "team": "LV",
      "opp": "CLE",
-     "p": 0.1355,
+     "p": 0.139,
      "inj": null
     },
     {
@@ -4061,7 +4076,7 @@
      "pos": "RB",
      "team": "CLE",
      "opp": "LV",
-     "p": 0.1252,
+     "p": 0.1277,
      "inj": null
     },
     {
@@ -4070,13 +4085,13 @@
      "pos": "RB",
      "team": "CLE",
      "opp": "LV",
-     "p": 0.1249,
-     "inj": "Out"
+     "p": 0.1274,
+     "inj": "Limited"
     }
    ]
   },
   "2026_12_BAL_HOU": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -4092,7 +4107,7 @@
      "sleeper": 58.1,
      "line": 72.5,
      "p_over": 0.2999,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0033119",
@@ -4103,7 +4118,7 @@
      "st": "pass_yds",
      "mean": 225.5,
      "sd": 88.2,
-     "mingus": 233.2,
+     "mingus": 233.0,
      "sleeper": 217.9,
      "line": 233.5,
      "p_over": 0.4639,
@@ -4116,12 +4131,12 @@
      "team": "HOU",
      "opp": "BAL",
      "st": "rec_yds",
-     "mean": 36.1,
+     "mean": 36.2,
      "sd": 39.6,
-     "mingus": 30.4,
+     "mingus": 30.7,
      "sleeper": 41.8,
      "line": 38.5,
-     "p_over": 0.3026,
+     "p_over": 0.304,
      "inj": null
     },
     {
@@ -4146,12 +4161,12 @@
      "team": "BAL",
      "opp": "HOU",
      "st": "rec_yds",
-     "mean": 29.8,
-     "sd": 27.6,
+     "mean": 29.7,
+     "sd": 27.5,
      "mingus": 28.7,
      "sleeper": 30.8,
      "line": 30.5,
-     "p_over": 0.3361,
+     "p_over": 0.3346,
      "inj": null
     },
     {
@@ -4178,7 +4193,7 @@
      "st": "rec_yds",
      "mean": 16.7,
      "sd": 14.7,
-     "mingus": 21.0,
+     "mingus": 20.9,
      "sleeper": 12.5,
      "line": 15.5,
      "p_over": 0.3896,
@@ -4206,12 +4221,12 @@
      "team": "HOU",
      "opp": "BAL",
      "st": "rush_yds",
-     "mean": 37.4,
+     "mean": 37.5,
      "sd": 35.6,
-     "mingus": 43.7,
+     "mingus": 43.9,
      "sleeper": 31.2,
      "line": 40.5,
-     "p_over": 0.3083,
+     "p_over": 0.3097,
      "inj": null
     },
     {
@@ -4227,7 +4242,7 @@
      "sleeper": 31.0,
      "line": 36.5,
      "p_over": 0.2932,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0036550",
@@ -4242,7 +4257,7 @@
      "sleeper": 2.0,
      "line": 2.5,
      "p_over": 0.2658,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0036554",
@@ -4251,12 +4266,12 @@
      "team": "HOU",
      "opp": "BAL",
      "st": "rec_yds",
-     "mean": 73.5,
-     "sd": 60.6,
-     "mingus": 67.9,
+     "mean": 73.8,
+     "sd": 60.8,
+     "mingus": 68.5,
      "sleeper": 79.1,
      "line": 67.5,
-     "p_over": 0.4044,
+     "p_over": 0.4068,
      "inj": null
     },
     {
@@ -4281,12 +4296,12 @@
      "team": "HOU",
      "opp": "BAL",
      "st": "rec_yds",
-     "mean": 40.3,
-     "sd": 32.8,
-     "mingus": 39.8,
+     "mean": 40.5,
+     "sd": 32.9,
+     "mingus": 40.2,
      "sleeper": 40.9,
      "line": 35.5,
-     "p_over": 0.4291,
+     "p_over": 0.4322,
      "inj": null
     },
     {
@@ -4317,7 +4332,7 @@
      "sleeper": 84.8,
      "line": 78.5,
      "p_over": 0.3518,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0039064",
@@ -4332,7 +4347,7 @@
      "sleeper": 5.9,
      "line": 5.5,
      "p_over": 0.3916,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0039163",
@@ -4343,7 +4358,7 @@
      "st": "pass_yds",
      "mean": 270.0,
      "sd": 97.6,
-     "mingus": 258.1,
+     "mingus": 258.2,
      "sleeper": 281.9,
      "line": 265.5,
      "p_over": 0.5184,
@@ -4356,13 +4371,13 @@
      "team": "HOU",
      "opp": "BAL",
      "st": "rec_yds",
-     "mean": 20.0,
-     "sd": 18.8,
-     "mingus": 24.4,
+     "mean": 20.1,
+     "sd": 18.9,
+     "mingus": 24.6,
      "sleeper": 15.6,
      "line": 20.5,
-     "p_over": 0.334,
-     "inj": null
+     "p_over": 0.3363,
+     "inj": "Limited"
     },
     {
      "pid": "00-0039849",
@@ -4371,13 +4386,13 @@
      "team": "HOU",
      "opp": "BAL",
      "st": "rec",
-     "mean": 1.4,
+     "mean": 1.5,
      "sd": 1.3,
      "mingus": 1.9,
      "sleeper": 1.0,
      "line": 1.5,
-     "p_over": 0.315,
-     "inj": null
+     "p_over": 0.3541,
+     "inj": "Limited"
     },
     {
      "pid": "00-0040138",
@@ -4386,12 +4401,12 @@
      "team": "HOU",
      "opp": "BAL",
      "st": "rec_yds",
-     "mean": 36.7,
-     "sd": 38.8,
-     "mingus": 36.7,
+     "mean": 37.0,
+     "sd": 39.0,
+     "mingus": 37.0,
      "sleeper": null,
      "line": 47.5,
-     "p_over": 0.2324,
+     "p_over": 0.2354,
      "inj": "Out"
     },
     {
@@ -4416,12 +4431,12 @@
      "team": "HOU",
      "opp": "BAL",
      "st": "rush_yds",
-     "mean": 43.0,
-     "sd": 32.9,
-     "mingus": 48.9,
+     "mean": 43.1,
+     "sd": 33.0,
+     "mingus": 49.2,
      "sleeper": 37.0,
      "line": 43.5,
-     "p_over": 0.3607,
+     "p_over": 0.362,
      "inj": null
     },
     {
@@ -4461,12 +4476,12 @@
      "team": "HOU",
      "opp": "BAL",
      "st": "rec_yds",
-     "mean": 37.0,
-     "sd": 37.5,
-     "mingus": 43.6,
+     "mean": 37.2,
+     "sd": 37.6,
+     "mingus": 44.0,
      "sleeper": 30.4,
      "line": 49.5,
-     "p_over": 0.2217,
+     "p_over": 0.2236,
      "inj": null
     },
     {
@@ -4492,8 +4507,8 @@
      "pos": "RB",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.4896,
-     "inj": null
+     "p": 0.4887,
+     "inj": "Limited"
     },
     {
      "pid": "00-0035685",
@@ -4501,7 +4516,7 @@
      "pos": "RB",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.3953,
+     "p": 0.3945,
      "inj": null
     },
     {
@@ -4510,7 +4525,7 @@
      "pos": "RB",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.3945,
+     "p": 0.3936,
      "inj": null
     },
     {
@@ -4519,7 +4534,7 @@
      "pos": "WR",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.3762,
+     "p": 0.3753,
      "inj": null
     },
     {
@@ -4528,8 +4543,8 @@
      "pos": "WR",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.2856,
-     "inj": null
+     "p": 0.2848,
+     "inj": "Limited"
     },
     {
      "pid": "00-0038618",
@@ -4537,7 +4552,7 @@
      "pos": "WR",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.2823,
+     "p": 0.2815,
      "inj": null
     },
     {
@@ -4546,7 +4561,7 @@
      "pos": "WR",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.2341,
+     "p": 0.2334,
      "inj": null
     },
     {
@@ -4555,7 +4570,7 @@
      "pos": "TE",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.2286,
+     "p": 0.228,
      "inj": null
     },
     {
@@ -4564,7 +4579,7 @@
      "pos": "WR",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.2203,
+     "p": 0.2196,
      "inj": "Out"
     },
     {
@@ -4573,8 +4588,8 @@
      "pos": "WR",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.2138,
-     "inj": null
+     "p": 0.2132,
+     "inj": "Limited"
     },
     {
      "pid": "00-0034975",
@@ -4582,7 +4597,7 @@
      "pos": "RB",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.2135,
+     "p": 0.2129,
      "inj": null
     },
     {
@@ -4591,7 +4606,7 @@
      "pos": "TE",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.2097,
+     "p": 0.209,
      "inj": null
     },
     {
@@ -4600,8 +4615,8 @@
      "pos": "WR",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.2084,
-     "inj": null
+     "p": 0.2078,
+     "inj": "DNP"
     },
     {
      "pid": "00-0034753",
@@ -4609,7 +4624,7 @@
      "pos": "TE",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.1863,
+     "p": 0.1857,
      "inj": null
     },
     {
@@ -4618,7 +4633,7 @@
      "pos": "RB",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.1782,
+     "p": 0.1777,
      "inj": null
     },
     {
@@ -4627,7 +4642,7 @@
      "pos": "WR",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.1719,
+     "p": 0.1714,
      "inj": null
     },
     {
@@ -4636,8 +4651,8 @@
      "pos": "WR",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.166,
-     "inj": null
+     "p": 0.1655,
+     "inj": "Limited"
     },
     {
      "pid": "00-0039163",
@@ -4645,7 +4660,7 @@
      "pos": "QB",
      "team": "HOU",
      "opp": "BAL",
-     "p": 0.1626,
+     "p": 0.1621,
      "inj": null
     },
     {
@@ -4654,7 +4669,7 @@
      "pos": "TE",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.137,
+     "p": 0.1366,
      "inj": null
     },
     {
@@ -4663,7 +4678,7 @@
      "pos": "QB",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.1326,
+     "p": 0.1321,
      "inj": "Out"
     },
     {
@@ -4672,7 +4687,7 @@
      "pos": "QB",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.1296,
+     "p": 0.1292,
      "inj": "Out"
     },
     {
@@ -4681,13 +4696,13 @@
      "pos": "QB",
      "team": "BAL",
      "opp": "HOU",
-     "p": 0.1275,
+     "p": 0.1271,
      "inj": null
     }
    ]
   },
   "2026_12_NYG_IND": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -4697,12 +4712,12 @@
      "team": "NYG",
      "opp": "IND",
      "st": "rush_yds",
-     "mean": 18.8,
+     "mean": 18.9,
      "sd": 16.1,
      "mingus": 20.3,
      "sleeper": 17.4,
      "line": 17.5,
-     "p_over": 0.392,
+     "p_over": 0.3955,
      "inj": null
     },
     {
@@ -4712,12 +4727,12 @@
      "team": "IND",
      "opp": "NYG",
      "st": "pass_yds",
-     "mean": 168.6,
+     "mean": 168.5,
      "sd": 64.9,
-     "mingus": 168.6,
+     "mingus": 168.5,
      "sleeper": null,
      "line": 179.5,
-     "p_over": 0.4333,
+     "p_over": 0.4327,
      "inj": "Out"
     },
     {
@@ -4729,7 +4744,7 @@
      "st": "rush_yds",
      "mean": 72.0,
      "sd": 50.8,
-     "mingus": 60.9,
+     "mingus": 60.8,
      "sleeper": 83.1,
      "line": 69.5,
      "p_over": 0.3966,
@@ -4803,12 +4818,12 @@
      "opp": "IND",
      "st": "rec_yds",
      "mean": 60.2,
-     "sd": 53.1,
+     "sd": 53.0,
      "mingus": 59.0,
      "sleeper": 61.4,
      "line": 61.5,
-     "p_over": 0.3418,
-     "inj": null
+     "p_over": 0.342,
+     "inj": "Limited"
     },
     {
      "pid": "00-0037838",
@@ -4823,7 +4838,7 @@
      "sleeper": 4.9,
      "line": 5.5,
      "p_over": 0.3228,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0039337",
@@ -4834,7 +4849,7 @@
      "st": "rec_yds",
      "mean": 80.8,
      "sd": 70.7,
-     "mingus": 77.7,
+     "mingus": 77.6,
      "sleeper": 84.0,
      "line": 74.5,
      "p_over": 0.3938,
@@ -4864,7 +4879,7 @@
      "st": "rec_yds",
      "mean": 37.8,
      "sd": 33.9,
-     "mingus": 38.5,
+     "mingus": 38.4,
      "sleeper": 37.2,
      "line": 33.5,
      "p_over": 0.4102,
@@ -4892,12 +4907,12 @@
      "team": "NYG",
      "opp": "IND",
      "st": "rush_yds",
-     "mean": 82.0,
+     "mean": 81.9,
      "sd": 58.3,
-     "mingus": 71.5,
+     "mingus": 71.4,
      "sleeper": 92.4,
      "line": 66.5,
-     "p_over": 0.5031,
+     "p_over": 0.5021,
      "inj": null
     },
     {
@@ -4973,7 +4988,7 @@
      "sleeper": null,
      "line": 26.5,
      "p_over": 0.3893,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0036893",
@@ -4982,12 +4997,12 @@
      "team": "NYG",
      "opp": "IND",
      "st": "rush_yds",
-     "mean": 21.7,
+     "mean": 21.8,
      "sd": 20.0,
-     "mingus": 21.7,
+     "mingus": 21.8,
      "sleeper": null,
      "line": 19.5,
-     "p_over": 0.3991,
+     "p_over": 0.402,
      "inj": "Out"
     },
     {
@@ -4999,7 +5014,7 @@
      "st": "pass_yds",
      "mean": 220.8,
      "sd": 95.7,
-     "mingus": 185.9,
+     "mingus": 185.8,
      "sleeper": 255.8,
      "line": 181.5,
      "p_over": 0.6593,
@@ -5013,7 +5028,7 @@
      "pos": "RB",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.502,
+     "p": 0.5013,
      "inj": null
     },
     {
@@ -5022,7 +5037,7 @@
      "pos": "RB",
      "team": "IND",
      "opp": "NYG",
-     "p": 0.4081,
+     "p": 0.4072,
      "inj": null
     },
     {
@@ -5031,7 +5046,7 @@
      "pos": "WR",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.3865,
+     "p": 0.3856,
      "inj": null
     },
     {
@@ -5040,8 +5055,8 @@
      "pos": "TE",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.3593,
-     "inj": null
+     "p": 0.3585,
+     "inj": "Limited"
     },
     {
      "pid": "00-0040128",
@@ -5049,7 +5064,7 @@
      "pos": "TE",
      "team": "IND",
      "opp": "NYG",
-     "p": 0.2147,
+     "p": 0.2141,
      "inj": null
     },
     {
@@ -5058,7 +5073,7 @@
      "pos": "WR",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.1942,
+     "p": 0.1936,
      "inj": null
     },
     {
@@ -5067,7 +5082,7 @@
      "pos": "RB",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.1855,
+     "p": 0.1849,
      "inj": null
     },
     {
@@ -5076,7 +5091,7 @@
      "pos": "RB",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.183,
+     "p": 0.1825,
      "inj": "Out"
     },
     {
@@ -5085,7 +5100,7 @@
      "pos": "WR",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.1757,
+     "p": 0.1752,
      "inj": null
     },
     {
@@ -5094,7 +5109,7 @@
      "pos": "TE",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.1599,
+     "p": 0.1594,
      "inj": null
     },
     {
@@ -5103,7 +5118,7 @@
      "pos": "QB",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.1598,
+     "p": 0.1593,
      "inj": null
     },
     {
@@ -5112,7 +5127,7 @@
      "pos": "RB",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.1581,
+     "p": 0.1576,
      "inj": "Out"
     },
     {
@@ -5121,7 +5136,7 @@
      "pos": "QB",
      "team": "NYG",
      "opp": "IND",
-     "p": 0.1501,
+     "p": 0.1496,
      "inj": null
     },
     {
@@ -5130,8 +5145,8 @@
      "pos": "RB",
      "team": "IND",
      "opp": "NYG",
-     "p": 0.1354,
-     "inj": null
+     "p": 0.135,
+     "inj": "DNP"
     },
     {
      "pid": "00-0032951",
@@ -5139,7 +5154,7 @@
      "pos": "WR",
      "team": "IND",
      "opp": "NYG",
-     "p": 0.122,
+     "p": 0.1216,
      "inj": null
     },
     {
@@ -5148,7 +5163,7 @@
      "pos": "WR",
      "team": "IND",
      "opp": "NYG",
-     "p": 0.1201,
+     "p": 0.1197,
      "inj": null
     },
     {
@@ -5157,13 +5172,13 @@
      "pos": "QB",
      "team": "IND",
      "opp": "NYG",
-     "p": 0.1066,
+     "p": 0.1062,
      "inj": "Out"
     }
    ]
   },
   "2026_12_NYJ_MIA": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -5173,12 +5188,12 @@
      "team": "NYJ",
      "opp": "MIA",
      "st": "pass_yds",
-     "mean": 212.9,
-     "sd": 77.5,
-     "mingus": 182.7,
-     "sleeper": 243.1,
+     "mean": 212.4,
+     "sd": 77.4,
+     "mingus": 182.6,
+     "sleeper": 242.3,
      "line": 218.5,
-     "p_over": 0.4712,
+     "p_over": 0.4686,
      "inj": null
     },
     {
@@ -5188,12 +5203,12 @@
      "team": "MIA",
      "opp": "NYJ",
      "st": "rec_yds",
-     "mean": 30.3,
+     "mean": 30.2,
      "sd": 30.2,
-     "mingus": 29.4,
+     "mingus": 29.3,
      "sleeper": 31.1,
      "line": 31.5,
-     "p_over": 0.322,
+     "p_over": 0.3203,
      "inj": null
     },
     {
@@ -5218,12 +5233,12 @@
      "team": "NYJ",
      "opp": "MIA",
      "st": "rec_yds",
-     "mean": 66.5,
-     "sd": 54.5,
-     "mingus": 62.3,
-     "sleeper": 70.8,
+     "mean": 66.4,
+     "sd": 54.4,
+     "mingus": 62.2,
+     "sleeper": 70.6,
      "line": 67.5,
-     "p_over": 0.3523,
+     "p_over": 0.3515,
      "inj": null
     },
     {
@@ -5248,12 +5263,12 @@
      "team": "NYJ",
      "opp": "MIA",
      "st": "rush_yds",
-     "mean": 52.7,
-     "sd": 41.7,
-     "mingus": 56.3,
-     "sleeper": 49.2,
+     "mean": 52.8,
+     "sd": 41.8,
+     "mingus": 56.2,
+     "sleeper": 49.4,
      "line": 58.5,
-     "p_over": 0.3091,
+     "p_over": 0.31,
      "inj": null
     },
     {
@@ -5263,12 +5278,12 @@
      "team": "NYJ",
      "opp": "MIA",
      "st": "rec_yds",
-     "mean": 25.6,
+     "mean": 25.5,
      "sd": 25.6,
      "mingus": 26.3,
-     "sleeper": 24.9,
+     "sleeper": 24.8,
      "line": 34.5,
-     "p_over": 0.2193,
+     "p_over": 0.2178,
      "inj": null
     },
     {
@@ -5293,12 +5308,12 @@
      "team": "MIA",
      "opp": "NYJ",
      "st": "pass_yds",
-     "mean": 141.7,
-     "sd": 54.5,
-     "mingus": 141.7,
+     "mean": 141.1,
+     "sd": 54.4,
+     "mingus": 141.1,
      "sleeper": null,
      "line": 174.5,
-     "p_over": 0.2736,
+     "p_over": 0.2696,
      "inj": "Out"
     },
     {
@@ -5310,8 +5325,8 @@
      "st": "rush_yds",
      "mean": 53.5,
      "sd": 48.6,
-     "mingus": 64.7,
-     "sleeper": 42.3,
+     "mingus": 64.6,
+     "sleeper": 42.5,
      "line": 64.5,
      "p_over": 0.2647,
      "inj": null
@@ -5323,12 +5338,12 @@
      "team": "MIA",
      "opp": "NYJ",
      "st": "rec_yds",
-     "mean": 39.2,
-     "sd": 30.5,
-     "mingus": 35.9,
-     "sleeper": 42.5,
+     "mean": 39.1,
+     "sd": 30.4,
+     "mingus": 35.7,
+     "sleeper": 42.4,
      "line": 43.5,
-     "p_over": 0.3102,
+     "p_over": 0.3089,
      "inj": null
     },
     {
@@ -5355,8 +5370,8 @@
      "st": "rec_yds",
      "mean": 45.7,
      "sd": 48.9,
-     "mingus": 45.0,
-     "sleeper": 46.5,
+     "mingus": 44.9,
+     "sleeper": 46.4,
      "line": 50.5,
      "p_over": 0.2908,
      "inj": null
@@ -5383,12 +5398,12 @@
      "team": "NYJ",
      "opp": "MIA",
      "st": "rec_yds",
-     "mean": 25.5,
+     "mean": 25.4,
      "sd": 23.5,
      "mingus": 24.6,
-     "sleeper": 26.3,
+     "sleeper": 26.2,
      "line": 24.5,
-     "p_over": 0.3665,
+     "p_over": 0.3642,
      "inj": null
     },
     {
@@ -5401,7 +5416,7 @@
      "mean": 2.8,
      "sd": 2.1,
      "mingus": 2.6,
-     "sleeper": 3.0,
+     "sleeper": 2.9,
      "line": 3.5,
      "p_over": 0.2521,
      "inj": null
@@ -5416,10 +5431,10 @@
      "mean": 54.3,
      "sd": 50.6,
      "mingus": 58.5,
-     "sleeper": 50.1,
+     "sleeper": 50.0,
      "line": 76.5,
      "p_over": 0.2036,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0041511",
@@ -5434,7 +5449,7 @@
      "sleeper": 3.5,
      "line": 5.5,
      "p_over": 0.1919,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0041523",
@@ -5443,12 +5458,12 @@
      "team": "MIA",
      "opp": "NYJ",
      "st": "rec_yds",
-     "mean": 49.2,
-     "sd": 42.5,
-     "mingus": 50.1,
-     "sleeper": 48.2,
+     "mean": 49.0,
+     "sd": 42.4,
+     "mingus": 49.9,
+     "sleeper": 48.1,
      "line": 56.5,
-     "p_over": 0.2882,
+     "p_over": 0.2863,
      "inj": null
     },
     {
@@ -5473,12 +5488,12 @@
      "team": "MIA",
      "opp": "NYJ",
      "st": "rec_yds",
-     "mean": 19.4,
-     "sd": 22.3,
-     "mingus": 19.0,
-     "sleeper": 19.8,
+     "mean": 19.3,
+     "sd": 22.2,
+     "mingus": 18.9,
+     "sleeper": 19.7,
      "line": 17.5,
-     "p_over": 0.3645,
+     "p_over": 0.3623,
      "inj": null
     },
     {
@@ -5503,12 +5518,12 @@
      "team": "MIA",
      "opp": "NYJ",
      "st": "rush_yds",
-     "mean": 74.0,
-     "sd": 53.2,
-     "mingus": 76.5,
-     "sleeper": 71.5,
+     "mean": 73.7,
+     "sd": 52.9,
+     "mingus": 76.1,
+     "sleeper": 71.2,
      "line": 67.5,
-     "p_over": 0.4285,
+     "p_over": 0.4262,
      "inj": null
     }
    ],
@@ -5519,16 +5534,7 @@
      "pos": "RB",
      "team": "NYJ",
      "opp": "MIA",
-     "p": 0.4615,
-     "inj": null
-    },
-    {
-     "pid": "00-0040198",
-     "name": "Ollie Gordon II",
-     "pos": "RB",
-     "team": "MIA",
-     "opp": "NYJ",
-     "p": 0.3546,
+     "p": 0.4606,
      "inj": null
     },
     {
@@ -5537,7 +5543,16 @@
      "pos": "RB",
      "team": "NYJ",
      "opp": "MIA",
-     "p": 0.3418,
+     "p": 0.341,
+     "inj": null
+    },
+    {
+     "pid": "00-0040198",
+     "name": "Ollie Gordon II",
+     "pos": "RB",
+     "team": "MIA",
+     "opp": "NYJ",
+     "p": 0.3385,
      "inj": null
     },
     {
@@ -5546,7 +5561,7 @@
      "pos": "WR",
      "team": "NYJ",
      "opp": "MIA",
-     "p": 0.2958,
+     "p": 0.2951,
      "inj": null
     },
     {
@@ -5555,8 +5570,8 @@
      "pos": "WR",
      "team": "NYJ",
      "opp": "MIA",
-     "p": 0.267,
-     "inj": null
+     "p": 0.2663,
+     "inj": "DNP"
     },
     {
      "pid": "00-0039040",
@@ -5564,7 +5579,7 @@
      "pos": "RB",
      "team": "MIA",
      "opp": "NYJ",
-     "p": 0.2549,
+     "p": 0.2417,
      "inj": "Out"
     },
     {
@@ -5573,7 +5588,7 @@
      "pos": "WR",
      "team": "NYJ",
      "opp": "MIA",
-     "p": 0.2284,
+     "p": 0.2278,
      "inj": null
     },
     {
@@ -5582,7 +5597,7 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "NYJ",
-     "p": 0.2229,
+     "p": 0.2109,
      "inj": null
     },
     {
@@ -5591,7 +5606,7 @@
      "pos": "TE",
      "team": "NYJ",
      "opp": "MIA",
-     "p": 0.1892,
+     "p": 0.1886,
      "inj": null
     },
     {
@@ -5600,7 +5615,7 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "NYJ",
-     "p": 0.1788,
+     "p": 0.1687,
      "inj": null
     },
     {
@@ -5609,7 +5624,7 @@
      "pos": "TE",
      "team": "NYJ",
      "opp": "MIA",
-     "p": 0.1651,
+     "p": 0.1646,
      "inj": null
     },
     {
@@ -5618,7 +5633,7 @@
      "pos": "TE",
      "team": "MIA",
      "opp": "NYJ",
-     "p": 0.1618,
+     "p": 0.1524,
      "inj": null
     },
     {
@@ -5627,7 +5642,16 @@
      "pos": "WR",
      "team": "NYJ",
      "opp": "MIA",
-     "p": 0.1528,
+     "p": 0.1523,
+     "inj": "Limited"
+    },
+    {
+     "pid": "00-0033375",
+     "name": "Tim Patrick",
+     "pos": "WR",
+     "team": "NYJ",
+     "opp": "MIA",
+     "p": 0.1314,
      "inj": null
     },
     {
@@ -5636,17 +5660,8 @@
      "pos": "QB",
      "team": "MIA",
      "opp": "NYJ",
-     "p": 0.1341,
+     "p": 0.126,
      "inj": "Out"
-    },
-    {
-     "pid": "00-0033375",
-     "name": "Tim Patrick",
-     "pos": "WR",
-     "team": "NYJ",
-     "opp": "MIA",
-     "p": 0.1319,
-     "inj": null
     },
     {
      "pid": "00-0041529",
@@ -5654,7 +5669,7 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "NYJ",
-     "p": 0.1292,
+     "p": 0.1214,
      "inj": null
     },
     {
@@ -5663,7 +5678,7 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "NYJ",
-     "p": 0.1212,
+     "p": 0.1139,
      "inj": null
     },
     {
@@ -5672,8 +5687,8 @@
      "pos": "WR",
      "team": "MIA",
      "opp": "NYJ",
-     "p": 0.104,
-     "inj": null
+     "p": 0.0975,
+     "inj": "DNP"
     },
     {
      "pid": "00-0039874",
@@ -5681,13 +5696,13 @@
      "pos": "RB",
      "team": "MIA",
      "opp": "NYJ",
-     "p": 0.1006,
+     "p": 0.0944,
      "inj": null
     }
    ]
   },
   "2026_12_ATL_MIN": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -5697,12 +5712,12 @@
      "team": "MIN",
      "opp": "ATL",
      "st": "pass_yds",
-     "mean": 228.8,
+     "mean": 228.7,
      "sd": 75.4,
-     "mingus": 225.7,
+     "mingus": 225.5,
      "sleeper": 231.9,
      "line": 252.5,
-     "p_over": 0.3766,
+     "p_over": 0.3761,
      "inj": null
     },
     {
@@ -5714,7 +5729,7 @@
      "st": "rush_yds",
      "mean": 50.4,
      "sd": 42.7,
-     "mingus": 49.9,
+     "mingus": 49.8,
      "sleeper": 51.0,
      "line": 55.5,
      "p_over": 0.309,
@@ -5727,13 +5742,13 @@
      "team": "MIN",
      "opp": "ATL",
      "st": "pass_yds",
-     "mean": 162.3,
-     "sd": 72.5,
-     "mingus": 162.3,
+     "mean": 162.2,
+     "sd": 72.4,
+     "mingus": 162.2,
      "sleeper": null,
      "line": 170.5,
-     "p_over": 0.455,
-     "inj": null
+     "p_over": 0.4544,
+     "inj": "Limited"
     },
     {
      "pid": "00-0035229",
@@ -5834,7 +5849,7 @@
      "st": "rec_yds",
      "mean": 78.0,
      "sd": 69.9,
-     "mingus": 70.6,
+     "mingus": 70.7,
      "sleeper": 85.4,
      "line": 80.5,
      "p_over": 0.3354,
@@ -5862,12 +5877,12 @@
      "team": "MIN",
      "opp": "ATL",
      "st": "rush_yds",
-     "mean": 57.1,
+     "mean": 57.0,
      "sd": 41.7,
      "mingus": 51.5,
      "sleeper": 62.6,
      "line": 46.5,
-     "p_over": 0.4949,
+     "p_over": 0.4935,
      "inj": null
     },
     {
@@ -5883,7 +5898,7 @@
      "sleeper": 36.2,
      "line": 41.5,
      "p_over": 0.2866,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0037741",
@@ -5898,7 +5913,7 @@
      "sleeper": 1.8,
      "line": 1.5,
      "p_over": 0.5556,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0037746",
@@ -5922,12 +5937,12 @@
      "team": "ATL",
      "opp": "MIN",
      "st": "rush_yds",
-     "mean": 94.4,
+     "mean": 94.3,
      "sd": 68.4,
-     "mingus": 97.0,
+     "mingus": 96.9,
      "sleeper": 91.7,
      "line": 95.5,
-     "p_over": 0.3659,
+     "p_over": 0.3652,
      "inj": null
     },
     {
@@ -5937,12 +5952,12 @@
      "team": "ATL",
      "opp": "MIN",
      "st": "rec_yds",
-     "mean": 20.5,
+     "mean": 20.6,
      "sd": 28.7,
      "mingus": 21.9,
      "sleeper": 19.2,
      "line": 25.5,
-     "p_over": 0.2326,
+     "p_over": 0.2343,
      "inj": null
     },
     {
@@ -5973,7 +5988,7 @@
      "sleeper": null,
      "line": 39.5,
      "p_over": 0.3766,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0038994",
@@ -5988,7 +6003,7 @@
      "sleeper": null,
      "line": 2.5,
      "p_over": 0.4456,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0039917",
@@ -6018,7 +6033,7 @@
      "sleeper": 31.8,
      "line": 19.5,
      "p_over": 0.5932,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0040154",
@@ -6033,7 +6048,7 @@
      "sleeper": 2.8,
      "line": 2.5,
      "p_over": 0.3895,
-     "inj": null
+     "inj": "Limited"
     }
    ],
    "td": [
@@ -6043,7 +6058,7 @@
      "pos": "RB",
      "team": "ATL",
      "opp": "MIN",
-     "p": 0.5036,
+     "p": 0.5028,
      "inj": null
     },
     {
@@ -6052,7 +6067,7 @@
      "pos": "RB",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.3588,
+     "p": 0.3579,
      "inj": null
     },
     {
@@ -6061,7 +6076,7 @@
      "pos": "WR",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.3494,
+     "p": 0.3485,
      "inj": null
     },
     {
@@ -6070,7 +6085,7 @@
      "pos": "TE",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.273,
+     "p": 0.2722,
      "inj": null
     },
     {
@@ -6079,7 +6094,7 @@
      "pos": "RB",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.2695,
+     "p": 0.2688,
      "inj": null
     },
     {
@@ -6088,7 +6103,7 @@
      "pos": "WR",
      "team": "ATL",
      "opp": "MIN",
-     "p": 0.2212,
+     "p": 0.2206,
      "inj": null
     },
     {
@@ -6097,8 +6112,8 @@
      "pos": "WR",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.2121,
-     "inj": null
+     "p": 0.2114,
+     "inj": "DNP"
     },
     {
      "pid": "00-0040154",
@@ -6106,8 +6121,8 @@
      "pos": "WR",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.198,
-     "inj": null
+     "p": 0.1975,
+     "inj": "Limited"
     },
     {
      "pid": "00-0040215",
@@ -6115,7 +6130,7 @@
      "pos": "TE",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.1945,
+     "p": 0.194,
      "inj": null
     },
     {
@@ -6124,7 +6139,7 @@
      "pos": "RB",
      "team": "ATL",
      "opp": "MIN",
-     "p": 0.1911,
+     "p": 0.1906,
      "inj": "Out"
     },
     {
@@ -6133,7 +6148,7 @@
      "pos": "TE",
      "team": "ATL",
      "opp": "MIN",
-     "p": 0.1782,
+     "p": 0.1777,
      "inj": null
     },
     {
@@ -6142,8 +6157,8 @@
      "pos": "QB",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.1632,
-     "inj": null
+     "p": 0.1627,
+     "inj": "Limited"
     },
     {
      "pid": "00-0036259",
@@ -6151,7 +6166,7 @@
      "pos": "WR",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.1545,
+     "p": 0.154,
      "inj": null
     },
     {
@@ -6160,8 +6175,8 @@
      "pos": "WR",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.1535,
-     "inj": null
+     "p": 0.153,
+     "inj": "Limited"
     },
     {
      "pid": "00-0029604",
@@ -6169,7 +6184,7 @@
      "pos": "QB",
      "team": "MIN",
      "opp": "ATL",
-     "p": 0.1481,
+     "p": 0.1476,
      "inj": null
     },
     {
@@ -6178,8 +6193,8 @@
      "pos": "WR",
      "team": "ATL",
      "opp": "MIN",
-     "p": 0.1396,
-     "inj": null
+     "p": 0.1391,
+     "inj": "DNP"
     },
     {
      "pid": "00-0035208",
@@ -6187,7 +6202,7 @@
      "pos": "WR",
      "team": "ATL",
      "opp": "MIN",
-     "p": 0.1092,
+     "p": 0.1088,
      "inj": null
     },
     {
@@ -6196,7 +6211,7 @@
      "pos": "QB",
      "team": "ATL",
      "opp": "MIN",
-     "p": 0.1015,
+     "p": 0.1012,
      "inj": null
     },
     {
@@ -6205,13 +6220,13 @@
      "pos": "RB",
      "team": "ATL",
      "opp": "MIN",
-     "p": 0.0951,
+     "p": 0.0947,
      "inj": null
     }
    ]
   },
   "2026_12_TEN_JAX": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -6221,13 +6236,13 @@
      "team": "JAX",
      "opp": "TEN",
      "st": "rec_yds",
-     "mean": 55.1,
-     "sd": 43.7,
+     "mean": 55.2,
+     "sd": 43.8,
      "mingus": 58.5,
-     "sleeper": 51.8,
+     "sleeper": 51.9,
      "line": 49.5,
-     "p_over": 0.4224,
-     "inj": null
+     "p_over": 0.4233,
+     "inj": "Limited"
     },
     {
      "pid": "00-0034960",
@@ -6242,7 +6257,7 @@
      "sleeper": 3.3,
      "line": 3.5,
      "p_over": 0.4045,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0035261",
@@ -6296,12 +6311,12 @@
      "team": "JAX",
      "opp": "TEN",
      "st": "pass_yds",
-     "mean": 290.8,
+     "mean": 290.9,
      "sd": 91.9,
      "mingus": 274.9,
      "sleeper": 306.8,
      "line": 258.5,
-     "p_over": 0.6374,
+     "p_over": 0.6378,
      "inj": null
     },
     {
@@ -6311,12 +6326,12 @@
      "team": "TEN",
      "opp": "JAX",
      "st": "rec_yds",
-     "mean": 33.8,
+     "mean": 33.9,
      "sd": 29.8,
-     "mingus": 33.8,
+     "mingus": 33.9,
      "sleeper": null,
      "line": 30.5,
-     "p_over": 0.4037,
+     "p_over": 0.4057,
      "inj": "Out"
     },
     {
@@ -6341,12 +6356,12 @@
      "team": "JAX",
      "opp": "TEN",
      "st": "rec_yds",
-     "mean": 85.0,
+     "mean": 85.1,
      "sd": 71.5,
      "mingus": 86.4,
      "sleeper": 83.7,
      "line": 74.5,
-     "p_over": 0.4264,
+     "p_over": 0.4272,
      "inj": null
     },
     {
@@ -6388,7 +6403,7 @@
      "st": "rec_yds",
      "mean": 41.3,
      "sd": 36.8,
-     "mingus": 32.7,
+     "mingus": 32.6,
      "sleeper": 49.9,
      "line": 38.5,
      "p_over": 0.3858,
@@ -6476,12 +6491,12 @@
      "team": "TEN",
      "opp": "JAX",
      "st": "pass_yds",
-     "mean": 206.9,
+     "mean": 207.0,
      "sd": 71.9,
-     "mingus": 201.1,
-     "sleeper": 212.7,
+     "mingus": 201.2,
+     "sleeper": 212.8,
      "line": 196.5,
-     "p_over": 0.5575,
+     "p_over": 0.5581,
      "inj": null
     },
     {
@@ -6492,11 +6507,11 @@
      "opp": "JAX",
      "st": "rec_yds",
      "mean": 32.3,
-     "sd": 31.7,
-     "mingus": 27.4,
+     "sd": 31.8,
+     "mingus": 27.5,
      "sleeper": 37.2,
      "line": 20.5,
-     "p_over": 0.5568,
+     "p_over": 0.5559,
      "inj": null
     },
     {
@@ -6523,11 +6538,11 @@
      "st": "rush_yds",
      "mean": 67.1,
      "sd": 46.5,
-     "mingus": 71.6,
+     "mingus": 71.5,
      "sleeper": 62.7,
      "line": 64.5,
      "p_over": 0.4013,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0041438",
@@ -6538,7 +6553,7 @@
      "st": "rec_yds",
      "mean": 63.2,
      "sd": 56.5,
-     "mingus": 63.8,
+     "mingus": 63.9,
      "sleeper": 62.6,
      "line": 58.5,
      "p_over": 0.3888,
@@ -6566,12 +6581,12 @@
      "team": "TEN",
      "opp": "JAX",
      "st": "rec_yds",
-     "mean": 25.2,
+     "mean": 25.3,
      "sd": 25.9,
-     "mingus": 27.4,
-     "sleeper": 23.0,
+     "mingus": 27.5,
+     "sleeper": 23.1,
      "line": 22.5,
-     "p_over": 0.3855,
+     "p_over": 0.3879,
      "inj": null
     },
     {
@@ -6597,8 +6612,8 @@
      "pos": "RB",
      "team": "JAX",
      "opp": "TEN",
-     "p": 0.5679,
-     "inj": null
+     "p": 0.5672,
+     "inj": "DNP"
     },
     {
      "pid": "00-0035261",
@@ -6606,7 +6621,7 @@
      "pos": "RB",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.4678,
+     "p": 0.4669,
      "inj": null
     },
     {
@@ -6615,7 +6630,7 @@
      "pos": "WR",
      "team": "JAX",
      "opp": "TEN",
-     "p": 0.4643,
+     "p": 0.4633,
      "inj": null
     },
     {
@@ -6624,8 +6639,8 @@
      "pos": "WR",
      "team": "JAX",
      "opp": "TEN",
-     "p": 0.318,
-     "inj": null
+     "p": 0.3172,
+     "inj": "Limited"
     },
     {
      "pid": "00-0038935",
@@ -6633,7 +6648,7 @@
      "pos": "TE",
      "team": "JAX",
      "opp": "TEN",
-     "p": 0.2661,
+     "p": 0.2654,
      "inj": null
     },
     {
@@ -6642,7 +6657,7 @@
      "pos": "RB",
      "team": "JAX",
      "opp": "TEN",
-     "p": 0.2482,
+     "p": 0.2475,
      "inj": null
     },
     {
@@ -6651,7 +6666,7 @@
      "pos": "WR",
      "team": "JAX",
      "opp": "TEN",
-     "p": 0.2473,
+     "p": 0.2466,
      "inj": null
     },
     {
@@ -6660,7 +6675,7 @@
      "pos": "WR",
      "team": "JAX",
      "opp": "TEN",
-     "p": 0.2249,
+     "p": 0.2243,
      "inj": null
     },
     {
@@ -6669,7 +6684,7 @@
      "pos": "WR",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.2126,
+     "p": 0.212,
      "inj": null
     },
     {
@@ -6678,7 +6693,7 @@
      "pos": "WR",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.1983,
+     "p": 0.1977,
      "inj": "Out"
     },
     {
@@ -6687,7 +6702,7 @@
      "pos": "QB",
      "team": "JAX",
      "opp": "TEN",
-     "p": 0.1838,
+     "p": 0.1833,
      "inj": null
     },
     {
@@ -6696,7 +6711,7 @@
      "pos": "RB",
      "team": "JAX",
      "opp": "TEN",
-     "p": 0.1582,
+     "p": 0.1577,
      "inj": null
     },
     {
@@ -6705,7 +6720,7 @@
      "pos": "WR",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.1459,
+     "p": 0.1454,
      "inj": null
     },
     {
@@ -6714,7 +6729,7 @@
      "pos": "TE",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.1365,
+     "p": 0.1361,
      "inj": null
     },
     {
@@ -6723,7 +6738,7 @@
      "pos": "WR",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.1307,
+     "p": 0.1302,
      "inj": null
     },
     {
@@ -6732,7 +6747,7 @@
      "pos": "WR",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.125,
+     "p": 0.1246,
      "inj": null
     },
     {
@@ -6741,7 +6756,7 @@
      "pos": "QB",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.1206,
+     "p": 0.1202,
      "inj": null
     },
     {
@@ -6750,7 +6765,7 @@
      "pos": "TE",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.1202,
+     "p": 0.1198,
      "inj": null
     },
     {
@@ -6759,13 +6774,13 @@
      "pos": "RB",
      "team": "TEN",
      "opp": "JAX",
-     "p": 0.1109,
+     "p": 0.1105,
      "inj": "Out"
     }
    ]
   },
   "2026_12_WAS_ARI": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -6777,8 +6792,8 @@
      "st": "rec_yds",
      "mean": 53.2,
      "sd": 41.0,
-     "mingus": 52.6,
-     "sleeper": 53.8,
+     "mingus": 52.4,
+     "sleeper": 53.9,
      "line": 47.5,
      "p_over": 0.4304,
      "inj": null
@@ -6805,12 +6820,12 @@
      "team": "ARI",
      "opp": "WAS",
      "st": "rec_yds",
-     "mean": 36.8,
+     "mean": 36.9,
      "sd": 34.2,
-     "mingus": 36.8,
+     "mingus": 36.9,
      "sleeper": null,
      "line": 37.5,
-     "p_over": 0.3378,
+     "p_over": 0.3394,
      "inj": "Out"
     },
     {
@@ -6835,12 +6850,12 @@
      "team": "WAS",
      "opp": "ARI",
      "st": "rec_yds",
-     "mean": 42.1,
-     "sd": 37.9,
-     "mingus": 42.1,
+     "mean": 42.0,
+     "sd": 37.8,
+     "mingus": 42.0,
      "sleeper": null,
      "line": 46.5,
-     "p_over": 0.3035,
+     "p_over": 0.3025,
      "inj": "Out"
     },
     {
@@ -6867,7 +6882,7 @@
      "st": "rush_yds",
      "mean": 20.7,
      "sd": 18.4,
-     "mingus": 29.8,
+     "mingus": 29.7,
      "sleeper": 11.6,
      "line": 30.5,
      "p_over": 0.1869,
@@ -6880,12 +6895,12 @@
      "team": "ARI",
      "opp": "WAS",
      "st": "rush_yds",
-     "mean": 39.8,
+     "mean": 39.9,
      "sd": 41.4,
      "mingus": 39.8,
-     "sleeper": 39.8,
+     "sleeper": 39.9,
      "line": 36.5,
-     "p_over": 0.3718,
+     "p_over": 0.3733,
      "inj": null
     },
     {
@@ -6898,7 +6913,7 @@
      "mean": 68.5,
      "sd": 52.4,
      "mingus": 78.4,
-     "sleeper": 58.5,
+     "sleeper": 58.6,
      "line": 62.5,
      "p_over": 0.4191,
      "inj": null
@@ -6926,11 +6941,11 @@
      "opp": "ARI",
      "st": "rec_yds",
      "mean": 43.7,
-     "sd": 37.8,
-     "mingus": 45.1,
+     "sd": 37.7,
+     "mingus": 44.9,
      "sleeper": 42.4,
      "line": 41.5,
-     "p_over": 0.3803,
+     "p_over": 0.3807,
      "inj": null
     },
     {
@@ -6955,12 +6970,12 @@
      "team": "ARI",
      "opp": "WAS",
      "st": "rec_yds",
-     "mean": 62.0,
+     "mean": 62.1,
      "sd": 51.9,
-     "mingus": 62.0,
+     "mingus": 62.1,
      "sleeper": null,
      "line": 60.5,
-     "p_over": 0.3704,
+     "p_over": 0.3714,
      "inj": "Out"
     },
     {
@@ -6985,12 +7000,12 @@
      "team": "WAS",
      "opp": "ARI",
      "st": "pass_yds",
-     "mean": 236.6,
+     "mean": 236.5,
      "sd": 84.1,
-     "mingus": 237.3,
-     "sleeper": 235.9,
+     "mingus": 236.6,
+     "sleeper": 236.3,
      "line": 223.5,
-     "p_over": 0.5619,
+     "p_over": 0.5614,
      "inj": null
     },
     {
@@ -7000,12 +7015,12 @@
      "team": "WAS",
      "opp": "ARI",
      "st": "rush_yds",
-     "mean": 34.6,
-     "sd": 32.5,
-     "mingus": 33.5,
-     "sleeper": 35.8,
+     "mean": 34.5,
+     "sd": 32.4,
+     "mingus": 33.4,
+     "sleeper": 35.7,
      "line": 41.5,
-     "p_over": 0.2656,
+     "p_over": 0.2644,
      "inj": null
     },
     {
@@ -7015,12 +7030,12 @@
      "team": "WAS",
      "opp": "ARI",
      "st": "rush_yds",
-     "mean": 45.7,
+     "mean": 45.6,
      "sd": 35.3,
-     "mingus": 50.0,
-     "sleeper": 41.5,
+     "mingus": 49.9,
+     "sleeper": 41.4,
      "line": 48.5,
-     "p_over": 0.334,
+     "p_over": 0.3327,
      "inj": null
     },
     {
@@ -7046,11 +7061,11 @@
      "opp": "ARI",
      "st": "rec_yds",
      "mean": 48.6,
-     "sd": 43.0,
-     "mingus": 51.5,
-     "sleeper": 45.7,
+     "sd": 42.9,
+     "mingus": 51.4,
+     "sleeper": 45.8,
      "line": 44.5,
-     "p_over": 0.3958,
+     "p_over": 0.3961,
      "inj": null
     },
     {
@@ -7075,12 +7090,12 @@
      "team": "ARI",
      "opp": "WAS",
      "st": "rush_yds",
-     "mean": 30.7,
+     "mean": 30.8,
      "sd": 27.4,
      "mingus": 30.0,
-     "sleeper": 31.4,
+     "sleeper": 31.5,
      "line": 31.5,
-     "p_over": 0.3386,
+     "p_over": 0.3405,
      "inj": null
     },
     {
@@ -7090,13 +7105,13 @@
      "team": "WAS",
      "opp": "ARI",
      "st": "rec_yds",
-     "mean": 33.6,
+     "mean": 33.5,
      "sd": 32.1,
-     "mingus": 36.2,
+     "mingus": 36.1,
      "sleeper": 31.0,
      "line": 36.5,
-     "p_over": 0.3066,
-     "inj": null
+     "p_over": 0.3051,
+     "inj": "Limited"
     },
     {
      "pid": "00-0037742",
@@ -7111,7 +7126,7 @@
      "sleeper": 1.8,
      "line": 2.5,
      "p_over": 0.2518,
-     "inj": null
+     "inj": "Limited"
     },
     {
      "pid": "00-0038640",
@@ -7121,11 +7136,11 @@
      "opp": "WAS",
      "st": "rec_yds",
      "mean": 22.2,
-     "sd": 20.5,
+     "sd": 20.6,
      "mingus": 22.2,
      "sleeper": null,
      "line": 13.5,
-     "p_over": 0.5951,
+     "p_over": 0.5937,
      "inj": "Out"
     },
     {
@@ -7166,16 +7181,7 @@
      "pos": "RB",
      "team": "WAS",
      "opp": "ARI",
-     "p": 0.3611,
-     "inj": null
-    },
-    {
-     "pid": "00-0031588",
-     "name": "Stefon Diggs",
-     "pos": "WR",
-     "team": "WAS",
-     "opp": "ARI",
-     "p": 0.32,
+     "p": 0.358,
      "inj": null
     },
     {
@@ -7184,7 +7190,16 @@
      "pos": "TE",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.3193,
+     "p": 0.3229,
+     "inj": null
+    },
+    {
+     "pid": "00-0031588",
+     "name": "Stefon Diggs",
+     "pos": "WR",
+     "team": "WAS",
+     "opp": "ARI",
+     "p": 0.317,
      "inj": null
     },
     {
@@ -7193,7 +7208,7 @@
      "pos": "WR",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.2911,
+     "p": 0.2946,
      "inj": "Out"
     },
     {
@@ -7202,7 +7217,7 @@
      "pos": "RB",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.2531,
+     "p": 0.2562,
      "inj": "Out"
     },
     {
@@ -7211,7 +7226,7 @@
      "pos": "WR",
      "team": "WAS",
      "opp": "ARI",
-     "p": 0.2383,
+     "p": 0.2358,
      "inj": null
     },
     {
@@ -7220,7 +7235,7 @@
      "pos": "RB",
      "team": "WAS",
      "opp": "ARI",
-     "p": 0.2354,
+     "p": 0.233,
      "inj": null
     },
     {
@@ -7229,7 +7244,7 @@
      "pos": "TE",
      "team": "WAS",
      "opp": "ARI",
-     "p": 0.2308,
+     "p": 0.2285,
      "inj": null
     },
     {
@@ -7238,7 +7253,7 @@
      "pos": "WR",
      "team": "WAS",
      "opp": "ARI",
-     "p": 0.2171,
+     "p": 0.2148,
      "inj": "Out"
     },
     {
@@ -7247,7 +7262,7 @@
      "pos": "RB",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.204,
+     "p": 0.2067,
      "inj": null
     },
     {
@@ -7256,7 +7271,7 @@
      "pos": "RB",
      "team": "WAS",
      "opp": "ARI",
-     "p": 0.2022,
+     "p": 0.2001,
      "inj": null
     },
     {
@@ -7265,7 +7280,7 @@
      "pos": "QB",
      "team": "WAS",
      "opp": "ARI",
-     "p": 0.1984,
+     "p": 0.1963,
      "inj": null
     },
     {
@@ -7274,8 +7289,8 @@
      "pos": "WR",
      "team": "WAS",
      "opp": "ARI",
-     "p": 0.1844,
-     "inj": null
+     "p": 0.1824,
+     "inj": "Limited"
     },
     {
      "pid": "00-0036415",
@@ -7283,7 +7298,7 @@
      "pos": "WR",
      "team": "WAS",
      "opp": "ARI",
-     "p": 0.1821,
+     "p": 0.1801,
      "inj": null
     },
     {
@@ -7292,17 +7307,8 @@
      "pos": "WR",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.1493,
+     "p": 0.1514,
      "inj": "Out"
-    },
-    {
-     "pid": "00-0032268",
-     "name": "Marcus Mariota",
-     "pos": "QB",
-     "team": "WAS",
-     "opp": "ARI",
-     "p": 0.1353,
-     "inj": null
     },
     {
      "pid": "00-0037157",
@@ -7310,7 +7316,16 @@
      "pos": "RB",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.1345,
+     "p": 0.1364,
+     "inj": null
+    },
+    {
+     "pid": "00-0032268",
+     "name": "Marcus Mariota",
+     "pos": "QB",
+     "team": "WAS",
+     "opp": "ARI",
+     "p": 0.1338,
      "inj": null
     },
     {
@@ -7319,7 +7334,7 @@
      "pos": "WR",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.1221,
+     "p": 0.1239,
      "inj": null
     },
     {
@@ -7328,7 +7343,7 @@
      "pos": "WR",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.1204,
+     "p": 0.1222,
      "inj": "Out"
     },
     {
@@ -7337,7 +7352,7 @@
      "pos": "TE",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.1143,
+     "p": 0.116,
      "inj": null
     },
     {
@@ -7346,13 +7361,13 @@
      "pos": "WR",
      "team": "ARI",
      "opp": "WAS",
-     "p": 0.1067,
+     "p": 0.1082,
      "inj": null
     }
    ]
   },
   "2026_12_SEA_SF": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -7362,12 +7377,12 @@
      "team": "SF",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 34.9,
-     "sd": 31.1,
-     "mingus": 41.1,
-     "sleeper": 28.7,
+     "mean": 34.8,
+     "sd": 31.0,
+     "mingus": 41.0,
+     "sleeper": 28.6,
      "line": 45.5,
-     "p_over": 0.2329,
+     "p_over": 0.2318,
      "inj": null
     },
     {
@@ -7392,13 +7407,13 @@
      "team": "SF",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 68.0,
-     "sd": 57.1,
-     "mingus": 66.3,
-     "sleeper": 69.7,
+     "mean": 67.8,
+     "sd": 56.9,
+     "mingus": 66.0,
+     "sleeper": 69.5,
      "line": 75.5,
-     "p_over": 0.3056,
-     "inj": null
+     "p_over": 0.3042,
+     "inj": "DNP"
     },
     {
      "pid": "00-0031408",
@@ -7413,7 +7428,7 @@
      "sleeper": 4.0,
      "line": 4.5,
      "p_over": 0.332,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0033280",
@@ -7422,12 +7437,12 @@
      "team": "SF",
      "opp": "SEA",
      "st": "rush_yds",
-     "mean": 57.6,
+     "mean": 57.5,
      "sd": 38.6,
-     "mingus": 55.8,
-     "sleeper": 59.3,
+     "mingus": 55.6,
+     "sleeper": 59.5,
      "line": 56.5,
-     "p_over": 0.3925,
+     "p_over": 0.3912,
      "inj": null
     },
     {
@@ -7437,12 +7452,12 @@
      "team": "SF",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 32.2,
-     "sd": 41.9,
-     "mingus": 38.2,
+     "mean": 32.1,
+     "sd": 41.8,
+     "mingus": 38.0,
      "sleeper": 26.1,
      "line": 44.5,
-     "p_over": 0.2053,
+     "p_over": 0.2044,
      "inj": null
     },
     {
@@ -7467,12 +7482,12 @@
      "team": "SF",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 51.9,
-     "sd": 42.9,
-     "mingus": 52.5,
-     "sleeper": 51.4,
+     "mean": 51.7,
+     "sd": 42.8,
+     "mingus": 52.2,
+     "sleeper": 51.2,
      "line": 59.5,
-     "p_over": 0.2911,
+     "p_over": 0.2892,
      "inj": null
     },
     {
@@ -7497,12 +7512,12 @@
      "team": "SEA",
      "opp": "SF",
      "st": "rec_yds",
-     "mean": 26.4,
-     "sd": 22.2,
-     "mingus": 26.7,
+     "mean": 26.3,
+     "sd": 22.1,
+     "mingus": 26.4,
      "sleeper": 26.2,
      "line": 27.5,
-     "p_over": 0.3367,
+     "p_over": 0.3349,
      "inj": null
     },
     {
@@ -7513,11 +7528,11 @@
      "opp": "SF",
      "st": "rec",
      "mean": 2.2,
-     "sd": 1.8,
-     "mingus": 2.2,
-     "sleeper": 2.3,
+     "sd": 1.7,
+     "mingus": 2.1,
+     "sleeper": 2.2,
      "line": 2.5,
-     "p_over": 0.2958,
+     "p_over": 0.2984,
      "inj": null
     },
     {
@@ -7527,12 +7542,12 @@
      "team": "SEA",
      "opp": "SF",
      "st": "pass_yds",
-     "mean": 200.8,
-     "sd": 97.4,
-     "mingus": 191.8,
-     "sleeper": 209.8,
+     "mean": 199.7,
+     "sd": 97.2,
+     "mingus": 189.9,
+     "sleeper": 209.4,
      "line": 211.5,
-     "p_over": 0.4563,
+     "p_over": 0.4517,
      "inj": null
     },
     {
@@ -7542,13 +7557,13 @@
      "team": "SEA",
      "opp": "SF",
      "st": "pass_yds",
-     "mean": 197.0,
-     "sd": 65.1,
-     "mingus": 197.0,
+     "mean": 195.1,
+     "sd": 64.5,
+     "mingus": 195.1,
      "sleeper": null,
      "line": 209.5,
-     "p_over": 0.4239,
-     "inj": null
+     "p_over": 0.4117,
+     "inj": "Limited"
     },
     {
      "pid": "00-0035719",
@@ -7557,12 +7572,12 @@
      "team": "SF",
      "opp": "SEA",
      "st": "rec_yds",
-     "mean": 29.8,
-     "sd": 27.4,
-     "mingus": 29.4,
-     "sleeper": 30.1,
+     "mean": 29.7,
+     "sd": 27.3,
+     "mingus": 29.3,
+     "sleeper": 30.0,
      "line": 36.5,
-     "p_over": 0.2577,
+     "p_over": 0.2563,
      "inj": null
     },
     {
@@ -7572,12 +7587,12 @@
      "team": "SF",
      "opp": "SEA",
      "st": "rec",
-     "mean": 2.8,
+     "mean": 2.7,
      "sd": 2.3,
      "mingus": 2.5,
      "sleeper": 3.0,
      "line": 3.5,
-     "p_over": 0.2515,
+     "p_over": 0.2356,
      "inj": null
     },
     {
@@ -7587,12 +7602,12 @@
      "team": "SEA",
      "opp": "SF",
      "st": "rec_yds",
-     "mean": 25.9,
+     "mean": 25.8,
      "sd": 24.9,
-     "mingus": 27.1,
+     "mingus": 26.9,
      "sleeper": 24.7,
      "line": 21.5,
-     "p_over": 0.4308,
+     "p_over": 0.4282,
      "inj": null
     },
     {
@@ -7617,13 +7632,13 @@
      "team": "SF",
      "opp": "SEA",
      "st": "pass_yds",
-     "mean": 230.4,
-     "sd": 77.2,
-     "mingus": 234.2,
-     "sleeper": 226.7,
+     "mean": 229.7,
+     "sd": 77.1,
+     "mingus": 233.3,
+     "sleeper": 226.1,
      "line": 262.5,
-     "p_over": 0.3388,
-     "inj": null
+     "p_over": 0.3353,
+     "inj": "DNP"
     },
     {
      "pid": "00-0038543",
@@ -7632,13 +7647,13 @@
      "team": "SEA",
      "opp": "SF",
      "st": "rec_yds",
-     "mean": 113.7,
-     "sd": 87.1,
-     "mingus": 121.4,
-     "sleeper": 106.0,
+     "mean": 113.0,
+     "sd": 86.7,
+     "mingus": 120.3,
+     "sleeper": 105.8,
      "line": 120.5,
-     "p_over": 0.3353,
-     "inj": null
+     "p_over": 0.3319,
+     "inj": "Limited"
     },
     {
      "pid": "00-0038543",
@@ -7647,13 +7662,13 @@
      "team": "SEA",
      "opp": "SF",
      "st": "rec",
-     "mean": 7.8,
+     "mean": 7.7,
      "sd": 5.2,
      "mingus": 8.2,
-     "sleeper": 7.3,
+     "sleeper": 7.2,
      "line": 7.5,
-     "p_over": 0.4057,
-     "inj": null
+     "p_over": 0.3961,
+     "inj": "Limited"
     },
     {
      "pid": "00-0038797",
@@ -7662,12 +7677,12 @@
      "team": "SEA",
      "opp": "SF",
      "st": "rush_yds",
-     "mean": 53.0,
-     "sd": 44.4,
-     "mingus": 53.0,
+     "mean": 52.5,
+     "sd": 44.1,
+     "mingus": 52.5,
      "sleeper": null,
      "line": 57.5,
-     "p_over": 0.3169,
+     "p_over": 0.3121,
      "inj": null
     },
     {
@@ -7677,12 +7692,12 @@
      "team": "SEA",
      "opp": "SF",
      "st": "rec_yds",
-     "mean": 26.3,
-     "sd": 24.2,
-     "mingus": 27.0,
-     "sleeper": 25.6,
+     "mean": 26.1,
+     "sd": 24.1,
+     "mingus": 26.7,
+     "sleeper": 25.5,
      "line": 22.5,
-     "p_over": 0.4237,
+     "p_over": 0.4193,
      "inj": null
     },
     {
@@ -7694,7 +7709,7 @@
      "st": "rec",
      "mean": 3.1,
      "sd": 2.2,
-     "mingus": 3.1,
+     "mingus": 3.0,
      "sleeper": 3.1,
      "line": 2.5,
      "p_over": 0.507,
@@ -7709,8 +7724,8 @@
      "st": "rush_yds",
      "mean": 30.8,
      "sd": 27.1,
-     "mingus": 36.8,
-     "sleeper": 24.9,
+     "mingus": 36.6,
+     "sleeper": 25.0,
      "line": 36.5,
      "p_over": 0.2733,
      "inj": null
@@ -7722,12 +7737,12 @@
      "team": "SEA",
      "opp": "SF",
      "st": "rush_yds",
-     "mean": 32.1,
-     "sd": 24.5,
-     "mingus": 37.1,
+     "mean": 31.9,
+     "sd": 24.4,
+     "mingus": 36.8,
      "sleeper": 27.0,
      "line": 34.5,
-     "p_over": 0.3281,
+     "p_over": 0.3246,
      "inj": null
     },
     {
@@ -7737,12 +7752,12 @@
      "team": "SEA",
      "opp": "SF",
      "st": "rec_yds",
-     "mean": 16.1,
-     "sd": 17.0,
-     "mingus": 22.5,
-     "sleeper": 9.7,
+     "mean": 16.0,
+     "sd": 16.9,
+     "mingus": 22.4,
+     "sleeper": 9.6,
      "line": 19.5,
-     "p_over": 0.2565,
+     "p_over": 0.2542,
      "inj": null
     },
     {
@@ -7754,7 +7769,7 @@
      "st": "rec",
      "mean": 1.4,
      "sd": 1.2,
-     "mingus": 1.9,
+     "mingus": 1.8,
      "sleeper": 0.9,
      "line": 1.5,
      "p_over": 0.3213,
@@ -7768,7 +7783,7 @@
      "pos": "RB",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.5864,
+     "p": 0.5828,
      "inj": null
     },
     {
@@ -7777,8 +7792,8 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.4266,
-     "inj": null
+     "p": 0.4146,
+     "inj": "Limited"
     },
     {
      "pid": "00-0038797",
@@ -7786,7 +7801,7 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.413,
+     "p": 0.4011,
      "inj": null
     },
     {
@@ -7795,7 +7810,7 @@
      "pos": "TE",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.3351,
+     "p": 0.331,
      "inj": null
     },
     {
@@ -7804,7 +7819,7 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.3014,
+     "p": 0.2912,
      "inj": null
     },
     {
@@ -7813,8 +7828,8 @@
      "pos": "WR",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.2947,
-     "inj": null
+     "p": 0.2909,
+     "inj": "DNP"
     },
     {
      "pid": "00-0035719",
@@ -7822,7 +7837,7 @@
      "pos": "WR",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.2575,
+     "p": 0.254,
      "inj": null
     },
     {
@@ -7831,7 +7846,7 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.2445,
+     "p": 0.2355,
      "inj": null
     },
     {
@@ -7840,7 +7855,7 @@
      "pos": "WR",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.2385,
+     "p": 0.2351,
      "inj": null
     },
     {
@@ -7849,7 +7864,7 @@
      "pos": "TE",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.2261,
+     "p": 0.2176,
      "inj": null
     },
     {
@@ -7858,7 +7873,7 @@
      "pos": "RB",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.218,
+     "p": 0.2149,
      "inj": null
     },
     {
@@ -7867,7 +7882,7 @@
      "pos": "WR",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.1863,
+     "p": 0.1835,
      "inj": null
     },
     {
@@ -7876,7 +7891,7 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.1711,
+     "p": 0.1642,
      "inj": null
     },
     {
@@ -7885,7 +7900,7 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.1676,
+     "p": 0.1608,
      "inj": null
     },
     {
@@ -7894,8 +7909,8 @@
      "pos": "QB",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.1584,
-     "inj": null
+     "p": 0.1559,
+     "inj": "DNP"
     },
     {
      "pid": "00-0040172",
@@ -7903,7 +7918,16 @@
      "pos": "WR",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.1575,
+     "p": 0.1551,
+     "inj": "DNP"
+    },
+    {
+     "pid": "00-0031236",
+     "name": "Brandin Cooks",
+     "pos": "WR",
+     "team": "SF",
+     "opp": "SEA",
+     "p": 0.1464,
      "inj": null
     },
     {
@@ -7912,26 +7936,8 @@
      "pos": "WR",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.1507,
+     "p": 0.1445,
      "inj": null
-    },
-    {
-     "pid": "00-0031236",
-     "name": "Brandin Cooks",
-     "pos": "WR",
-     "team": "SF",
-     "opp": "SEA",
-     "p": 0.1488,
-     "inj": "Out"
-    },
-    {
-     "pid": "00-0039299",
-     "name": "George Holani",
-     "pos": "RB",
-     "team": "SEA",
-     "opp": "SF",
-     "p": 0.1341,
-     "inj": "Out"
     },
     {
      "pid": "00-0036972",
@@ -7939,8 +7945,17 @@
      "pos": "QB",
      "team": "SF",
      "opp": "SEA",
-     "p": 0.1315,
+     "p": 0.1293,
      "inj": null
+    },
+    {
+     "pid": "00-0039299",
+     "name": "George Holani",
+     "pos": "RB",
+     "team": "SEA",
+     "opp": "SF",
+     "p": 0.1285,
+     "inj": "Out"
     },
     {
      "pid": "00-0035704",
@@ -7948,8 +7963,8 @@
      "pos": "QB",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.1266,
-     "inj": null
+     "p": 0.1212,
+     "inj": "Limited"
     },
     {
      "pid": "00-0037745",
@@ -7957,13 +7972,13 @@
      "pos": "RB",
      "team": "SEA",
      "opp": "SF",
-     "p": 0.1117,
+     "p": 0.1069,
      "inj": null
     }
    ]
   },
   "2026_12_NE_LAC": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -7973,12 +7988,12 @@
      "team": "NE",
      "opp": "LAC",
      "st": "rec_yds",
-     "mean": 35.4,
-     "sd": 29.8,
-     "mingus": 31.5,
-     "sleeper": 39.3,
+     "mean": 35.7,
+     "sd": 29.9,
+     "mingus": 31.6,
+     "sleeper": 39.7,
      "line": 38.5,
-     "p_over": 0.3154,
+     "p_over": 0.3199,
      "inj": null
     },
     {
@@ -8003,12 +8018,12 @@
      "team": "NE",
      "opp": "LAC",
      "st": "rec_yds",
-     "mean": 43.0,
-     "sd": 37.4,
-     "mingus": 42.8,
-     "sleeper": 43.2,
+     "mean": 43.3,
+     "sd": 37.6,
+     "mingus": 43.0,
+     "sleeper": 43.6,
      "line": 48.5,
-     "p_over": 0.2961,
+     "p_over": 0.2994,
      "inj": null
     },
     {
@@ -8033,13 +8048,13 @@
      "team": "NE",
      "opp": "LAC",
      "st": "rec_yds",
-     "mean": 38.8,
-     "sd": 33.4,
-     "mingus": 38.8,
+     "mean": 39.1,
+     "sd": 33.6,
+     "mingus": 39.1,
      "sleeper": null,
      "line": 32.5,
-     "p_over": 0.4466,
-     "inj": null
+     "p_over": 0.451,
+     "inj": "DNP"
     },
     {
      "pid": "00-0035676",
@@ -8054,7 +8069,7 @@
      "sleeper": null,
      "line": 2.5,
      "p_over": 0.4975,
-     "inj": null
+     "inj": "DNP"
     },
     {
      "pid": "00-0036355",
@@ -8063,13 +8078,13 @@
      "team": "LAC",
      "opp": "NE",
      "st": "pass_yds",
-     "mean": 192.6,
-     "sd": 63.0,
-     "mingus": 171.5,
-     "sleeper": 213.7,
+     "mean": 188.4,
+     "sd": 62.0,
+     "mingus": 171.6,
+     "sleeper": 205.3,
      "line": 185.5,
-     "p_over": 0.5449,
-     "inj": null
+     "p_over": 0.5187,
+     "inj": "DNP"
     },
     {
      "pid": "00-0036355",
@@ -8078,13 +8093,13 @@
      "team": "LAC",
      "opp": "NE",
      "st": "rush_yds",
-     "mean": 22.8,
-     "sd": 19.9,
+     "mean": 22.3,
+     "sd": 19.7,
      "mingus": 24.2,
-     "sleeper": 21.4,
+     "sleeper": 20.4,
      "line": 27.5,
-     "p_over": 0.2659,
-     "inj": null
+     "p_over": 0.256,
+     "inj": "DNP"
     },
     {
      "pid": "00-0036875",
@@ -8093,12 +8108,12 @@
      "team": "NE",
      "opp": "LAC",
      "st": "rush_yds",
-     "mean": 47.4,
-     "sd": 34.8,
-     "mingus": 41.9,
-     "sleeper": 52.9,
+     "mean": 48.1,
+     "sd": 35.2,
+     "mingus": 42.1,
+     "sleeper": 54.0,
      "line": 40.5,
-     "p_over": 0.4647,
+     "p_over": 0.4742,
      "inj": null
     },
     {
@@ -8108,13 +8123,13 @@
      "team": "NE",
      "opp": "LAC",
      "st": "rec_yds",
-     "mean": 31.3,
-     "sd": 33.1,
-     "mingus": 31.3,
+     "mean": 31.5,
+     "sd": 33.2,
+     "mingus": 31.5,
      "sleeper": null,
      "line": 43.5,
-     "p_over": 0.2081,
-     "inj": "Out"
+     "p_over": 0.2102,
+     "inj": "Limited"
     },
     {
      "pid": "00-0037816",
@@ -8129,7 +8144,7 @@
      "sleeper": null,
      "line": 2.5,
      "p_over": 0.2469,
-     "inj": "Out"
+     "inj": "Limited"
     },
     {
      "pid": "00-0038621",
@@ -8138,12 +8153,12 @@
      "team": "NE",
      "opp": "LAC",
      "st": "rec_yds",
-     "mean": 38.8,
-     "sd": 39.5,
-     "mingus": 40.8,
-     "sleeper": 36.9,
+     "mean": 39.1,
+     "sd": 39.7,
+     "mingus": 41.0,
+     "sleeper": 37.2,
      "line": 43.5,
-     "p_over": 0.2887,
+     "p_over": 0.292,
      "inj": null
     },
     {
@@ -8168,13 +8183,13 @@
      "team": "NE",
      "opp": "LAC",
      "st": "pass_yds",
-     "mean": 183.4,
-     "sd": 86.5,
-     "mingus": 183.4,
+     "mean": 184.4,
+     "sd": 86.7,
+     "mingus": 184.4,
      "sleeper": null,
      "line": 233.5,
-     "p_over": 0.2812,
-     "inj": null
+     "p_over": 0.2856,
+     "inj": "DNP"
     },
     {
      "pid": "00-0039915",
@@ -8183,12 +8198,12 @@
      "team": "LAC",
      "opp": "NE",
      "st": "rec_yds",
-     "mean": 47.8,
-     "sd": 43.5,
+     "mean": 46.7,
+     "sd": 42.8,
      "mingus": 41.8,
-     "sleeper": 53.7,
+     "sleeper": 51.6,
      "line": 46.5,
-     "p_over": 0.3621,
+     "p_over": 0.3501,
      "inj": null
     },
     {
@@ -8213,12 +8228,12 @@
      "team": "NE",
      "opp": "LAC",
      "st": "rush_yds",
-     "mean": 38.5,
-     "sd": 30.0,
-     "mingus": 36.1,
-     "sleeper": 41.0,
+     "mean": 39.0,
+     "sd": 30.2,
+     "mingus": 36.3,
+     "sleeper": 41.8,
      "line": 26.5,
-     "p_over": 0.5784,
+     "p_over": 0.5875,
      "inj": null
     },
     {
@@ -8228,12 +8243,12 @@
      "team": "LAC",
      "opp": "NE",
      "st": "rush_yds",
-     "mean": 52.4,
-     "sd": 41.0,
+     "mean": 51.4,
+     "sd": 40.5,
      "mingus": 58.9,
-     "sleeper": 45.9,
+     "sleeper": 43.9,
      "line": 56.5,
-     "p_over": 0.3247,
+     "p_over": 0.3143,
      "inj": null
     },
     {
@@ -8243,12 +8258,12 @@
      "team": "LAC",
      "opp": "NE",
      "st": "rec_yds",
-     "mean": 32.0,
-     "sd": 31.8,
+     "mean": 31.5,
+     "sd": 31.6,
      "mingus": 38.8,
-     "sleeper": 25.2,
+     "sleeper": 24.2,
      "line": 41.5,
-     "p_over": 0.2333,
+     "p_over": 0.2273,
      "inj": null
     },
     {
@@ -8273,12 +8288,12 @@
      "team": "NE",
      "opp": "LAC",
      "st": "rec_yds",
-     "mean": 23.7,
-     "sd": 25.0,
-     "mingus": 23.3,
-     "sleeper": 24.2,
+     "mean": 23.9,
+     "sd": 25.1,
+     "mingus": 23.4,
+     "sleeper": 24.5,
      "line": 25.5,
-     "p_over": 0.3026,
+     "p_over": 0.3063,
      "inj": null
     },
     {
@@ -8303,12 +8318,12 @@
      "team": "LAC",
      "opp": "NE",
      "st": "rush_yds",
-     "mean": 21.9,
-     "sd": 19.9,
+     "mean": 21.5,
+     "sd": 19.7,
      "mingus": 23.6,
-     "sleeper": 20.3,
+     "sleeper": 19.4,
      "line": 22.5,
-     "p_over": 0.3362,
+     "p_over": 0.3269,
      "inj": null
     },
     {
@@ -8318,32 +8333,32 @@
      "team": "NE",
      "opp": "LAC",
      "st": "rush_yds",
-     "mean": 28.3,
-     "sd": 24.9,
-     "mingus": 28.3,
+     "mean": 28.4,
+     "sd": 25.0,
+     "mingus": 28.4,
      "sleeper": null,
      "line": 33.5,
-     "p_over": 0.2738,
+     "p_over": 0.2753,
      "inj": "Out"
     }
    ],
    "td": [
-    {
-     "pid": "00-0040666",
-     "name": "Omarion Hampton",
-     "pos": "RB",
-     "team": "LAC",
-     "opp": "NE",
-     "p": 0.272,
-     "inj": null
-    },
     {
      "pid": "00-0036875",
      "name": "Rhamondre Stevenson",
      "pos": "RB",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.2659,
+     "p": 0.2713,
+     "inj": null
+    },
+    {
+     "pid": "00-0040666",
+     "name": "Omarion Hampton",
+     "pos": "RB",
+     "team": "LAC",
+     "opp": "NE",
+     "p": 0.2644,
      "inj": null
     },
     {
@@ -8352,8 +8367,8 @@
      "pos": "WR",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.1891,
-     "inj": null
+     "p": 0.1934,
+     "inj": "DNP"
     },
     {
      "pid": "00-0033555",
@@ -8361,7 +8376,7 @@
      "pos": "WR",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.1866,
+     "p": 0.1908,
      "inj": null
     },
     {
@@ -8370,16 +8385,7 @@
      "pos": "WR",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.1785,
-     "inj": null
-    },
-    {
-     "pid": "00-0039915",
-     "name": "Ladd McConkey",
-     "pos": "WR",
-     "team": "LAC",
-     "opp": "NE",
-     "p": 0.1745,
+     "p": 0.1826,
      "inj": null
     },
     {
@@ -8388,8 +8394,17 @@
      "pos": "WR",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.1738,
-     "inj": "Out"
+     "p": 0.1778,
+     "inj": "Limited"
+    },
+    {
+     "pid": "00-0039915",
+     "name": "Ladd McConkey",
+     "pos": "WR",
+     "team": "LAC",
+     "opp": "NE",
+     "p": 0.169,
+     "inj": null
     },
     {
      "pid": "00-0033090",
@@ -8397,7 +8412,7 @@
      "pos": "TE",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.1603,
+     "p": 0.1641,
      "inj": null
     },
     {
@@ -8406,7 +8421,7 @@
      "pos": "RB",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.15,
+     "p": 0.1536,
      "inj": "Out"
     },
     {
@@ -8415,34 +8430,7 @@
      "pos": "TE",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.1485,
-     "inj": null
-    },
-    {
-     "pid": "00-0036355",
-     "name": "Justin Herbert",
-     "pos": "QB",
-     "team": "LAC",
-     "opp": "NE",
-     "p": 0.1438,
-     "inj": null
-    },
-    {
-     "pid": "00-0033885",
-     "name": "David Njoku",
-     "pos": "TE",
-     "team": "LAC",
-     "opp": "NE",
-     "p": 0.1409,
-     "inj": null
-    },
-    {
-     "pid": "00-0039391",
-     "name": "Kimani Vidal",
-     "pos": "RB",
-     "team": "LAC",
-     "opp": "NE",
-     "p": 0.1399,
+     "p": 0.152,
      "inj": null
     },
     {
@@ -8451,8 +8439,8 @@
      "pos": "QB",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.138,
-     "inj": null
+     "p": 0.1413,
+     "inj": "DNP"
     },
     {
      "pid": "00-0040563",
@@ -8460,7 +8448,7 @@
      "pos": "WR",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.1371,
+     "p": 0.1404,
      "inj": null
     },
     {
@@ -8469,7 +8457,34 @@
      "pos": "RB",
      "team": "NE",
      "opp": "LAC",
+     "p": 0.1395,
+     "inj": null
+    },
+    {
+     "pid": "00-0036355",
+     "name": "Justin Herbert",
+     "pos": "QB",
+     "team": "LAC",
+     "opp": "NE",
+     "p": 0.1391,
+     "inj": "DNP"
+    },
+    {
+     "pid": "00-0033885",
+     "name": "David Njoku",
+     "pos": "TE",
+     "team": "LAC",
+     "opp": "NE",
      "p": 0.1362,
+     "inj": "DNP"
+    },
+    {
+     "pid": "00-0039391",
+     "name": "Kimani Vidal",
+     "pos": "RB",
+     "team": "LAC",
+     "opp": "NE",
+     "p": 0.1353,
      "inj": null
     },
     {
@@ -8478,7 +8493,7 @@
      "pos": "WR",
      "team": "LAC",
      "opp": "NE",
-     "p": 0.1338,
+     "p": 0.1294,
      "inj": null
     },
     {
@@ -8487,7 +8502,7 @@
      "pos": "TE",
      "team": "LAC",
      "opp": "NE",
-     "p": 0.1321,
+     "p": 0.1277,
      "inj": null
     },
     {
@@ -8496,7 +8511,7 @@
      "pos": "WR",
      "team": "LAC",
      "opp": "NE",
-     "p": 0.1302,
+     "p": 0.1258,
      "inj": null
     },
     {
@@ -8505,7 +8520,7 @@
      "pos": "WR",
      "team": "LAC",
      "opp": "NE",
-     "p": 0.1232,
+     "p": 0.1191,
      "inj": null
     },
     {
@@ -8514,8 +8529,8 @@
      "pos": "RB",
      "team": "LAC",
      "opp": "NE",
-     "p": 0.1212,
-     "inj": null
+     "p": 0.1172,
+     "inj": "DNP"
     },
     {
      "pid": "00-0038046",
@@ -8523,7 +8538,7 @@
      "pos": "TE",
      "team": "LAC",
      "opp": "NE",
-     "p": 0.1202,
+     "p": 0.1161,
      "inj": null
     },
     {
@@ -8532,13 +8547,13 @@
      "pos": "RB",
      "team": "NE",
      "opp": "LAC",
-     "p": 0.1061,
+     "p": 0.1088,
      "inj": null
     }
    ]
   },
   "2026_12_CAR_TB": {
-   "saved": "2026-11-26T05:27+00:00",
+   "saved": "2026-11-27T05:20+00:00",
    "settings": "2026-11-17T21:38+00:00",
    "rows": [
     {
@@ -8548,12 +8563,12 @@
      "team": "CAR",
      "opp": "TB",
      "st": "rec_yds",
-     "mean": 36.5,
-     "sd": 32.8,
+     "mean": 36.4,
+     "sd": 32.7,
      "mingus": 37.7,
-     "sleeper": 35.3,
+     "sleeper": 35.2,
      "line": 36.5,
-     "p_over": 0.3502,
+     "p_over": 0.3489,
      "inj": null
     },
     {
@@ -8580,8 +8595,8 @@
      "st": "rec_yds",
      "mean": 34.9,
      "sd": 27.6,
-     "mingus": 31.8,
-     "sleeper": 38.0,
+     "mingus": 31.9,
+     "sleeper": 37.9,
      "line": 27.5,
      "p_over": 0.4974,
      "inj": null
@@ -8608,12 +8623,12 @@
      "team": "TB",
      "opp": "CAR",
      "st": "pass_yds",
-     "mean": 176.2,
-     "sd": 80.9,
-     "mingus": 169.4,
-     "sleeper": 182.9,
+     "mean": 175.9,
+     "sd": 80.8,
+     "mingus": 169.3,
+     "sleeper": 182.4,
      "line": 158.5,
-     "p_over": 0.5866,
+     "p_over": 0.5853,
      "inj": null
     },
     {
@@ -8623,12 +8638,12 @@
      "team": "CAR",
      "opp": "TB",
      "st": "rush_yds",
-     "mean": 77.1,
-     "sd": 54.7,
-     "mingus": 86.6,
-     "sleeper": 67.7,
+     "mean": 77.2,
+     "sd": 54.8,
+     "mingus": 86.5,
+     "sleeper": 67.9,
      "line": 83.5,
-     "p_over": 0.3285,
+     "p_over": 0.3292,
      "inj": null
     },
     {
@@ -8638,12 +8653,12 @@
      "team": "CAR",
      "opp": "TB",
      "st": "rec_yds",
-     "mean": 21.9,
+     "mean": 21.8,
      "sd": 24.5,
      "mingus": 24.4,
      "sleeper": 19.3,
      "line": 24.5,
-     "p_over": 0.2827,
+     "p_over": 0.2806,
      "inj": null
     },
     {
@@ -8655,7 +8670,7 @@
      "st": "rec",
      "mean": 3.1,
      "sd": 2.6,
-     "mingus": 3.2,
+     "mingus": 3.1,
      "sleeper": 3.0,
      "line": 3.5,
      "p_over": 0.2976,
@@ -8671,7 +8686,7 @@
      "mean": 30.5,
      "sd": 40.5,
      "mingus": 36.7,
-     "sleeper": 24.3,
+     "sleeper": 24.4,
      "line": 32.5,
      "p_over": 0.2853,
      "inj": null
@@ -8686,7 +8701,7 @@
      "mean": 23.9,
      "sd": 21.2,
      "mingus": 27.3,
-     "sleeper": 20.5,
+     "sleeper": 20.4,
      "line": 24.5,
      "p_over": 0.3396,
      "inj": null
@@ -8713,12 +8728,12 @@
      "team": "TB",
      "opp": "CAR",
      "st": "rec_yds",
-     "mean": 25.6,
+     "mean": 25.5,
      "sd": 23.4,
      "mingus": 24.2,
      "sleeper": 26.9,
      "line": 24.5,
-     "p_over": 0.3695,
+     "p_over": 0.3671,
      "inj": null
     },
     {
@@ -8743,12 +8758,12 @@
      "team": "CAR",
      "opp": "TB",
      "st": "pass_yds",
-     "mean": 235.4,
-     "sd": 79.5,
-     "mingus": 245.1,
-     "sleeper": 225.8,
+     "mean": 235.1,
+     "sd": 79.4,
+     "mingus": 245.0,
+     "sleeper": 225.3,
      "line": 265.5,
-     "p_over": 0.3525,
+     "p_over": 0.3509,
      "inj": null
     },
     {
@@ -8759,11 +8774,11 @@
      "opp": "CAR",
      "st": "rush_yds",
      "mean": 99.7,
-     "sd": 72.9,
-     "mingus": 102.0,
-     "sleeper": 97.3,
+     "sd": 73.0,
+     "mingus": 101.9,
+     "sleeper": 97.6,
      "line": 89.5,
-     "p_over": 0.4355,
+     "p_over": 0.4353,
      "inj": null
     },
     {
@@ -8773,12 +8788,12 @@
      "team": "CAR",
      "opp": "TB",
      "st": "rec_yds",
-     "mean": 49.1,
+     "mean": 49.0,
      "sd": 49.7,
      "mingus": 46.4,
-     "sleeper": 51.7,
+     "sleeper": 51.6,
      "line": 48.5,
-     "p_over": 0.3426,
+     "p_over": 0.3415,
      "inj": null
     },
     {
@@ -8803,12 +8818,12 @@
      "team": "CAR",
      "opp": "TB",
      "st": "rec_yds",
-     "mean": 71.9,
-     "sd": 64.5,
+     "mean": 71.8,
+     "sd": 64.4,
      "mingus": 71.3,
-     "sleeper": 72.5,
+     "sleeper": 72.3,
      "line": 73.5,
-     "p_over": 0.3399,
+     "p_over": 0.3392,
      "inj": null
     },
     {
@@ -8833,12 +8848,12 @@
      "team": "TB",
      "opp": "CAR",
      "st": "rec_yds",
-     "mean": 39.8,
+     "mean": 39.7,
      "sd": 33.5,
      "mingus": 40.9,
-     "sleeper": 38.8,
+     "sleeper": 38.6,
      "line": 37.5,
-     "p_over": 0.388,
+     "p_over": 0.3863,
      "inj": null
     },
     {
@@ -8894,7 +8909,7 @@
      "pos": "RB",
      "team": "CAR",
      "opp": "TB",
-     "p": 0.6138,
+     "p": 0.6131,
      "inj": null
     },
     {
@@ -8903,7 +8918,7 @@
      "pos": "RB",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.6129,
+     "p": 0.6122,
      "inj": null
     },
     {
@@ -8912,7 +8927,7 @@
      "pos": "WR",
      "team": "CAR",
      "opp": "TB",
-     "p": 0.3002,
+     "p": 0.2995,
      "inj": null
     },
     {
@@ -8921,7 +8936,7 @@
      "pos": "WR",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.2985,
+     "p": 0.2978,
      "inj": null
     },
     {
@@ -8930,7 +8945,7 @@
      "pos": "RB",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.225,
+     "p": 0.2243,
      "inj": null
     },
     {
@@ -8939,7 +8954,7 @@
      "pos": "WR",
      "team": "CAR",
      "opp": "TB",
-     "p": 0.2208,
+     "p": 0.2202,
      "inj": null
     },
     {
@@ -8948,7 +8963,7 @@
      "pos": "WR",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.1997,
+     "p": 0.1991,
      "inj": null
     },
     {
@@ -8957,7 +8972,7 @@
      "pos": "TE",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.1958,
+     "p": 0.1952,
      "inj": null
     },
     {
@@ -8966,7 +8981,7 @@
      "pos": "TE",
      "team": "CAR",
      "opp": "TB",
-     "p": 0.1906,
+     "p": 0.19,
      "inj": null
     },
     {
@@ -8975,7 +8990,7 @@
      "pos": "TE",
      "team": "CAR",
      "opp": "TB",
-     "p": 0.1773,
+     "p": 0.1767,
      "inj": null
     },
     {
@@ -8984,7 +8999,7 @@
      "pos": "WR",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.1732,
+     "p": 0.1727,
      "inj": null
     },
     {
@@ -8993,7 +9008,7 @@
      "pos": "WR",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.1525,
+     "p": 0.152,
      "inj": null
     },
     {
@@ -9002,7 +9017,7 @@
      "pos": "QB",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.1519,
+     "p": 0.1514,
      "inj": null
     },
     {
@@ -9011,7 +9026,7 @@
      "pos": "QB",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.1464,
+     "p": 0.1459,
      "inj": null
     },
     {
@@ -9020,7 +9035,7 @@
      "pos": "TE",
      "team": "CAR",
      "opp": "TB",
-     "p": 0.1434,
+     "p": 0.143,
      "inj": null
     },
     {
@@ -9029,7 +9044,7 @@
      "pos": "WR",
      "team": "CAR",
      "opp": "TB",
-     "p": 0.1302,
+     "p": 0.1297,
      "inj": null
     },
     {
@@ -9038,7 +9053,7 @@
      "pos": "RB",
      "team": "TB",
      "opp": "CAR",
-     "p": 0.125,
+     "p": 0.1246,
      "inj": null
     },
     {
@@ -9047,7 +9062,7 @@
      "pos": "RB",
      "team": "CAR",
      "opp": "TB",
-     "p": 0.1137,
+     "p": 0.1133,
      "inj": null
     },
     {
@@ -9056,7 +9071,7 @@
      "pos": "RB",
      "team": "CAR",
      "opp": "TB",
-     "p": 0.1124,
+     "p": 0.112,
      "inj": null
     }
    ]
